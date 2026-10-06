@@ -1,0 +1,10 @@
+<figure class="demo" id="bandit-demo">
+<div class="controls">
+<div class="slider"><label for="gap">Gap between the arms Δ</label>
+<input type="range" id="gap" min="0.05" max="0.5" step="0.05" value="0.2"><output id="gapOut" for="gap">0.20</output></div>
+<button id="banditRun" type="button">Run again</button>
+</div>
+<div class="algs" id="algs" role="group" aria-label="Show or hide algorithms"></div>
+<canvas id="banditChart" role="img" aria-label="Average regret over time for several bandit algorithms, on a logarithmic time axis"></canvas>
+<p class="status" id="banditStatus" aria-live="polite"></p>
+</figure>

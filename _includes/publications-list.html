@@ -1,0 +1,21 @@
+<div class="chips" role="group" aria-label="Filter by theme">
+<button type="button" data-f="all" aria-pressed="true">All</button>
+<button type="button" data-f="Reinforcement" aria-pressed="false">Reinforcement and random trees</button>
+<button type="button" data-f="Coagulation" aria-pressed="false">Coagulation and condensation</button>
+<button type="button" data-f="Branching" aria-pressed="false">Branching processes</button>
+<button type="button" data-f="Enumeration" aria-pressed="false">Enumeration</button>
+</div>
+{% assign groups = "Preprint,Journal,Thesis" | split: "," %}
+{% for g in groups %}{% assign items = site.data.publications | where: "type", g %}{% if items.size > 0 %}
+<div class="group-h">{% if g == "Preprint" %}Preprints{% elsif g == "Journal" %}Journal articles{% else %}Theses{% endif %}</div>
+<ol class="pubs">
+{% for p in items %}<li id="{{ p.id }}" data-tags="{{ p.themes | join: ',' }}"><span class="y">{{ p.year }}</span><span><span class="t">{{ p.title }}</span><br><span class="a">{{ p.authors }}.</span> <span class="v">{{ p.venue }}.{% for l in p.links %}<a href="{{ l.url }}">{{ l.label }}</a>{% endfor %}</span></span></li>
+{% endfor %}</ol>
+{% endif %}{% endfor %}
+<script>
+document.querySelectorAll(".chips button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".chips button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+  const f = b.dataset.f;
+  document.querySelectorAll(".pubs li").forEach(li => { li.hidden = !(f === "all" || li.dataset.tags.split(",").includes(f)); });
+}));
+</script>
