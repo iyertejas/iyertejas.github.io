@@ -1,0 +1,22 @@
+<figure class="demo" id="learn-demo">
+<div class="controls">
+<div class="slider"><label for="lAlpha">Reinforcement strength α</label>
+<input type="range" id="lAlpha" min="0.25" max="2" step="0.05" value="1.5"><output id="lAlphaOut" for="lAlpha">1.50</output></div>
+<button id="learnRun" type="button">Run again</button>
+</div>
+<div class="two">
+<div>
+<h3>Repeat what paid off</h3>
+<p class="learn-sub">Choose an option with probability proportional to (its successes + 1)<sup>α</sup>.</p>
+<canvas class="dots" id="dotsR" role="img" aria-label="400 reinforcement learners coloured by the option they settled on"></canvas>
+<div class="tally" id="tallyR" aria-live="polite"></div>
+</div>
+<div>
+<h3>Explore on purpose</h3>
+<p class="learn-sub">Thompson sampling: act on a random draw from the current belief about each option.</p>
+<canvas class="dots" id="dotsT" role="img" aria-label="400 Thompson sampling learners coloured by the option they settled on"></canvas>
+<div class="tally" id="tallyT" aria-live="polite"></div>
+</div>
+</div>
+<div class="legend"><span>Late choices on the worse option</span><span class="grad" id="learnGrad" aria-hidden="true"></span><span>on the better option</span></div>
+</figure>

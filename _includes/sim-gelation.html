@@ -1,0 +1,11 @@
+<figure class="demo" id="gel-demo">
+<div class="controls">
+<div class="slider"><label for="gamma">Homogeneity γ</label>
+<input type="range" id="gamma" min="0" max="2.5" step="0.1" value="2"><output id="gammaOut" for="gamma">2.0</output></div>
+<button id="gelRun" type="button">Run again</button>
+</div>
+<canvas id="gelChart" role="img" aria-label="Share of total mass in the largest cluster over time"></canvas>
+<div class="small-lab" style="margin-top:1rem">All the mass, split into clusters, largest first</div>
+<canvas id="massBar" role="img" aria-label="Current cluster sizes"></canvas>
+<div class="criterion"><div class="verdict" id="gelVerdict"></div></div>
+</figure>

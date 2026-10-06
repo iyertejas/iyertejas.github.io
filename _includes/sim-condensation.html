@@ -1,0 +1,19 @@
+<figure class="demo" id="fit-demo">
+<div class="controls">
+<div class="slider"><label for="fitBeta">Rarity of fit vertices β</label>
+<input type="range" id="fitBeta" min="0.2" max="5" step="0.1" value="3"><output id="fitBetaOut" for="fitBeta">3.0</output></div>
+<button id="fitRun" type="button">Grow a new tree</button>
+</div>
+<div class="two">
+<div>
+<div class="small-lab">A growing tree; darker vertices are fitter</div>
+<canvas class="treeCanvas" id="fitTree" role="img" aria-label="A growing tree with vertices coloured by fitness"></canvas>
+</div>
+<div>
+<div class="small-lab">Share of all edges, by the fitness of the vertex they attach to</div>
+<canvas id="fitChart" role="img" aria-label="Distribution of edges over fitness values, with the condensate at fitness 1"></canvas>
+<p class="caption" style="margin-top:.5rem">Bars: the limit as the tree grows. Dark ticks: one simulated tree with 20,000 vertices. In the condensed phase the simulated mass piles up on the fittest vertices present, which creep towards 1 only slowly.</p>
+</div>
+</div>
+<div class="criterion"><div class="verdict" id="fitVerdict"></div></div>
+</figure>

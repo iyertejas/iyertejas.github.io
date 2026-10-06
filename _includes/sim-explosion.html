@@ -1,0 +1,19 @@
+<figure class="demo" id="cmj-demo">
+<div class="controls">
+<div class="slider"><label for="cmjAlpha">Reinforcement of births α</label>
+<input type="range" id="cmjAlpha" min="0.5" max="2" step="0.05" value="1.5"><output id="cmjAlphaOut" for="cmjAlpha">1.50</output></div>
+<button id="cmjRun" type="button">Run again</button>
+</div>
+<div class="two">
+<div>
+<div class="small-lab">Family tree of the first 220 individuals, against birth time</div>
+<canvas id="cmjTree" role="img" aria-label="Family tree drawn against birth time"></canvas>
+</div>
+<div>
+<div class="small-lab">Population size (log scale) against time, up to 100,000</div>
+<canvas id="cmjPlot" role="img" aria-label="Population size over time"></canvas>
+</div>
+</div>
+<p class="status" id="cmjStatus" aria-live="polite"></p>
+<div class="criterion"><div class="verdict" id="cmjVerdict"></div></div>
+</figure>
