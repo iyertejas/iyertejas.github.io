@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.nav == "home" %}{{ site.title }}{% else %}{{ page.title }} | {{ site.title }}{% endif %}</title>
+<meta name="description" content="{{ page.description | default: site.description }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="{{ page.body_class }}">
+<div class="wrap">
+<header class="top">
+  <a class="who" href="index.html">Tejas Iyer</a>
+  <nav aria-label="Site">
+    <a href="index.html"{% if page.nav == "home" %} aria-current="page"{% endif %}>Home</a>
+    <a href="research.html"{% if page.nav == "research" %} aria-current="page"{% endif %}>Research</a>
+    <a href="publications.html"{% if page.nav == "publications" %} aria-current="page"{% endif %}>Publications</a>
+    <a href="teaching.html"{% if page.nav == "teaching" %} aria-current="page"{% endif %}>Teaching</a>
+    <a href="{{ site.cv_url }}">CV</a>
+  </nav>
+</header>
+<main class="content">
+{% if page.photo %}<figure class="portrait"><img src="{{ page.photo }}" alt="{{ site.title }}" onerror="this.parentNode.remove()"><figcaption>{{ site.photo_credit }}</figcaption></figure>{% endif %}
+{{ content }}
+</main>
+<footer>
+  <span>Tejas Iyer, Weierstrass Institute (WIAS), Berlin</span>
+  <span>Contact: first.lastname@wias-berlin.de</span>
+</footer>
+</div>
+{% if page.sims %}<script src="sims.js"></script>{% endif %}
+</body>
+</html>
