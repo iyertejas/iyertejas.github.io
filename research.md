@@ -38,19 +38,14 @@ Preferential-attachment trees add a new difficulty, because fresh competitors ke
 
 Viewing the tree as the family tree of a Crump–Mode–Jagers branching process, I gave criteria for a persistent hub, and the same inverse-square condition reappears for attachment functions with f(k) ≤ C(k+1) <a class="cite" href="publications.html#hubs">[arXiv 2024]</a>. It is not universal, though: in some generalised trees, inverse-square summability alone does not give a persistent hub <a class="cite" href="publications.html#counterexample">[ECP 2026]</a>.
 
-The same mechanism appears in learning. A learner that keeps choosing whatever has paid off is a reinforced urn in disguise: every success adds a ball to the option that produced it. With choice probabilities proportional to (successes + 1)<sup>α</sup>, the threshold is α = 1. Below it, the learner never fully commits, though it favours the better option more and more as α approaches 1. At α = 1 it eventually settles on the better option. Above it, the learner commits quickly, and early luck can decide that it commits to the worse one.
+The same mechanism appears in learning. A learner that keeps choosing whatever has paid off is a reinforced urn in disguise: every success adds a ball to the option that produced it. Take choice probabilities proportional to (successes + 1)<sup>α</sup>; for α = 1 this is the Roth–Erev model of reinforcement learning. Embedding the learner in continuous time as competing exponential growth processes, the same argument used for the non-linear urns, shows that the threshold is α = 1. Below it, the learner never fully commits, though it favours the better option more and more as α approaches 1. At α = 1 it eventually settles on the better option. Above it, the learner commits quickly, and early luck can decide that it commits to the worse one.
 
 {% include sim-learners.html %}
 
 400 learners, each choosing between options that succeed with probability 0.6 and 0.4 for 2,000 rounds; colour shows the share of the last 500 choices that went to the better one. The right panel repeats this for α from 0.5 to 2: the share locked onto the worse option is zero up to α = 1 and positive beyond it.
 {: .caption}
 
-A learning system never sees its true objective, only a feedback signal: a reward model, a benchmark score, or data produced by earlier models. Reinforcement amplifies whatever that signal favours, so a small gap between signal and goal can grow. I am starting to study this with the same tools as above: simple reinforced models, and sharp thresholds for when they lock in. The simulation below shows one example: a generative model retrained partly on its own outputs.
-
-{% include sim-selftrain.html %}
-
-A model produces outputs of six types (the colours). Each generation, a new model is trained on 2,000 samples: a fraction λ of fresh data, spread evenly over the types, and the rest drawn from the previous model at temperature T. A temperature below 1 sharpens the sampling towards types that are already common. With too little fresh data, one type comes to dominate the output; with enough, the mix of types survives.
-{: .caption}
+A learning system never sees its true objective, only a feedback signal: a reward model, a benchmark score, or data produced by earlier models. Reinforcement amplifies whatever that signal favours, so a small gap between signal and goal can grow. I am starting to study this with the same tools as above: simple reinforced models, and sharp thresholds for when they lock in.
 
 This is one direction my research is heading: how reinforcement interacts with exploration, with rewards that change over time, and with feedback loops in which a system's own choices shape the data it learns from. My TU Berlin course [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html) (winter 2026/27) develops bandits and Markov decision processes with full mathematical rigour.
 
