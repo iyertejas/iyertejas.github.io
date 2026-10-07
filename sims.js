@@ -967,14 +967,15 @@ const widgets = {};
 const defs = [["phase-demo", phaseWidget], ["self-demo", selfWidget], ["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],
               ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget]];
 function boot(){
-  for (const [id, mk] of defs) if ($(id)) widgets[id] = mk();
+  // Build each widget independently, so one failure cannot stop the others.
+  for (const [id, mk] of defs) if ($(id)) { try { widgets[id] = mk(); } catch (e) { console.error("simulation " + id + " failed to load", e); } }
   const ids = Object.keys(widgets);
   if ("IntersectionObserver" in window){
     const io = new IntersectionObserver(es => es.forEach(e => {
-      if (!e.isIntersecting) return; io.unobserve(e.target); widgets[e.target.id].start();
+      if (!e.isIntersecting) return; io.unobserve(e.target); try { widgets[e.target.id].start(); } catch (err) { console.error("simulation " + e.target.id + " failed to start", err); }
     }), { rootMargin: "0px 0px -15% 0px" });
     ids.forEach(id => io.observe($(id)));
-  } else ids.forEach(id => widgets[id].start());
+  } else ids.forEach(id => { try { widgets[id].start(); } catch (err) { console.error(err); } });
 }
 let rz = 0;
 const redrawAll = () => Object.values(widgets).forEach(w => w.redraw());
