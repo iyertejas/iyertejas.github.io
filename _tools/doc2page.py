@@ -12,14 +12,16 @@ import re, sys, os, json
 
 PAGES = {
   "home":         dict(file="index.md", title="Tejas Iyer", nav="home", photo="photo.jpg"),
-  "research":     dict(file="research.md", title="Research", nav="research", sims=True,
+  "research":     dict(file="research.md", title="Research", nav="research", sims=True, body_class="research",
                        description="Research of Tejas Iyer: phase transitions in reinforced growth processes, random trees, coagulation and branching processes, with interactive simulations."),
   "publications": dict(file="publications.md", title="Publications", nav="publications"),
   "teaching":     dict(file="teaching.md", title="Teaching", nav="teaching"),
 }
 SIMS = {"urns":"sim-urns", "preferential-attachment tree":"sim-pa-tree", "learners":"sim-learners",
-        "gelation":"sim-gelation", "condensation":"sim-condensation", "explosion":"sim-explosion",
-        "bandits":"sim-bandits"}
+        "gelation":"sim-gelation", "condensation":"sim-condensation", "explosion":"sim-explosion", "varying":"sim-varying", "self-training":"sim-selftrain", "superlinear":"sim-superlinear",
+        "bandits":"sim-bandits", "phases":"sim-phases"}
+
+INLINE_CAPTION = {"phases"}   # captions rendered inside the figure
 
 def unescape(t):
     t = re.sub(r"&#(\d+);", lambda m: chr(int(m.group(1))), t)
@@ -54,7 +56,7 @@ def write_yml(pubs, path):
 
 def powers(t):
     t = re.sub(r"\^\(([^()]*)\)", r"<sup>\1</sup>", t)
-    return re.sub(r"\^([^\s,.;:()\]<]+)", r"<sup>\1</sup>", t)
+    return re.sub(r"\^([^\s,.;:()\]</]+)", r"<sup>\1</sup>", t)
 
 def convert(page, md, pubs):
     md = unescape(md).replace("\r\n", "\n")
@@ -69,12 +71,18 @@ def convert(page, md, pubs):
         href = "index.html" if target == "home" else f"{target}.html"
         return f"[{text}]({href})"
     out = []
-    for block in re.split(r"\n\s*\n", md.strip()):
-        b = block.strip()
+    blocks = [b.strip() for b in re.split(r"\n\s*\n", md.strip())]
+    skip = False
+    for k, b in enumerate(blocks):
+        if skip: skip = False; continue
         sim = re.fullmatch(r"\[simulation:\s*([^\]]+)\]", b)
         if sim:
             name = sim.group(1).strip()
             if name not in SIMS: sys.exit(f"Unknown simulation: {name}")
+            nxt = blocks[k+1] if k + 1 < len(blocks) else ""
+            if name in INLINE_CAPTION and nxt.startswith("Caption:"):
+                cap = powers(nxt[len("Caption:"):].strip()).replace('"', "&quot;")
+                out.append('{%% include %s.html caption="%s" %%}' % (SIMS[name], cap)); skip = True; continue
             out.append("{%% include %s.html %%}" % SIMS[name]); continue
         cls = None
         for prefix, c in (("Lead:", "lede"), ("Caption:", "caption"), ("Links:", "links")):

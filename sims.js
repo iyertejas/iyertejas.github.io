@@ -37,7 +37,7 @@ class Fenwick{
 }
 
 /* ---------- shared radial tree drawing ---------- */
-function drawRadialTree(cv, parent, n, nodeColor, nodeR, highlight){
+function drawRadialTree(cv, parent, n, nodeColor, nodeR, highlight, pathTo){
   const {ctx,w,h} = setupCanvas(cv);
   ctx.clearRect(0,0,w,h);
   if (n < 1) return;
@@ -60,6 +60,11 @@ function drawRadialTree(cv, parent, n, nodeColor, nodeR, highlight){
   ctx.beginPath();
   for (let i=1;i<n;i++){ ctx.moveTo(x[i],y[i]); ctx.lineTo(x[parent[i]],y[parent[i]]); }
   ctx.stroke(); ctx.globalAlpha = 1;
+  if (pathTo !== undefined && pathTo > 0){
+    ctx.strokeStyle = css("--accent"); ctx.lineWidth = 2.4; ctx.beginPath();
+    for (let v = pathTo; v > 0; v = parent[v]){ ctx.moveTo(x[v],y[v]); ctx.lineTo(x[parent[v]],y[parent[v]]); }
+    ctx.stroke();
+  }
   for (let i=0;i<n;i++){
     ctx.fillStyle = nodeColor(i);
     ctx.beginPath(); ctx.arc(x[i],y[i],nodeR(i),0,Math.PI*2); ctx.fill();
@@ -68,6 +73,59 @@ function drawRadialTree(cv, parent, n, nodeColor, nodeR, highlight){
     ctx.strokeStyle = css("--ink"); ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(x[highlight],y[highlight],nodeR(highlight)+3,0,Math.PI*2); ctx.stroke();
   }
+}
+
+/* =========================================================
+   0b. Self-training loop. A model is a distribution p over K output types.
+   Each generation it is retrained on N samples: a fraction λ fresh (uniform)
+   and the rest drawn from p sharpened to p^(1/T).
+   ========================================================= */
+function selfWidget(){
+  const K = 6, N = 2000, G = 80, STEP = 45;
+  let hist = [], anim = 0, shown = 0;
+  function nextGen(p, T, lam){
+    const a = 1/T, sh = p.map(x => Math.pow(x, a)), z = sh.reduce((u,v)=>u+v,0);
+    const r = sh.map(x => (1-lam)*x/z + lam/K), cum = []; let c = 0;
+    for (const x of r){ c += x; cum.push(c); }
+    const cnt = new Array(K).fill(0);
+    for (let i=0;i<N;i++){ const u = Math.random()*c; let k = 0; while (k<K-1 && cum[k] < u) k++; cnt[k]++; }
+    return cnt.map(x => x/N);
+  }
+  function run(T, lam){
+    let p = nextGen(new Array(K).fill(1/K), 1, 1); const h = [p];
+    for (let g=1; g<=G; g++){ p = nextGen(p, T, lam); h.push(p); }
+    return h;
+  }
+  const eff = p => Math.exp(-p.reduce((s,x) => s + (x>0 ? x*Math.log(x) : 0), 0));
+  function draw(){
+    const {ctx,w,h} = setupCanvas($("selfPlot")); ctx.clearRect(0,0,w,h); if (!hist.length) return;
+    const pL=44, pR=12, pT=8, pB=42, X = g => pL + g/G*(w-pL-pR), Y = y => pT + (1-y)*(h-pT-pB);
+    const cols = palette(), m = Math.min(shown, G);
+    for (let k=K-1;k>=0;k--){
+      ctx.fillStyle = cols[k]; ctx.globalAlpha = .88; ctx.beginPath();
+      for (let g=0; g<=m; g++){ let s=0; for (let j=0;j<=k;j++) s += hist[g][j]; g ? ctx.lineTo(X(g),Y(s)) : ctx.moveTo(X(g),Y(s)); }
+      ctx.lineTo(X(m),Y(0)); ctx.lineTo(X(0),Y(0)); ctx.closePath(); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.font = `12px ${css("--sans")}`; ctx.fillStyle = css("--muted"); ctx.strokeStyle = css("--rule"); ctx.lineWidth = 1;
+    for (let y=0;y<=1.0001;y+=.5){ ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(Math.round(y*100)+"%", pL-8, Y(y)); }
+    ctx.textAlign="center"; ctx.textBaseline="top";
+    for (let g=0; g<=G; g+=20) ctx.fillText(String(g), X(g), h-pB+8);
+    ctx.fillText("generation", (X(0)+X(G))/2, h-pB+24);
+  }
+  function stat(){
+    $("selfStatus").textContent = `After ${G} generations the model effectively produces ${eff(hist[G]).toFixed(1)} of the ${K} types.`;
+  }
+  function start(){
+    cancelAnimationFrame(anim); hist = run(temp(), fresh()); $("selfStatus").textContent = "";
+    if (reduced){ shown = G; draw(); stat(); return; }
+    const t0 = performance.now();
+    const tick = now => { shown = Math.min(G, Math.floor((now-t0)/STEP)); draw(); if (shown < G) anim = requestAnimationFrame(tick); else stat(); };
+    anim = requestAnimationFrame(tick);
+  }
+  const temp = bindSlider("selfT", 2, null, start), fresh = bindSlider("selfL", 2, null, start);
+  $("selfRun").addEventListener("click", start);
+  return { start, redraw: draw };
 }
 
 /* =========================================================
@@ -204,30 +262,21 @@ function paWidget(){
    1c. Learners: reinforcement vs Thompson sampling
    ========================================================= */
 function learnWidget(){
-  const B = { L:400, T:2000, late:500, pG:.6, pB:.4 };
-  let sR = null, sT = null;
-  function gammaV(k){
-    if (k<1) return gammaV(k+1)*Math.pow(Math.random(),1/k);
-    const d=k-1/3, c=1/Math.sqrt(9*d);
-    for(;;){ let x,v; do{ const u1=1-Math.random(),u2=Math.random(); x=Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2); v=1+c*x; }while(v<=0);
-      v=v*v*v; const u=Math.random(); if (u<1-.0331*x*x*x*x) return d*v; if (Math.log(u)<.5*x*x+d*(1-v+Math.log(v))) return d*v; }
-  }
-  const betaV = (a,b) => { const x=gammaV(a), y=gammaV(b); return x/(x+y); };
-  function reinforced(alpha){
-    const {L,T,late,pG,pB} = B, out = new Float64Array(L), f = new Float64Array(T+2);
+  // A learner choosing between options with success probabilities 0.6 and 0.4 picks each with probability
+  // ∝ (its successes + 1)^α. Limits: α < 1 keeps sampling both; α = 1 settles on the better one;
+  // α > 1 commits, with positive probability to the worse one.
+  const B = { L:400, T:2000, late:500, pG:.6, pB:.4, Lc:240 };
+  const AS = Array.from({length:16}, (_,i) => +(0.5 + i*0.1).toFixed(1));
+  let sR = null, curve = null;
+  function reinforced(alpha, L){
+    const {T,late,pG,pB} = B, out = new Float64Array(L), f = new Float64Array(T+2);
     for (let k=0;k<f.length;k++) f[k] = Math.pow(k+1,alpha);
     for (let l=0;l<L;l++){ let a=0,b=0,lg=0;
       for (let t=0;t<T;t++){ if (Math.random()*(f[a]+f[b]) < f[a]){ if (Math.random()<pG) a++; if (t>=T-late) lg++; } else if (Math.random()<pB) b++; }
       out[l] = lg/late; }
     return out;
   }
-  function thompson(){
-    const {L,T,late,pG,pB} = B, out = new Float64Array(L);
-    for (let l=0;l<L;l++){ let aG=1,bG=1,aB=1,bB=1,lg=0;
-      for (let t=0;t<T;t++){ if (betaV(aG,bG) > betaV(aB,bB)){ if (Math.random()<pG) aG++; else bG++; if (t>=T-late) lg++; } else { if (Math.random()<pB) aB++; else bB++; } }
-      out[l] = lg/late; }
-    return out;
-  }
+  const shares = sh => { let g=0,b=0; for (const v of sh){ if (v>=.9) g++; else if (v<=.1) b++; } return [g/sh.length, b/sh.length]; };
   function mix(s){ return s<.5 ? lerpColor(css("--bad"),css("--mid"),s/.5) : lerpColor(css("--mid"),css("--good"),(s-.5)/.5); }
   function dots(id, sh){
     const {ctx,w,h} = setupCanvas($(id)); ctx.clearRect(0,0,w,h); if (!sh) return;
@@ -235,21 +284,39 @@ function learnWidget(){
     sorted.forEach((v,i) => { ctx.fillStyle = mix(v); ctx.beginPath(); ctx.arc((i%n+.5)*cell,(Math.floor(i/n)+.5)*cell,r,0,Math.PI*2); ctx.fill(); });
   }
   function tally(id, sh){
-    let g=0,b=0; for (const v of sh){ if (v>=.9) g++; else if (v<=.1) b++; }
-    const pc = x => Math.round(x/sh.length*100)+"%";
-    $(id).innerHTML = `<span style="--sw:var(--good)">Settled on the better option: ${pc(g)}</span><span style="--sw:var(--bad)">Settled on the worse option: ${pc(b)}</span><span style="--sw:var(--mid)">Still splitting their choices: ${pc(sh.length-g-b)}</span>`;
+    const [g,b] = shares(sh), pc = x => Math.round(x*100)+"%";
+    $(id).innerHTML = `<span style="--sw:var(--good)">Settled on the better option: ${pc(g)}</span><span style="--sw:var(--bad)">Settled on the worse option: ${pc(b)}</span><span style="--sw:var(--mid)">Still splitting their choices: ${pc(1-g-b)}</span>`;
+  }
+  function drawCurve(){
+    const {ctx,w,h} = setupCanvas($("learnCurve")); ctx.clearRect(0,0,w,h); if (!curve) return;
+    const pL=40, pR=12, pT=10, pB=40, a0=AS[0], a1=AS[AS.length-1];
+    const X = a => pL + (a-a0)/(a1-a0)*(w-pL-pR), Y = y => pT + (1-y)*(h-pT-pB);
+    const muted=css("--muted"), rule=css("--rule");
+    ctx.font = `12px ${css("--sans")}`; ctx.lineWidth=1; ctx.strokeStyle=rule; ctx.fillStyle=muted;
+    for (let y=0;y<=1.0001;y+=.25){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(y))+.5); ctx.lineTo(w-pR,Math.round(Y(y))+.5); ctx.stroke();
+      ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(Math.round(y*100)+"%", pL-6, Y(y)); }
+    ctx.textAlign="center"; ctx.textBaseline="top";
+    for (const a of [0.5,1,1.5,2]) ctx.fillText(String(a), X(a), h-pB+6);
+    ctx.fillText("reinforcement strength α", (X(a0)+X(a1))/2, h-pB+22);
+    ctx.setLineDash([4,4]); ctx.strokeStyle=muted; ctx.beginPath(); ctx.moveTo(X(1),Y(0)); ctx.lineTo(X(1),Y(1)); ctx.stroke(); ctx.setLineDash([]);
+    const cur = alpha(); ctx.strokeStyle=css("--ink"); ctx.globalAlpha=.35; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(X(cur),Y(0)); ctx.lineTo(X(cur),Y(1)); ctx.stroke(); ctx.globalAlpha=1;
+    for (const [k,col] of [[0,css("--good")],[1,css("--bad")]]){
+      ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=2.2; ctx.beginPath();
+      AS.forEach((a,i) => i ? ctx.lineTo(X(a),Y(curve[i][k])) : ctx.moveTo(X(a),Y(curve[i][k]))); ctx.stroke();
+      AS.forEach((a,i) => { ctx.beginPath(); ctx.arc(X(a),Y(curve[i][k]),2.6,0,Math.PI*2); ctx.fill(); });
+    }
   }
   let timer = 0;
-  function start(rerunT){
+  function start(full){
     clearTimeout(timer);
     timer = setTimeout(() => {
-      sR = reinforced(alpha()); tally("tallyR", sR);
-      if (rerunT || !sT){ sT = thompson(); tally("tallyT", sT); }
+      sR = reinforced(alpha(), B.L); tally("tallyR", sR);
+      if (full || !curve) curve = AS.map(a => shares(reinforced(a, B.Lc)));
       redraw();
     }, 30);
   }
-  function redraw(){ dots("dotsR", sR); dots("dotsT", sT); $("learnGrad").style.background = `linear-gradient(90deg,${css("--bad")},${css("--mid")},${css("--good")})`; }
-  const alpha = bindSlider("lAlpha", 2, null, () => start(false));
+  function redraw(){ dots("dotsR", sR); drawCurve(); $("learnGrad").style.background = `linear-gradient(90deg,${css("--bad")},${css("--mid")},${css("--good")})`; }
+  const alpha = bindSlider("lAlpha", 2, drawCurve, () => start(false));
   $("learnRun").addEventListener("click", () => start(true));
   return { start: () => start(true), redraw };
 }
@@ -258,27 +325,89 @@ function learnWidget(){
    2a. Coagulation and gelation
    ========================================================= */
 function gelWidget(){
-  const C = { N:3000, tmax:6, dur:3200 };
-  let runs = [], sim = null, anim = 0;
+  const C = { N:3000, tmax:8, dur:8000, AX:2, fill:.36 };
+  const R0 = Math.sqrt(C.fill*C.AX/(C.N*Math.PI));   // radius of a unit-mass disc (box is AX × 1)
+  let runs = [], sim = null, anim = 0, settle = 0;
   function make(gamma){
     const {N} = C, a = gamma/2, mass = new Float64Array(N).fill(1), w = new Float64Array(N).fill(1);
     const fw = new Fenwick(N); for (let i=0;i<N;i++) fw.add(i,1);
-    let S=N, Q=N, t=0, alive=N, largest=1, nextT = expRV((S*S-Q)/(2*N));
+    let S=N, Q=N, t=0, alive=N, largest=1, big=0, nextT = expRV((S*S-Q)/(2*N));
     const pts = [[0,1/N]];
+    // display positions: a jittered grid, one disc per particle
+    const x = new Float64Array(N), y = new Float64Array(N), r = new Float64Array(N).fill(R0);
+    const cols = Math.ceil(Math.sqrt(N*C.AX)), rows = Math.ceil(N/cols), sp = C.AX/cols, spy = 1/rows;
+    const slots = Array.from({length:cols*rows}, (_,k) => k);
+    for (let k=slots.length-1;k>0;k--){ const m = Math.floor(Math.random()*(k+1)); [slots[k],slots[m]] = [slots[m],slots[k]]; }
+    for (let i=0;i<N;i++){ const s = slots[i], c = s%cols, rr = (s/cols)|0;
+      x[i] = (c+.5)*sp + (Math.random()-.5)*(sp-2*R0)*.8; y[i] = (rr+.5)*spy + (Math.random()-.5)*(spy-2*R0)*.8; }
     const pick = () => { for(;;){ let i = fw.find(Math.random()*S); if (i>=N) i=N-1; if (w[i]>0) return i; } };
-    return { gamma, pts, mass, get t(){return t;},
+    return { gamma, pts, mass, x, y, r, get t(){return t;}, get big(){return big;},
       runUntil(T){
         while (alive>1 && nextT<=T){
           t = nextT; let i,j; do { i=pick(); j=pick(); } while (i===j);
-          mass[i]+=mass[j]; mass[j]=0;
-          const nw = Math.pow(mass[i],a);
+          if (mass[j] > mass[i]) [i,j] = [j,i];            // the heavier cluster keeps its index
+          // Pairs are proposed at rate (xy)^(γ/2)/N and accepted with probability (min/max)^(γ/2),
+          // so mergers happen at rate min(x,y)^γ/N (thinning).
+          if (Math.random() >= Math.pow(mass[j]/mass[i], a)){ const R = (S*S-Q)/(2*N); nextT = R>0 ? t+expRV(R) : Infinity; continue; }
+          const m = mass[i]+mass[j];
+          r[i] = R0*Math.sqrt(m); r[j] = 0;                // drawn where the heavier cluster was
+          mass[i]=m; mass[j]=0;
+          const nw = Math.pow(m,a);
           S += nw-w[i]-w[j]; Q += nw*nw-w[i]*w[i]-w[j]*w[j];
           fw.add(i,nw-w[i]); fw.add(j,-w[j]); w[i]=nw; w[j]=0; alive--;
-          if (mass[i]>largest){ largest=mass[i]; pts.push([t,largest/N]); }
+          if (m>largest){ largest=m; big=i; pts.push([t,largest/N]); }
           const R = (S*S-Q)/(2*N); nextT = alive>1 && R>0 ? t+expRV(R) : Infinity;
         }
         if (T>t) t = Math.min(T,C.tmax);
       } };
+  }
+  // Push overlapping discs apart (display only); heavier discs move less.
+  let head = new Int32Array(0), nxt = new Int32Array(C.N);
+  function relax(iters){
+    if (!sim) return;
+    const {N,AX} = C, {x,y,r,mass} = sim, GI = .09;
+    const ids = [], giants = [];
+    let maxR = R0;
+    for (let i=0;i<N;i++) if (mass[i]>0){ if (r[i]>GI) giants.push(i); else { ids.push(i); if (r[i]>maxR) maxR=r[i]; } }
+    const cs = 2*maxR, gx = Math.ceil(AX/cs), gy = Math.ceil(1/cs);
+    if (head.length < gx*gy) head = new Int32Array(gx*gy);
+    const push = (i,j) => {
+      const dx = x[j]-x[i], dy = y[j]-y[i], d2 = dx*dx+dy*dy, rr = r[i]+r[j];
+      if (d2 >= rr*rr) return;
+      const d = Math.sqrt(d2) || 1e-9, ov = (rr-d)*.5, ux = d2 ? dx/d : Math.random()-.5, uy = d2 ? dy/d : Math.random()-.5;
+      const wi = mass[j]/(mass[i]+mass[j]), wj = 1-wi;
+      x[i] -= ux*ov*wi; y[i] -= uy*ov*wi; x[j] += ux*ov*wj; y[j] += uy*ov*wj;
+    };
+    const wall = i => { const ri = Math.min(r[i], .5);
+      x[i] = Math.min(AX-ri, Math.max(ri, x[i])); y[i] = Math.min(1-ri, Math.max(ri, y[i])); };
+    for (let it=0; it<iters; it++){
+      head.fill(-1, 0, gx*gy);
+      for (const i of ids){ const c = Math.min(gx-1,Math.max(0,(x[i]/cs)|0)) + gx*Math.min(gy-1,Math.max(0,(y[i]/cs)|0)); nxt[i] = head[c]; head[c] = i; }
+      for (const i of ids){
+        const cx = Math.min(gx-1,Math.max(0,(x[i]/cs)|0)), cy = Math.min(gy-1,Math.max(0,(y[i]/cs)|0));
+        for (let ox=-1; ox<=1; ox++) for (let oy=-1; oy<=1; oy++){
+          const qx = cx+ox, qy = cy+oy; if (qx<0||qy<0||qx>=gx||qy>=gy) continue;
+          for (let j = head[qx+gx*qy]; j>=0; j=nxt[j]) if (j>i) push(i,j);
+        }
+      }
+      for (let a=0;a<giants.length;a++){ const g = giants[a];
+        for (let b=a+1;b<giants.length;b++) push(g,giants[b]);
+        for (const j of ids) push(g,j); }
+      for (const i of ids) wall(i); for (const g of giants) wall(g);
+    }
+  }
+  function field(){
+    const cv = $("gelField"), {ctx,w,h} = setupCanvas(cv); ctx.clearRect(0,0,w,h); if (!sim) return;
+    const sc = Math.min(w/C.AX, h), ox = (w-sc*C.AX)/2, oy = (h-sc)/2;
+    const acc=css("--accent"), one=css("--edge"), many=css("--muted");
+    const {x,y,r,mass} = sim, big = sim.big;
+    ctx.fillStyle = one; ctx.beginPath();
+    for (let i=0;i<C.N;i++) if (mass[i]===1){ ctx.moveTo(ox+x[i]*sc+r[i]*sc, oy+y[i]*sc); ctx.arc(ox+x[i]*sc, oy+y[i]*sc, Math.max(.6,r[i]*sc), 0, Math.PI*2); }
+    ctx.fill();
+    ctx.fillStyle = many; ctx.beginPath();
+    for (let i=0;i<C.N;i++) if (mass[i]>1 && i!==big){ ctx.moveTo(ox+x[i]*sc+r[i]*sc, oy+y[i]*sc); ctx.arc(ox+x[i]*sc, oy+y[i]*sc, r[i]*sc, 0, Math.PI*2); }
+    ctx.fill();
+    if (mass[big]>1){ ctx.fillStyle = acc; ctx.beginPath(); ctx.arc(ox+x[big]*sc, oy+y[big]*sc, r[big]*sc, 0, Math.PI*2); ctx.fill(); }
   }
   function chart(){
     const {ctx,w,h} = setupCanvas($("gelChart"));
@@ -302,16 +431,6 @@ function gelWidget(){
     runs.forEach(r => line(r,C.tmax,.32,1.5,muted));
     if (sim) line(sim,sim.t,1,2.4,acc);
   }
-  function bar(){
-    const {ctx,w,h} = setupCanvas($("massBar")); ctx.clearRect(0,0,w,h); if (!sim) return;
-    const acc=css("--accent"), mid=css("--mid"), tie=css("--tie"), pan=css("--panel");
-    const ms = Array.from(sim.mass).filter(m=>m>0).sort((a,b)=>b-a);
-    let x=0, k=0;
-    for (const m of ms){ const wd = m/C.N*w;
-      if (wd<2){ ctx.fillStyle=mid; ctx.fillRect(x,0,w-x,h); break; }
-      ctx.fillStyle = k===0 ? acc : (k%2 ? tie : mid); ctx.fillRect(x,0,wd,h);
-      ctx.fillStyle = pan; ctx.fillRect(x+wd-1,0,1,h); x+=wd; k++; }
-  }
   function verdict(g){
     $("gelVerdict").textContent = g > 1
       ? `γ = ${g.toFixed(1)} > 1: large clusters merge fast enough for gelation in finite time. Expect a sudden jump in the largest cluster.`
@@ -321,34 +440,44 @@ function gelWidget(){
     cancelAnimationFrame(anim);
     if (sim){ sim.runUntil(C.tmax); runs.push(sim); if (runs.length>3) runs.shift(); }
     const g = gamma(); verdict(g); sim = make(g);
-    if (reduced){ sim.runUntil(C.tmax); chart(); bar(); return; }
-    const t0 = performance.now();
-    const tick = now => { const T = Math.min(C.tmax,(now-t0)/C.dur*C.tmax); sim.runUntil(T); chart(); bar(); if (T<C.tmax) anim = requestAnimationFrame(tick); };
+    if (reduced){ sim.runUntil(C.tmax); relax(60); chart(); field(); return; }
+    const t0 = performance.now(); settle = 0;
+    const tick = now => {
+      const T = Math.min(C.tmax,(now-t0)/C.dur*C.tmax); sim.runUntil(T); relax(3); chart(); field();
+      if (T<C.tmax || settle++ < 90) anim = requestAnimationFrame(tick);
+    };
     anim = requestAnimationFrame(tick);
   }
   const gamma = bindSlider("gamma", 1, verdict, start);
   $("gelRun").addEventListener("click", start);
-  return { start, redraw(){ chart(); bar(); } };
+  return { start, redraw(){ chart(); field(); } };
 }
 
 /* =========================================================
-   2b. Condensation in a tree with fitness (Bianconi–Barabási)
+   2b. Condensation in a tree with fitness and neighbourhood influence
+   (Fountoulakis–Iyer, EJP 2022, with h(x) = x, g(x,y) = x(1+y)).
    Vertex i joins with fitness W_i ~ density (b+1)(1-w)^b on [0,1]
-   and receives each new vertex with probability ∝ W_i·(children_i + 1).
+   and receives each new vertex with probability ∝ W_i·(1 + Σ_children (1 + W_child)).
    ========================================================= */
 function fitWidget(){
   const NT = 450, NS = 20000, BINS = 20;
   let tree = null, hist = null, theory = null, anim = 0;
   const drawW = b => 1 - Math.pow(Math.random(), 1/(b+1));
+  // E[W/(1−W)] = 1/β, so the condensation criterion E[h(W)/(g̃* − g̃(W))] < 1 reads β(1 + 1/(β+2)) > 1, i.e. β > √3 − 1.
+  const condenses = b => b*(1 + 1/(b+2)) > 1;
+  const atomOf = b => 1 - 1/(b*(1 + 1/(b+2)));
   function grow(b, N){
     const W = new Float64Array(N), kids = new Int32Array(N), parent = new Int32Array(N).fill(-1);
     const fw = new Fenwick(N); W[0] = drawW(b); fw.add(0, W[0]);
     let n = 1;
     return { W, kids, parent, get n(){return n;},
       step(k){ for (let r=0;r<k&&n<N;r++){ let v = fw.find(Math.random()*fw.total); if (v>=n) v=n-1;
-        parent[n]=v; kids[v]++; fw.add(v,W[v]); W[n]=drawW(b); fw.add(n,W[n]); n++; } return n<N; } };
+        parent[n]=v; kids[v]++; W[n]=drawW(b); fw.add(v,W[v]*(1+W[n])); fw.add(n,W[n]); n++; } return n<N; } };
   }
   // Limit: share of edges attached to vertices of fitness in each bin, plus an atom at w = 1.
+  // With m = E[W] = 1/(b+2), edges by parent fitness have density x/(λ − (1+m)x) μ(dx), where
+  // λ solves E[W/(λ − (1+m)W)] = 1 if possible; otherwise λ = 1+m and the deficit is the condensate.
+  // Writing λ = (1+m)·L, this is E[W/(L − W)] = 1+m, and integ() below computes E[W/(L − W)].
   function limit(b){
     const p = Math.min(12, 2/b), M = 6000;
     const integ = (lam, lo, hi) => { // ∫ over u=1-w in [lo,hi] of (b+1) u^b (1-u)/(lam-1+u) du, via u = s^p
@@ -356,11 +485,12 @@ function fitWidget(){
       for (let k=0;k<M;k++){ const s = s0+(k+.5)*ds, u = Math.pow(s,p), du = p*Math.pow(s,p-1)*ds;
         acc += (b+1)*Math.pow(u,b)*(1-u)/(lam-1+u)*du; }
       return acc; };
+    const c = 1 + 1/(b+2);
     let lam = 1, atom = 0;
-    if (b <= 1){ let lo = 1, hi = 60; for (let it=0;it<60;it++){ const m=(lo+hi)/2; if (integ(m,0,1)>1) lo=m; else hi=m; } lam = (lo+hi)/2; }
-    else atom = 1 - 1/b;
+    if (!condenses(b)){ let lo = 1, hi = 60; for (let it=0;it<60;it++){ const m=(lo+hi)/2; if (integ(m,0,1)>c) lo=m; else hi=m; } lam = (lo+hi)/2; }
+    else atom = atomOf(b);
     const bins = new Float64Array(BINS);
-    for (let k=0;k<BINS;k++){ const wlo = k/BINS, whi = (k+1)/BINS; bins[k] = integ(lam, 1-whi, 1-wlo); }
+    for (let k=0;k<BINS;k++){ const wlo = k/BINS, whi = (k+1)/BINS; bins[k] = integ(lam, 1-whi, 1-wlo)/c; }
     return { bins, atom };
   }
   function simHist(b){
@@ -403,9 +533,9 @@ function fitWidget(){
       for (let k=0;k<BINS;k++){ const y = Y(hist[k]); ctx.beginPath(); ctx.moveTo(X(k/BINS)+2,y); ctx.lineTo(X((k+1)/BINS)-2,y); ctx.stroke(); } }
   }
   function verdict(b){
-    $("fitVerdict").textContent = b > 1
-      ? `β = ${b.toFixed(1)} > 1: condensation. In the limit, a fraction 1 − 1/β = ${Math.round((1-1/b)*100)}% of all edges escapes to vertices of maximal fitness.`
-      : `β = ${b.toFixed(1)} ≤ 1: no condensation. Edges spread over fitness values, with no mass escaping to the top.`;
+    $("fitVerdict").textContent = condenses(b)
+      ? `β = ${b.toFixed(1)} > √3 − 1 ≈ 0.73: condensation. In the limit, ${Math.round(atomOf(b)*100)}% of all edges escape to vertices of maximal fitness.`
+      : `β = ${b.toFixed(1)} ≤ √3 − 1 ≈ 0.73: no condensation. Edges spread over fitness values, with no mass escaping to the top.`;
   }
   function start(){
     cancelAnimationFrame(anim);
@@ -422,32 +552,25 @@ function fitWidget(){
 }
 
 /* =========================================================
-   3. Crump–Mode–Jagers process: growth and explosion
-   An individual's (k+1)-th child arrives at rate (k+1)^α after its k-th.
+   3. Weighted random recursive tree as a CMJ process: growth and explosion
+   Each individual has children at constant rate W, its Pareto(a) weight (Iyer, ECP 2024).
    ========================================================= */
 function cmjWidget(){
   const CAP = 100000, M = 220;
   let res = null, anim = 0, shown = 0, shownPlot = 1;
-  function run(alpha){
-    const f = k => Math.pow(k+1, alpha);
-    const heapT = [], heapI = [];
-    const push = (t,i) => { heapT.push(t); heapI.push(i); let c = heapT.length-1;
-      while (c>0){ const p=(c-1)>>1; if (heapT[p]<=heapT[c]) break; [heapT[p],heapT[c]]=[heapT[c],heapT[p]]; [heapI[p],heapI[c]]=[heapI[c],heapI[p]]; c=p; } };
-    const pop = () => { const t=heapT[0], i=heapI[0], lt=heapT.pop(), li=heapI.pop();
-      if (heapT.length){ heapT[0]=lt; heapI[0]=li; let c=0; for(;;){ const l=2*c+1, r=l+1; let m=c;
-        if (l<heapT.length && heapT[l]<heapT[m]) m=l; if (r<heapT.length && heapT[r]<heapT[m]) m=r; if (m===c) break;
-        [heapT[m],heapT[c]]=[heapT[c],heapT[m]]; [heapI[m],heapI[c]]=[heapI[c],heapI[m]]; c=m; } }
-      return [t,i]; };
-    const kids = new Int32Array(CAP), parent = new Int32Array(M).fill(-1);
-    const birth = new Float64Array(CAP); birth[0] = 0;
-    push(expRV(f(0)), 0); let n = 1;
-    while (n < CAP){
-      const [t,id] = pop();
-      if (n < M) parent[n] = id;
-      birth[n] = t; n++; kids[id]++;
-      push(t + expRV(f(0)), n-1); push(t + expRV(f(kids[id])), id);
+  function run(a){
+    // Weighted random recursive tree: vertex i has weight W_i = U^(-1/a), so P(W > x) = x^(-a) for x ≥ 1,
+    // and each newcomer attaches to i with probability ∝ W_i. In continuous time every individual has
+    // children at constant rate W_i (a CMJ process), so the gap before the next birth is Exp(sum of weights).
+    const W = new Float64Array(CAP), parent = new Int32Array(M).fill(-1), birth = new Float64Array(CAP);
+    const fw = new Fenwick(CAP);
+    W[0] = Math.pow(1-Math.random(), -1/a); fw.add(0, W[0]); let t = 0;
+    for (let n=1;n<CAP;n++){
+      t += expRV(fw.total); let v = fw.find(Math.random()*fw.total); if (v>=n) v = n-1;
+      if (n < M) parent[n] = v; birth[n] = t;
+      W[n] = Math.pow(1-Math.random(), -1/a); fw.add(n, W[n]);
     }
-    return { birth, parent, alpha };
+    return { birth, parent, a };
   }
   function drawTree(){
     const {ctx,w,h} = setupCanvas($("cmjTree")); ctx.clearRect(0,0,w,h); if (!res) return;
@@ -484,13 +607,15 @@ function cmjWidget(){
     ctx.stroke();
   }
   function verdict(a){
-    $("cmjVerdict").textContent = a > 1
-      ? `α = ${a.toFixed(2)} > 1: ∑ 1/f(k) < ∞, so a single individual already has infinitely many children in finite time. The population explodes.`
-      : `α = ${a.toFixed(2)} ≤ 1: no explosion. The population grows exponentially, at its Malthusian rate.`;
+    $("cmjVerdict").textContent = a < 1
+      ? `a = ${a.toFixed(2)} < 1: the weights have infinite mean and a heavy enough tail for explosion: infinitely many births in finite time.`
+      : a > 1
+      ? `a = ${a.toFixed(2)} > 1: the weights have finite mean ${(a/(a-1)).toFixed(2)}, so there is no explosion. The population grows exponentially, at that rate.`
+      : `a = 1: the borderline case. The weights have infinite mean, but the tail is too light for the explosion criterion.`;
   }
   function start(){
     cancelAnimationFrame(anim);
-    const a = alpha(); verdict(a); res = run(a);
+    const a = tail(); verdict(a); res = run(a);
     const dur = 2600, t0 = performance.now();
     const set = u => { shown = Math.ceil(u*M); shownPlot = Math.max(2, Math.round(Math.pow(CAP, u))); };
     if (reduced){ set(1); drawTree(); drawPlot(); stat(); return; }
@@ -501,7 +626,7 @@ function cmjWidget(){
     const b = res.birth, t3 = b[999], t5 = b[CAP-1];
     $("cmjStatus").textContent = `The 1,000th birth came at time ${t3.toFixed(2)} and the 100,000th at time ${t5.toFixed(2)}: ${((t5-t3)/t5*100).toFixed(0)}% of the elapsed time for the last 99% of the population.`;
   }
-  const alpha = bindSlider("cmjAlpha", 2, verdict, start);
+  const tail = bindSlider("cmjA", 2, verdict, start);
   $("cmjRun").addEventListener("click", start);
   return { start, redraw(){ drawTree(); drawPlot(); } };
 }
@@ -626,10 +751,221 @@ function banditWidget(){
   return { start, redraw(){ draw(); } };
 }
 
+
+/* =========================================================
+   0. Phases of matter: 2D Lennard-Jones particles under gravity,
+      held at a temperature by a Langevin thermostat
+   ========================================================= */
+function phaseWidget(){
+  const N = 70, W = 22, H = 22, g = 0.15, dt = 0.005, gam = 1.0, rc2 = 6.25, STEPS = 18;
+  const x = new Float64Array(N), y = new Float64Array(N), vx = new Float64Array(N), vy = new Float64Array(N);
+  const fx = new Float64Array(N), fy = new Float64Array(N), nb = new Int32Array(N);
+  let T = 0.25, anim = 0, running = false, frame = 0, ord = 0.6, vap = 0;
+  function reset(){
+    const a = 1.12, per = Math.floor((W - 2.8) / a) + 1;
+    for (let i = 0; i < N; i++){ const r = Math.floor(i / per), c = i % per;
+      x[i] = 1.15 + c*a + (r % 2)*a/2; y[i] = 1.1 + r*a*0.866; vx[i] = vy[i] = 0; }
+    forces();
+  }
+  const wf = d => { d = Math.max(d, 0.5); return d < 1.12 ? 24*(2/Math.pow(d,13) - 1/Math.pow(d,7)) : 0; };
+  function forces(){
+    fx.fill(0); fy.fill(0);
+    for (let i = 0; i < N; i++){
+      fy[i] -= g;
+      for (let j = i + 1; j < N; j++){
+        const dx = x[i]-x[j], dy = y[i]-y[j]; let r2 = dx*dx + dy*dy;
+        if (r2 < rc2){ if (r2 < 0.64) r2 = 0.64; const ir2 = 1/r2, ir6 = ir2*ir2*ir2, f = 24*ir2*ir6*(2*ir6 - 1);
+          fx[i] += f*dx; fy[i] += f*dy; fx[j] -= f*dx; fy[j] -= f*dy; }
+      }
+      fx[i] += wf(x[i]) - wf(W - x[i]); fy[i] += wf(y[i]) - wf(H - y[i]);
+    }
+  }
+  const gauss = () => { const u = 1 - Math.random(), v = Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
+  function step(){
+    const c1 = Math.exp(-gam*dt), c2 = Math.sqrt((1 - c1*c1)*T);
+    for (let i = 0; i < N; i++){ vx[i] += .5*dt*fx[i]; vy[i] += .5*dt*fy[i]; x[i] += dt*vx[i]; y[i] += dt*vy[i]; }
+    forces();
+    for (let i = 0; i < N; i++){ vx[i] += .5*dt*fx[i]; vy[i] += .5*dt*fy[i];
+      vx[i] = c1*vx[i] + c2*gauss(); vy[i] = c1*vy[i] + c2*gauss(); }
+  }
+  function neighbours(){
+    nb.fill(0);
+    for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++){
+      const dx = x[i]-x[j], dy = y[i]-y[j]; if (dx*dx + dy*dy < 2.25){ nb[i]++; nb[j]++; } }
+    let o = 0, v = 0; for (let i = 0; i < N; i++){ if (nb[i] >= 6) o++; if (nb[i] <= 1) v++; }
+    ord = .9*ord + .1*o/N; vap = .9*vap + .1*v/N;
+  }
+  function draw(){
+    const {ctx, w, h} = setupCanvas($("phaseBox"));
+    ctx.clearRect(0, 0, w, h);
+    const s = Math.min(w, h)/W, ox = (w - W*s)/2, oy = h - (h - H*s)/2;
+    ctx.strokeStyle = css("--rule"); ctx.lineWidth = 1; ctx.strokeRect(ox + .5, oy - H*s + .5, W*s - 1, H*s - 1);
+    const cSolid = css("--c3"), cLiquid = css("--c0"), cGas = css("--edge");
+    for (let i = 0; i < N; i++){
+      ctx.fillStyle = nb[i] >= 6 ? cSolid : nb[i] <= 1 ? cGas : cLiquid;
+      ctx.beginPath(); ctx.arc(ox + x[i]*s, oy - y[i]*s, .48*s, 0, Math.PI*2); ctx.fill();
+    }
+  }
+  function label(){
+    const state = ord > .3 ? "Solid: particles lock into a crystal" : vap > .3 ? "Gas: particles fill the box" : "Liquid: particles stay together but flow";
+    $("phaseStatus").textContent = state + ".";
+  }
+  function tick(){
+    for (let k = 0; k < STEPS; k++) step();
+    if (++frame % 4 === 0){ neighbours(); label(); }
+    draw();
+    if (running) anim = requestAnimationFrame(tick);
+  }
+  function start(){
+    reset(); neighbours(); label(); draw();
+    if (reduced){ for (let k = 0; k < 4000; k++) step(); neighbours(); label(); draw(); return; }
+    running = true; cancelAnimationFrame(anim); anim = requestAnimationFrame(tick);
+    if ("IntersectionObserver" in window){
+      new IntersectionObserver(es => es.forEach(e => {
+        if (e.isIntersecting && !running){ running = true; anim = requestAnimationFrame(tick); }
+        else if (!e.isIntersecting){ running = false; cancelAnimationFrame(anim); }
+      })).observe($("phase-demo"));
+    }
+  }
+  const tIn = $("temp");
+  tIn.addEventListener("input", () => { T = +tIn.value; $("tempOut").textContent = T.toFixed(2);
+    if (reduced){ for (let k = 0; k < 4000; k++) step(); neighbours(); label(); draw(); } });
+  return { start, redraw: draw };
+}
+
+/* =========================================================
+   3b. Branching process in a varying environment with two growth rates.
+   In generation n each individual has 2 children, except that with probability
+   p_n = 3^(-n)/5 it has a jackpot of K_n = 20·3^n children. Mean offspring ≈ 6.
+   ========================================================= */
+function bpveWidget(){
+  const G = 30, RUNS = 40, DUR = 2600;
+  let runs = [], anim = 0, shown = G;
+  const std = () => { let u=0,v=0; while(!u) u=Math.random(); v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
+  const poisson = l => { if (l > 30) return Math.max(0, Math.round(l + Math.sqrt(l)*std()));
+    let k=0, p=1, L=Math.exp(-l); for(;;){ p*=Math.random(); if (p<=L) return k; k++; } };
+  function one(){
+    let Z = 1; const lz = [0];
+    for (let n=0;n<G;n++){
+      const p = Math.pow(3,-n)/5, K = 20*Math.pow(3,n);
+      let J = 0;
+      if (Z < 60){ for (let i=0;i<Z;i++) if (Math.random()<p) J++; } else J = Math.min(Z, poisson(Z*p));
+      Z = 2*(Z-J) + K*J; lz.push(Math.log10(Z));
+    }
+    return lz;
+  }
+  const L2 = Math.log10(2), L6 = Math.log10(6), cut = n => n*(L2+L6)/2 + 1.5;
+  const fast = r => r[G] > cut(G);
+  function draw(){
+    const {ctx,w,h} = setupCanvas($("bpvePlot")); ctx.clearRect(0,0,w,h);
+    const top = Math.ceil(G*L6/5)*5 + 1;
+    const pL=44, pR=44, pT=10, pB=42, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (1-l/top)*(h-pT-pB);
+    const muted=css("--muted"), rule=css("--rule"), cF=css("--accent"), cS=css("--c1");
+    ctx.font = `12px ${css("--sans")}`; ctx.strokeStyle=rule; ctx.fillStyle=muted; ctx.lineWidth=1;
+    for (let l=0;l<=top;l+=5){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(l))+.5); ctx.lineTo(w-pR,Math.round(Y(l))+.5); ctx.stroke();
+      ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(l===0?"1":"10"+String(l).split("").map(d=>"⁰¹²³⁴⁵⁶⁷⁸⁹"[+d]).join(""), pL-8, Y(l)); }
+    ctx.textAlign="center"; ctx.textBaseline="top";
+    for (let n=0;n<=G;n+=5) ctx.fillText(String(n), X(n), h-pB+8);
+    ctx.fillText("generation", (X(0)+X(G))/2, h-pB+24);
+    ctx.setLineDash([4,4]); ctx.strokeStyle=muted; ctx.lineWidth=1;
+    for (const [lg,lab] of [[L2,"2ⁿ"],[L6,"6ⁿ"]]){ ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(G),Y(G*lg)); ctx.stroke();
+      ctx.textAlign="left"; ctx.textBaseline="middle"; ctx.fillText(lab, X(G)+6, Y(G*lg)); }
+    ctx.setLineDash([]); ctx.lineWidth=1.4; ctx.globalAlpha=.75;
+    for (const r of runs){ ctx.strokeStyle = fast(r) ? cF : cS; ctx.beginPath(); ctx.moveTo(X(0),Y(r[0]));
+      for (let n=1;n<=shown;n++) ctx.lineTo(X(n),Y(r[n])); ctx.stroke(); }
+    ctx.globalAlpha=1;
+  }
+  function stat(){
+    const f = runs.filter(fast).length;
+    $("bpveStatus").textContent = `Of ${RUNS} runs, ${f} grew like 6ⁿ and ${RUNS-f} like 2ⁿ.`;
+  }
+  function start(){
+    cancelAnimationFrame(anim); runs = Array.from({length:RUNS}, one); $("bpveStatus").textContent = "";
+    if (reduced){ shown = G; draw(); stat(); return; }
+    const t0 = performance.now();
+    const tick = now => { const u = Math.min(1,(now-t0)/DUR); shown = Math.max(1, Math.round(u*G)); draw(); if (u<1) anim = requestAnimationFrame(tick); else stat(); };
+    anim = requestAnimationFrame(tick);
+  }
+  $("bpveRun").addEventListener("click", start);
+  return { start, redraw: draw };
+}
+
+/* =========================================================
+   2c. Super-linear preferential attachment with fitness (Iyer–Lodewijks).
+   Vertex i has weight W_i with density ∝ w^(−α) on [1, ∞) and receives each
+   newcomer with probability ∝ (children_i + 1)^p + W_i, here p = 2.
+   In the limit: a single vertex of infinite degree if p(α − 1) > 1,
+   a locally finite tree with a unique infinite path if p(α − 1) < 1.
+   ========================================================= */
+function slWidget(){
+  const N = 3000, P = 2, CHECK = [];
+  for (let k=10; k<=N; k=Math.ceil(k*1.08)) CHECK.push(k);
+  let g = null, anim = 0;
+  function grow(alpha){
+    const W = new Float64Array(N), kids = new Int32Array(N), parent = new Int32Array(N).fill(-1), depth = new Int32Array(N), f = new Float64Array(N);
+    const fw = new Fenwick(N), drawW = () => Math.pow(1-Math.random(), -1/(alpha-1));
+    W[0] = drawW(); f[0] = 1 + W[0]; fw.add(0, f[0]);
+    let n = 1, hub = 0; const trace = [];
+    return { W, kids, parent, depth, trace, get n(){return n;}, get hub(){return hub;},
+      step(k){ for (let r=0; r<k && n<N; r++){
+        let v = fw.find(Math.random()*fw.total); if (v>=n) v = n-1;
+        parent[n] = v; depth[n] = depth[v]+1; kids[v]++;
+        const nf = Math.pow(kids[v]+1, P) + W[v]; fw.add(v, nf-f[v]); f[v] = nf;
+        if (kids[v] > kids[hub]) hub = v;
+        W[n] = drawW(); f[n] = 1 + W[n]; fw.add(n, f[n]); n++;
+        if (n === CHECK[trace.length]) trace.push([n, depth[hub], kids[hub]/(n-1)]);
+      } return n < N; } };
+  }
+  function drawTree(){
+    if (!g) return;
+    const lo = css("--fitlo"), hi = css("--fithi"), lw = Math.log(1000);
+    drawRadialTree($("slTree"), g.parent, g.n,
+      i => lerpColor(lo, hi, Math.min(1, Math.log(g.W[i])/lw)),
+      i => 1.2 + 2.0*Math.log(1 + g.kids[i]), g.hub, g.hub);
+  }
+  function drawChart(){
+    const {ctx,w,h} = setupCanvas($("slChart")); ctx.clearRect(0,0,w,h); if (!g) return;
+    const pL=40, pR=12, pT=10, pB=40, top = 12, lx0 = Math.log(10), lx1 = Math.log(N);
+    const X = n => pL + (Math.log(n)-lx0)/(lx1-lx0)*(w-pL-pR), Y = d => pT + (1-d/top)*(h-pT-pB);
+    const muted=css("--muted"), rule=css("--rule"), acc=css("--accent");
+    ctx.font = `12px ${css("--sans")}`; ctx.lineWidth=1; ctx.strokeStyle=rule; ctx.fillStyle=muted;
+    for (let d=0; d<=top; d+=3){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(d))+.5); ctx.lineTo(w-pR,Math.round(Y(d))+.5); ctx.stroke();
+      ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(String(d), pL-6, Y(d)); }
+    ctx.textAlign="center"; ctx.textBaseline="top";
+    for (const n of [10,100,1000]) ctx.fillText(n.toLocaleString("en-GB"), X(n), h-pB+6);
+    ctx.fillText("vertices (log scale)", (X(10)+X(N))/2, h-pB+22);
+    ctx.strokeStyle = acc; ctx.lineWidth = 2.2; ctx.beginPath();
+    g.trace.forEach(([n,d],i) => { const y = Y(Math.min(d,top)); if (i){ ctx.lineTo(X(n), Y(Math.min(g.trace[i-1][1],top))); ctx.lineTo(X(n), y); } else ctx.moveTo(X(n), y); });
+    ctx.stroke();
+  }
+  function verdict(a){
+    const c = P*(a-1);
+    $("slVerdict").textContent = Math.abs(c-1) < 1e-9
+      ? `α = ${a.toFixed(2)}: p(α − 1) = 1, the boundary between the two regimes.`
+      : c > 1
+      ? `α = ${a.toFixed(2)}: p(α − 1) = ${c.toFixed(2)} > 1. Heavy weights are rare enough that one vertex keeps its lead; in the limit it has infinite degree.`
+      : `α = ${a.toFixed(2)}: p(α − 1) = ${c.toFixed(2)} < 1. Ever heavier newcomers keep taking over, each attached near the last leader; in the limit no vertex has infinite degree, and the tree has a single infinite path.`;
+  }
+  function stat(){
+    const t = g.trace[g.trace.length-1];
+    $("slStatus").textContent = `After ${fmt(g.n)} vertices, the largest hub has ${Math.round(t[2]*100)}% of all edges and sits ${t[1]} step${t[1]===1?"":"s"} from the root.`;
+  }
+  function start(){
+    cancelAnimationFrame(anim);
+    const a = alpha(); verdict(a); g = grow(a); $("slStatus").textContent = "";
+    if (reduced){ g.step(N); drawTree(); drawChart(); stat(); return; }
+    const tick = () => { const more = g.step(20); drawTree(); drawChart(); if (more) anim = requestAnimationFrame(tick); else stat(); };
+    anim = requestAnimationFrame(tick);
+  }
+  const alpha = bindSlider("slAlpha", 2, verdict, start);
+  $("slRun").addEventListener("click", start);
+  return { start, redraw(){ drawTree(); drawChart(); } };
+}
+
 /* ---------- boot ---------- */
 const widgets = {};
-const defs = [["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],
-              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["cmj-demo", cmjWidget], ["bandit-demo", banditWidget]];
+const defs = [["phase-demo", phaseWidget], ["self-demo", selfWidget], ["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],
+              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget]];
 function boot(){
   for (const [id, mk] of defs) if ($(id)) widgets[id] = mk();
   const ids = Object.keys(widgets);

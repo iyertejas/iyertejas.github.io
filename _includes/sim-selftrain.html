@@ -1,0 +1,12 @@
+<figure class="demo" id="self-demo">
+<div class="controls">
+<div class="slider"><label for="selfT">Sampling temperature T</label>
+<input type="range" id="selfT" min="0.5" max="1.2" step="0.05" value="0.8"><output id="selfTOut" for="selfT">0.80</output></div>
+<div class="slider"><label for="selfL">Fresh data λ</label>
+<input type="range" id="selfL" min="0" max="0.5" step="0.05" value="0.1"><output id="selfLOut" for="selfL">0.10</output></div>
+<button id="selfRun" type="button">Run again</button>
+</div>
+<div class="small-lab">Share of the model's output by type, over 80 generations of retraining</div>
+<canvas id="selfPlot" role="img" aria-label="Shares of six output types over generations of retraining"></canvas>
+<p class="status" id="selfStatus" aria-live="polite"></p>
+</figure>
