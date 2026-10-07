@@ -13,7 +13,7 @@ description: "Research of Tejas Iyer: phase transitions in reinforced growth pro
 My research is in probability theory and its applications. Key focal points of my work include stochastic processes with reinforcement and feedback, and random discrete structures: models motivated by applications as diverse as learning algorithms, biological populations, statistical physics and complex networks. Like water freezing or boiling, such systems often have *phase transitions*: a small change in a parameter produces dramatically different behaviour. A central goal of my research is to understand these transitions with mathematical precision.
 {: .lede}
 
-Each question below comes with simulations you can run in your browser, built with the help of Santa Claude.
+Each question below comes with simulations you can run in your browser.
 {: .lede}
 
 ## When does an early lead become permanent?
