@@ -1,0 +1,9 @@
+<figure class="demo phase-demo" id="phase-demo">
+<canvas id="phaseBox" role="img" aria-label="Particles forming a solid, liquid or gas depending on temperature"></canvas>
+<div class="controls">
+<div class="slider"><label for="temp">Temperature</label>
+<input type="range" id="temp" min="0.1" max="1.6" step="0.05" value="0.25"><output id="tempOut" for="temp">0.25</output></div>
+</div>
+<p class="status" id="phaseStatus" aria-live="polite"></p>
+{% if include.caption %}<figcaption class="caption">{{ include.caption }}</figcaption>{% endif %}
+</figure>

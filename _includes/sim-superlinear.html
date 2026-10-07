@@ -1,0 +1,19 @@
+<figure class="demo" id="sl-demo">
+<div class="controls">
+<div class="slider"><label for="slAlpha">Weight tail exponent α</label>
+<input type="range" id="slAlpha" min="1.1" max="3" step="0.05" value="1.3"><output id="slAlphaOut" for="slAlpha">1.30</output></div>
+<button id="slRun" type="button">Grow a new tree</button>
+</div>
+<div class="two">
+<div>
+<div class="small-lab">The tree; darker vertices have larger weight, the blue path leads to the current largest hub</div>
+<canvas class="treeCanvas" id="slTree" role="img" aria-label="A growing tree with the path from the root to its largest hub highlighted"></canvas>
+</div>
+<div>
+<div class="small-lab">Distance from the root to the largest hub, as the tree grows</div>
+<canvas id="slChart" role="img" aria-label="Depth of the largest hub against the number of vertices"></canvas>
+</div>
+</div>
+<p class="status" id="slStatus" aria-live="polite"></p>
+<div class="criterion"><div class="verdict" id="slVerdict"></div></div>
+</figure>
