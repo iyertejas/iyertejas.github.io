@@ -45,9 +45,7 @@ The same mechanism appears in learning. A learner that keeps choosing whatever h
 400 learners choose between two options that succeed with probability 0.6 and 0.4, for 2,000 rounds; colour shows the share of their last 500 choices that went to the better one, and the right panel repeats this for α from 0.5 to 2. For α = 1 this is the Roth–Erev model of reinforcement learning. Embedding the learner in continuous time as competing exponential growth processes, as for the non-linear urns, shows that α = 1 is the threshold: below it the learner never fully commits, at α = 1 it settles on the better option, and above it early luck can lock it onto the worse one.
 {: .caption}
 
-A learning system never sees its true objective, only a feedback signal: a reward model, a benchmark score, or data produced by earlier models. Reinforcement amplifies whatever that signal favours, so a small gap between signal and goal can grow. I am starting to study this with the same tools as above: simple reinforced models, and sharp thresholds for when they lock in.
-
-This is one direction my research is heading: how reinforcement interacts with exploration, with rewards that change over time, and with feedback loops in which a system's own choices shape the data it learns from. My TU Berlin course [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html) (winter 2026/27) develops bandits and Markov decision processes with full mathematical rigour.
+Learning systems are trained on feedback signals, such as a reward model, a benchmark score or data produced by earlier models, and reinforcement amplifies whatever that signal favours. I am interested in what simple reinforced models can say about this: how reinforcement interacts with exploration, with rewards that change over time, and with feedback loops in which a system's own choices shape the data it learns from. My TU Berlin course [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html) (winter 2026/27) covers bandits and Markov decision processes from a probabilistic point of view.
 
 ## When does mass escape to infinity?
 
