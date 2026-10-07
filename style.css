@@ -74,7 +74,8 @@ canvas{display:block;width:100%}
 .bars .fill{display:block;height:100%;border-radius:2px}
 .bars .num{text-align:right;min-width:7ch}
 .treeCanvas{aspect-ratio:1/1;max-height:520px;margin:0 auto}
-#gelChart{height:290px} #massBar{height:26px;border-radius:3px}
+#bpvePlot{height:320px} #learnCurve{height:300px} #slChart{height:300px} #selfPlot{height:290px}
+#gelChart{height:260px} #gelField{aspect-ratio:2/1;max-height:380px;margin:0 auto}
 #fitChart{height:260px}
 #cmjTree{height:330px} #cmjPlot{height:330px}
 .dots{aspect-ratio:1/1;max-width:300px}
@@ -134,14 +135,15 @@ canvas{display:block;width:100%}
 .content > p.lede{max-width:60ch}
 .content > p.caption{margin:-1.4rem 0 2.6rem;max-width:78ch}
 .content > p.links{display:flex;flex-wrap:wrap;gap:.4rem 1.3rem;font-family:var(--sans);font-size:.92rem}
-.portrait{float:right;width:210px;margin:3rem 0 1.5rem 2.5rem}
+.portrait{float:right;width:300px;margin:2.6rem 0 1.5rem 2.5rem}
 .portrait img{display:block;width:100%;border-radius:4px}
 .portrait figcaption{font-family:var(--sans);font-size:.72rem;line-height:1.4;color:var(--muted);margin-top:.4rem}
 .portrait figcaption a{color:var(--muted)}
 .content::after{content:"";display:block;clear:both}
 /* course pages: quieter section headings */
 body.course .content > h2{border-top:0;padding-top:0;margin:2rem 0 .5rem;font-family:var(--sans);font-size:1.02rem;font-style:normal;font-weight:600;letter-spacing:0}
-@media (max-width:640px){ .portrait{float:none;display:block;width:160px;margin:2rem 0 0} }
+@media (max-width:900px){ .portrait{width:240px} }
+@media (max-width:640px){ .portrait{float:none;display:block;width:220px;margin:2rem 0 0} }
 
 /* ===== Bandit demo ===== */
 #banditChart{height:360px}
@@ -150,3 +152,18 @@ body.course .content > h2{border-top:0;padding-top:0;margin:2rem 0 .5rem;font-fa
 .algs button::before{content:"";width:.7em;height:.7em;border-radius:50%;background:var(--sw)}
 .algs button[aria-pressed="false"]{color:var(--muted);opacity:.55}
 .algs button[aria-pressed="false"]::before{background:transparent;box-shadow:inset 0 0 0 1.5px var(--sw)}
+
+/* ===== Phase-of-matter figure beside the research intro ===== */
+.phase-demo{float:right;width:330px;margin:3.2rem 0 1.5rem 2.5rem;padding:1rem}
+.phase-demo canvas{aspect-ratio:1/1}
+.phase-demo .controls{margin:.8rem 0 0}
+.phase-demo .slider{flex:1 1 100%;max-width:none}
+.phase-demo .status{margin:.5rem 0 0;font-size:.86rem}
+.phase-demo .caption{margin:.6rem 0 0}
+.content > h2{clear:both}
+@media (max-width:820px){ .phase-demo{float:none;width:100%;max-width:420px;margin:1.5rem 0} }
+
+/* Research page: a wider text column, closer to the width of the simulations */
+body.research .content > p{max-width:76ch}
+body.research .content > p.lede{max-width:68ch}
+body.research .content > p.caption{max-width:84ch}
