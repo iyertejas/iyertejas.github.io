@@ -266,7 +266,7 @@ function learnWidget(){
   // ∝ (its successes + 1)^α. Limits: α < 1 keeps sampling both; α = 1 settles on the better one;
   // α > 1 commits, with positive probability to the worse one.
   const B = { L:400, T:2000, late:500, pG:.6, pB:.4, Lc:240 };
-  const AS = Array.from({length:16}, (_,i) => +(0.5 + i*0.1).toFixed(1));
+  const AS = Array.from({length:16}, (_,i) => +(0.25 + i*0.1).toFixed(2));
   let sR = null, curve = null;
   function reinforced(alpha, L){
     const {T,late,pG,pB} = B, out = new Float64Array(L), f = new Float64Array(T+2);
@@ -296,7 +296,7 @@ function learnWidget(){
     for (let y=0;y<=1.0001;y+=.25){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(y))+.5); ctx.lineTo(w-pR,Math.round(Y(y))+.5); ctx.stroke();
       ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(Math.round(y*100)+"%", pL-6, Y(y)); }
     ctx.textAlign="center"; ctx.textBaseline="top";
-    for (const a of [0.5,1,1.5,2]) ctx.fillText(String(a), X(a), h-pB+6);
+    for (const a of [0.25,0.5,1,1.5,1.75]) ctx.fillText(String(a), X(a), h-pB+6);
     ctx.fillText("reinforcement strength α", (X(a0)+X(a1))/2, h-pB+22);
     ctx.setLineDash([4,4]); ctx.strokeStyle=muted; ctx.beginPath(); ctx.moveTo(X(1),Y(0)); ctx.lineTo(X(1),Y(1)); ctx.stroke(); ctx.setLineDash([]);
     const cur = alpha(); ctx.strokeStyle=css("--ink"); ctx.globalAlpha=.35; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(X(cur),Y(0)); ctx.lineTo(X(cur),Y(1)); ctx.stroke(); ctx.globalAlpha=1;
