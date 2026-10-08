@@ -534,8 +534,8 @@ function fitWidget(){
   }
   function verdict(b){
     $("fitVerdict").textContent = condenses(b)
-      ? `β = ${b.toFixed(1)} > √3 − 1 ≈ 0.73: condensation. In the limit, ${Math.round(atomOf(b)*100)}% of all edges escape to vertices of maximal fitness.`
-      : `β = ${b.toFixed(1)} ≤ √3 − 1 ≈ 0.73: no condensation. Edges spread over fitness values, with no mass escaping to the top.`;
+      ? `β = ${b.toFixed(2)} > √3 − 1 ≈ 0.73: condensation. In the limit, ${Math.round(atomOf(b)*100)}% of all edges escape to vertices of maximal fitness.`
+      : `β = ${b.toFixed(2)} ≤ √3 − 1 ≈ 0.73: no condensation. Edges spread over fitness values, with no mass escaping to the top.`;
   }
   function start(){
     cancelAnimationFrame(anim);
@@ -546,7 +546,7 @@ function fitWidget(){
     const tick = () => { const more = tree.step(3); drawTree(); if (more) anim = requestAnimationFrame(tick); };
     anim = requestAnimationFrame(tick);
   }
-  const beta = bindSlider("fitBeta", 1, verdict, start);
+  const beta = bindSlider("fitBeta", 2, verdict, start);
   $("fitRun").addEventListener("click", start);
   return { start, redraw(){ drawTree(); drawChart(); } };
 }
