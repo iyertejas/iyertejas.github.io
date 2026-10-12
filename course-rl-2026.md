@@ -12,7 +12,7 @@ TU Berlin, Winter 2026/27. Lecturer: Tejas Iyer. 5 ECTS, taught in English.
 
 ## Organisation
 
-Lectures every Tuesday 16:15–17:45 in room [MA 644](https://moseskonto.tu-berlin.de/moses/verzeichnis/veranstaltungen/raum.html?semester=77&szenario=null&location=raumgruppe5&dateforweek=null&search=true) (Mathematics building, TU Berlin); please consult Moses and ISIS for the precise schedule and any changes. Questions after lectures, or by email: first.lastname@wias-berlin.de. The oral exam is organised in consultation with me.
+Lectures every Tuesday 16:15–17:45 in room MA 644 (Mathematics building, TU Berlin); please consult Moses and ISIS for the precise schedule and any changes. Questions after lectures, or by email: first.lastname@wias-berlin.de. The oral exam is organised in consultation with me.
 
 ## Description
 
