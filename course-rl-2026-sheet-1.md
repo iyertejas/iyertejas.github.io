@@ -38,7 +38,7 @@ Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises m
 
 *Hint:* Use convexity of $$x \mapsto e^{\lambda x}$$ and Taylor's theorem.
 
-**Exercise 4 (the lower tail).** Under the assumptions of Theorem 1.2:
+**Exercise 4 (the lower tail).** Under the assumptions of Theorem 1.10:
 
 (a) Show that $$\mathbb P(\hat m - m \le -\varepsilon) \le \exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$ for every $$\varepsilon \ge 0$$.
 
@@ -54,7 +54,7 @@ $$
 
 **Exercise 6 (how many samples?).**
 
-(a) Under the assumptions of Theorem 1.2, show that with probability at least $$1 - \delta$$,
+(a) Under the assumptions of Theorem 1.10, show that with probability at least $$1 - \delta$$,
 
 $$
 \lvert\hat m - m\rvert < \sqrt{\frac{2\sigma^2 \log(2/\delta)}{s}}.
@@ -64,7 +64,7 @@ $$
 
 (c) There are $$K$$ arms, and each is sampled $$s$$ times, independently. Show that the probability that at least one empirical mean is at distance $$\varepsilon$$ or more from its true mean is at most $$2K \exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$. How must $$s$$ grow with $$K$$ to keep this probability below a fixed $$\delta$$?
 
-**Exercise 7 (AI audit).** The following proof of Lemma 1.1 was written by a (by now probably defunct) AI model. Its conclusion is correct; its argument is not.
+**Exercise 7 (AI audit).** The following proof of Lemma 1.6 was written by a (by now probably defunct) AI model. Its conclusion is correct; its argument is not.
 
 > *Proof.* Group the rewards by arm: $$\sum_t X_t = \sum_a \sum_{t : A_t = a} X_t$$. The rewards obtained from arm $$a$$ are i.i.d. with mean $$m_a$$, and there are $$N_a(n)$$ of them. Since the number of pulls is independent of the reward values, the expected sum of $$N_a(n)$$ i.i.d. variables with mean $$m_a$$ is $$m_a \mathbb E[N_a(n)]$$. Hence $$\mathbb E\big[\sum_t X_t\big] = \sum_a m_a \mathbb E[N_a(n)]$$, and the claim follows from $$n = \sum_a N_a(n)$$.
 
@@ -72,12 +72,12 @@ $$
 
 (b) Can the argument be repaired without the false claim? (*Hint:* when is the $$s$$-th reward from arm $$a$$ drawn, compared with the decision to pull arm $$a$$ for the $$s$$-th time?)
 
-(c) *Optional, if you use AI tools:* ask a lower tier model for a proof of Lemma 1.1 and check it in the same way.
+(c) *Optional, if you use AI tools:* ask a lower tier model for a proof of Lemma 1.6 and check it in the same way.
 
 **Exercise 8\* (potential rewards).** Let $$Y_1, Y_2, \dots$$ be independent random vectors $$Y_t = (Y_{t,1}, \dots, Y_{t,K})$$ with $$Y_{t,a} \sim \mu_a$$, and let $$U_1, U_2, \dots$$ be independent uniform random variables, independent of the $$Y$$'s. Any policy can be run by setting $$A_t = f_t(A_1, X_1, \dots, A_{t-1}, X_{t-1}, U_t)$$ for suitable functions $$f_t$$. Set $$X_t = Y_{t,A_t}$$.
 
 (a) Note that $$A_t$$ is independent of $$Y_t$$, and deduce that $$\mathbb P(X_t \in \cdot \mid H_{t-1}, A_t) = \mu_{A_t}$$.
 
-(b) Use (a) to give a short proof of Lemma 1.1.
+(b) Use (a) to give a short proof of Lemma 1.6.
 
 (c) Is $$A_t$$ independent of $$Y_{t-1}$$? Of $$X_{t-1}$$? Give a policy for which it is not.

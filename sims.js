@@ -1067,7 +1067,7 @@ function slotWidget(){
       <p>Machine ${b+1} was best: it pays 1 with probability <i>m</i>* = ${f2(best)}.</p>
       <table class="regret"><thead><tr><th scope="col">Machine</th><th scope="col">Mean <i>m<sub>a</sub></i></th><th scope="col">Gap <i>Δ<sub>a</sub></i></th><th scope="col">Pulls <i>N<sub>a</sub></i></th><th scope="col"><i>Δ<sub>a</sub> N<sub>a</sub></i></th></tr></thead>
       <tbody>${rows}</tbody><tfoot><tr><th scope="row" colspan="4">Sum</th><td>${f2(yours)}</td></tr></tfoot></table>
-      <p>Compared with always playing machine ${b+1}, your choices cost Σ<sub><i>a</i></sub> <i>Δ<sub>a</sub> N<sub>a</sub></i> = ${f2(yours)}. By Lemma 1.1, the expected value of this sum is the regret of the way you played. Your actual payout, ${g.total}, fell short of <i>n m</i>* = ${(n*best).toFixed(1)} by ${(n*best - g.total).toFixed(1)}: that has the same expectation, but also contains the luck of the draws.</p>
+      <p>Compared with always playing machine ${b+1}, your choices cost Σ<sub><i>a</i></sub> <i>Δ<sub>a</sub> N<sub>a</sub></i> = ${f2(yours)}. By Lemma 1.6, the expected value of this sum is the regret of the way you played. Your actual payout, ${g.total}, fell short of <i>n m</i>* = ${(n*best).toFixed(1)} by ${(n*best - g.total).toFixed(1)}: that has the same expectation, but also contains the luck of the draws.</p>
       <p class="small-lab">Regret over ${n} pull${n===1?"":"s"} on these machines. Yours is for this play; the first two policies are exact, the last two are averaged over ${SIMS.toLocaleString("en-GB")} simulated plays.</p>
       <div class="bars">${bars}</div>`;
   }
