@@ -100,3 +100,4 @@ Two arms succeed with probabilities ½ + Δ/2 and ½ − Δ/2; the better arm is
 Links to lecture notes and additional resources will be provided as the course progresses. The course will draw substantially on:
 
 - L. Döring et al., *The Mathematics of Reinforcement Learning*.
+- T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020. Freely available [online](https://tor-lattimore.com/downloads/book/book.pdf). Chapters 4 and 5 cover the first lecture.
