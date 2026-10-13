@@ -70,7 +70,7 @@ $$
 R_n(\pi) = \sum_{a=1}^K \Delta_a\, \mathbb E_\pi[N_a(n)].
 $$
 
-*Proof.* Fix a round $$t$$. Given $$H_{t-1}$$ and $$A_t$$, the reward $$X_t$$ has law $$\mu_{A_t}$$, whose mean is $$m_{A_t}$$; that is, $$\mathbb E_\pi[X_t \mid H_{t-1}, A_t] = m_{A_t}$$. Writing $$m_{A_t} = \sum_a m_a \mathbf 1\{A_t = a\}$$ and using the tower property,
+*Proof.* Fix a round $$t$$. Given $$H_{t-1}$$ and $$A_t$$, the reward $$X_t$$ has law $$\mu_{A_t}$$, whose mean is $$m_{A_t}$$; that is, $$\mathbb E_\pi[X_t \mid H_{t-1}, A_t] = m_{A_t}$$. This is where the assumption on the rewards in Definition 1.1 is used; $$X_t$$ is integrable because $$\mathbb E_\pi\lvert X_t\rvert \le \max_a \int \lvert x\rvert\, \mu_a(dx) < \infty$$, as the means are finite. Writing $$m_{A_t} = \sum_a m_a \mathbf 1\{A_t = a\}$$ and using the tower property,
 
 $$
 \mathbb E_\pi[X_t] = \mathbb E_\pi\big[\mathbb E_\pi[X_t \mid H_{t-1}, A_t]\big] = \mathbb E_\pi[m_{A_t}] = \sum_{a=1}^K m_a\, \mathbb P_\pi(A_t = a).
@@ -140,16 +140,18 @@ $$
 
 Consequently, $$\mathbb P(\lvert\hat m - m\rvert \ge \varepsilon) \le 2\exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$.
 
-*Proof.* We prove the upper tail; the lower tail and the two-sided bound are Exercise 4. Let $$S = \sum_i (X_i - m)$$, so that $$\{\hat m - m \ge \varepsilon\} = \{S \ge s\varepsilon\}$$. For any $$\lambda > 0$$, Markov's inequality applied to $$e^{\lambda S}$$, followed by independence, gives
+*Proof.* We prove the upper tail; the lower tail and the two-sided bound are Exercise 4. Let $$S = \sum_i (X_i - m)$$, so that $$\{\hat m - m \ge \varepsilon\} = \{S \ge s\varepsilon\}$$. For $$\varepsilon = 0$$ the bound is trivial, so let $$\varepsilon > 0$$, and fix any $$\lambda > 0$$. Then
 
 $$
 \begin{aligned}
-\mathbb P(S \ge s\varepsilon) &\le e^{-\lambda s \varepsilon}\, \mathbb E\big[e^{\lambda S}\big] = e^{-\lambda s \varepsilon} \prod_{i=1}^s \mathbb E\big[e^{\lambda (X_i - m)}\big] \\
-&\le \exp\Big(-\lambda s\varepsilon + \frac{s \lambda^2 \sigma^2}{2}\Big).
+\mathbb P(S \ge s\varepsilon) &= \mathbb P\big(e^{\lambda S} \ge e^{\lambda s\varepsilon}\big) && \text{($x \mapsto e^{\lambda x}$ is increasing, as $\lambda > 0$)} \\
+&\le e^{-\lambda s\varepsilon}\, \mathbb E\big[e^{\lambda S}\big] && \text{(Markov's inequality)} \\
+&= e^{-\lambda s\varepsilon} \prod_{i=1}^s \mathbb E\big[e^{\lambda (X_i - m)}\big] && \text{(independence)} \\
+&\le e^{-\lambda s\varepsilon}\, e^{s\lambda^2\sigma^2/2} && \text{(each $X_i$ is $\sigma$-sub-Gaussian with mean $m$)}.
 \end{aligned}
 $$
 
-The exponent is minimised at $$\lambda = \varepsilon/\sigma^2$$, which gives $$\exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$. $$\square$$
+This holds for every $$\lambda > 0$$, so we may choose $$\lambda$$ to minimise the exponent $$-\lambda s\varepsilon + \frac{s\lambda^2\sigma^2}{2}$$. The minimum is at $$\lambda = \varepsilon/\sigma^2$$, which is positive, and gives $$\exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$. $$\square$$
 
 **Corollary 1.11 (confidence intervals).** Under the assumptions of Theorem 1.10, let $$\delta \in (0, 1)$$. Each of the following holds with probability at least $$1 - \delta$$:
 
