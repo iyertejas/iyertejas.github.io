@@ -44,7 +44,7 @@ $$
 \frac{b\, e^{\lambda a} - a\, e^{\lambda b}}{b - a} \le e^{\lambda^2 (b - a)^2 / 8}.
 $$
 
-*Hint:* with $$p = -a/(b - a)$$ and $$h = \lambda(b - a)$$, take logarithms and use Taylor's theorem to second order in $$h$$.
+*Hint:* let $$p \in [0, 1]$$ satisfy $$(1 - p)a + pb = 0$$, and put $$h = \lambda(b - a)$$. Take logarithms and use Taylor's theorem to second order in $$h$$.
 
 (b) Hence prove Hoeffding's lemma: if $$X \in [a, b]$$ almost surely, with mean $$m$$, then $$X$$ is $$\frac{b-a}{2}$$-sub-Gaussian.
 
