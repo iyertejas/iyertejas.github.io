@@ -14,6 +14,12 @@ TU Berlin, Winter 2026/27. Lecturer: Tejas Iyer. 5 ECTS, taught in English.
 
 Lectures every Tuesday 16:15–17:45 in room MA 644 (Mathematics building, TU Berlin); please consult Moses and ISIS for the precise schedule and any changes. Questions after lectures, or by email: first.lastname@wias-berlin.de. The oral exam is organised in consultation with me.
 
+## Lecture notes
+
+Notes and exercise sheets appear here after each lecture. They are prepared with the help of AI tools; corrections are welcome.
+
+- **Lecture 1** (13 October). [Stochastic bandits and concentration](course-rl-2026-lecture-1.html) <span class="tag">interactive</span>, with [Exercise Sheet 1](course-rl-2026-sheet-1.html).
+
 ## Description
 
 Reinforcement learning concerns decision-making under uncertainty when information is acquired through interaction with an environment. An agent repeatedly chooses actions, observes their consequences, and uses these observations to improve future decisions. A central difficulty is that actions can serve two purposes at once: obtaining reward now and gathering information that may improve later decisions. This tension is known as the exploration–exploitation trade-off.
@@ -97,13 +103,7 @@ Two arms succeed with probabilities ½ + Δ/2 and ½ − Δ/2; the better arm is
 
 ## Resources
 
-Lecture notes and exercise sheets will be added here as the course progresses.
-
-- **Lecture 1** (13 October). [Stochastic bandits and concentration](course-rl-2026-lecture-1.html), with [Exercise Sheet 1](course-rl-2026-sheet-1.html).
-
 The course will draw substantially on:
 
 - L. Döring et al., *The Mathematics of Reinforcement Learning*.
 - T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020. Freely available [online](https://tor-lattimore.com/downloads/book/book.pdf). Chapters 4 and 5 cover the first lecture.
-
-Lecture notes and exercise sheets are prepared with the help of AI tools; corrections are welcome.
