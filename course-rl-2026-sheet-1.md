@@ -11,7 +11,7 @@ math: true
 [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html) · TU Berlin · Winter 2026/27
 {: .lede}
 
-Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises marked \* are more challenging.
+Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html).
 
 *These notes and exercises were prepared by the lecturer with the help of AI tools, and checked by the lecturer. Please report any errors or unclear points, in the lecture or by email.*
 {: .note}
@@ -82,7 +82,7 @@ $$
 
 (b) Can the argument be repaired without the false claim? (*Hint:* when is the $$s$$-th reward from arm $$a$$ drawn, compared with the decision to pull arm $$a$$ for the $$s$$-th time?)
 
-**Exercise 8\* (potential rewards).** Let $$Y_1, Y_2, \dots$$ be independent random vectors $$Y_t = (Y_{t,1}, \dots, Y_{t,K})$$ with $$Y_{t,a} \sim \mu_a$$, and let $$U_1, U_2, \dots$$ be independent uniform random variables, independent of the $$Y$$'s. Any policy can be run by setting $$A_t = f_t(A_1, X_1, \dots, A_{t-1}, X_{t-1}, U_t)$$ for suitable functions $$f_t$$. Set $$X_t = Y_{t,A_t}$$.
+**Exercise 8 (potential rewards).** Let $$Y_1, Y_2, \dots$$ be independent random vectors $$Y_t = (Y_{t,1}, \dots, Y_{t,K})$$ with $$Y_{t,a} \sim \mu_a$$, and let $$U_1, U_2, \dots$$ be independent uniform random variables, independent of the $$Y$$'s. Any policy can be run by setting $$A_t = f_t(A_1, X_1, \dots, A_{t-1}, X_{t-1}, U_t)$$ for suitable functions $$f_t$$. Set $$X_t = Y_{t,A_t}$$.
 
 (a) Note that $$A_t$$ is independent of $$Y_t$$, and deduce that $$\mathbb P(X_t \in \cdot \mid H_{t-1}, A_t) = \mu_{A_t}$$.
 
