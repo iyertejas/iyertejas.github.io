@@ -97,7 +97,11 @@ Two arms succeed with probabilities ½ + Δ/2 and ½ − Δ/2; the better arm is
 
 ## Resources
 
-Links to lecture notes and additional resources will be provided as the course progresses. The course will draw substantially on:
+Lecture notes and exercise sheets will be added here as the course progresses.
+
+- **Lecture 1** (13 October). [Stochastic bandits and concentration](course-rl-2026-lecture-1.html), with [Exercise Sheet 1](course-rl-2026-sheet-1.html).
+
+The course will draw substantially on:
 
 - L. Döring et al., *The Mathematics of Reinforcement Learning*.
 - T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020. Freely available [online](https://tor-lattimore.com/downloads/book/book.pdf). Chapters 4 and 5 cover the first lecture.
