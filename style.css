@@ -167,3 +167,48 @@ body.course .content > h2{border-top:0;padding-top:0;margin:2rem 0 .5rem;font-fa
 body.research .content > p{max-width:76ch}
 body.research .content > p.lede{max-width:68ch}
 body.research .content > p.caption{max-width:84ch}
+
+/* ===== Lecture notes (pages with maths) ===== */
+.content > blockquote{max-width:66ch;margin:0 0 1.2em;padding:.2rem 0 .2rem 1.1rem;border-left:3px solid var(--rule)}
+.content > blockquote p{margin:0}
+.content > p.note{color:var(--muted);font-size:1rem}
+.content .katex-display{max-width:46rem;margin:.4em 0 1.2em;overflow-x:auto;overflow-y:hidden;padding:.15em 0}
+.content li .katex,.content p .katex{font-size:1.04em}
+body.notes .content > h2{font-size:1.15rem;margin:2.6rem 0 .7rem}
+
+/* ===== Slot machines (Lecture 1) ===== */
+.slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(.6rem,2vw,1.2rem);margin-bottom:1.2rem}
+.machine{border:1px solid var(--rule);border-top:4px solid var(--sw);border-radius:6px;padding:.8rem;display:flex;flex-direction:column;gap:.55rem;font-family:var(--sans);min-width:0}
+.machine h3{margin:0;font-size:.92rem}
+.reel{height:4rem;display:grid;place-items:center;font-family:var(--serif);font-size:2.4rem;line-height:1;background:var(--paper);border-radius:4px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.reel.spin{opacity:.45}
+.reel.win{color:var(--good);font-weight:500}
+.reel.lose{color:var(--muted)}
+.machine button{width:100%}
+button:disabled{opacity:.45;cursor:default}
+button:disabled:hover{background:transparent}
+.est{font-size:.82rem;color:var(--muted);min-height:2.5em;font-variant-numeric:tabular-nums}
+.ci{position:relative;height:16px;background:color-mix(in srgb,var(--rule) 55%,transparent);border-radius:2px}
+.ci .band{position:absolute;top:3px;bottom:3px;background:color-mix(in srgb,var(--sw) 40%,transparent);border-radius:2px}
+.ci .dot{position:absolute;top:0;bottom:0;width:3px;background:var(--sw);border-radius:1px}
+.ci .truth{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
+.ci-scale{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-top:-.3rem}
+.slot-controls{margin-bottom:0}
+.slot-round{flex:1 1 240px;font-variant-numeric:tabular-nums}
+.slot-report{font-family:var(--sans);font-size:.9rem}
+.slot-report p{max-width:72ch;margin:.9rem 0 0}
+.slot-report table{border-collapse:collapse;margin:.9rem 0 0;font-variant-numeric:tabular-nums;width:100%;max-width:560px}
+.slot-report th,.slot-report td{padding:.3rem .6rem .3rem 0;border-bottom:1px solid var(--rule);text-align:right;font-weight:400}
+.slot-report thead th{color:var(--muted);font-size:.8rem}
+.slot-report th[scope=row],.slot-report thead th:first-child{text-align:left}
+.slot-report tr.best th,.slot-report tr.best td{font-weight:600}
+.slot-report tfoot th,.slot-report tfoot td{border-bottom:0;font-weight:600}
+.slot-report .sw{display:inline-block;width:.7em;height:.7em;border-radius:50%;background:var(--sw);margin-right:.45em;vertical-align:-.04em}
+.slot-report .bars{max-width:640px}
+.slot-report .bars em{color:var(--muted)}
+@media (max-width:520px){
+  .machine{padding:.55rem}
+  .reel{height:3.2rem;font-size:2rem}
+  .slot-report th,.slot-report td{padding-right:.35rem;font-size:.8rem}
+  .slot-report .bars{grid-template-columns:minmax(0,1.5fr) minmax(2.5rem,1fr) auto}
+}

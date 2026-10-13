@@ -962,10 +962,125 @@ function slWidget(){
   return { start, redraw(){ drawTree(); drawChart(); } };
 }
 
+/* =========================================================
+   5. Lecture 1 notes: three slot machines, played by hand
+   ========================================================= */
+function slotWidget(){
+  const K = 3, N = 50, DELTA = 0.1, SIMS = 4000, ETC_L = 5;
+  const COLS = ["--c0","--c1","--c2"];
+  const half = s => Math.sqrt(Math.log(2/DELTA)/(2*s));     // two-sided Chernoff width, rewards in [0,1]
+  const f2 = x => x.toFixed(2);
+  let g = null, busy = false;
+  $("slots").innerHTML = COLS.map((c,i) => `
+    <div class="machine" style="--sw:var(${c})">
+      <h3>Machine ${i+1}</h3>
+      <div class="reel" id="reel${i}">–</div>
+      <button type="button" id="pull${i}" aria-label="Pull machine ${i+1}">Pull</button>
+      <div class="est" id="est${i}"></div>
+      <div class="ci" id="ci${i}" aria-hidden="true"><span class="band"></span><span class="dot"></span><span class="truth"></span></div>
+      <div class="ci-scale" aria-hidden="true"><span>0</span><span>1</span></div>
+    </div>`).join("");
+  for (let i=0;i<K;i++) $("pull"+i).addEventListener("click", () => pull(i));
+
+  function newGame(){
+    let m;
+    for (;;){
+      m = Array.from({length:K}, () => Math.round((0.15 + 0.7*Math.random())*100)/100);
+      const s = [...m].sort((a,b) => b-a);
+      if (s[0]-s[1] >= 0.05 && s[0]-s[2] >= 0.15) break;
+    }
+    g = { m, n:new Array(K).fill(0), s:new Array(K).fill(0), t:0, total:0, over:false };
+    busy = false;
+    $("slotReport").innerHTML = ""; $("slotStatus").textContent = "";
+    for (let i=0;i<K;i++){ $("reel"+i).textContent = "–"; $("reel"+i).className = "reel"; }
+    render();
+  }
+  function pull(a){
+    if (!g || g.over || busy) return;
+    const game = g, x = Math.random() < g.m[a] ? 1 : 0, reel = $("reel"+a);
+    if (reduced){ land(a, x); return; }
+    busy = true; setButtons();
+    reel.className = "reel spin"; let k = 0;
+    const iv = setInterval(() => { reel.textContent = (k++ % 2) ? "1" : "0"; }, 55);
+    setTimeout(() => { clearInterval(iv); if (g !== game) return; busy = false; land(a, x); }, 330);
+  }
+  function land(a, x){
+    g.n[a]++; g.s[a] += x; g.t++; g.total += x;
+    const reel = $("reel"+a); reel.textContent = String(x); reel.className = "reel " + (x ? "win" : "lose");
+    $("slotStatus").textContent = `Machine ${a+1} paid ${x}.`;
+    if (g.t >= N) finish(); else render();
+  }
+  function setButtons(){
+    for (let i=0;i<K;i++) $("pull"+i).disabled = g.over || busy;
+    $("slotReveal").disabled = g.over || g.t === 0;
+  }
+  function render(){
+    for (let i=0;i<K;i++){
+      const n = g.n[i], [band, dot, truth] = $("ci"+i).children;
+      if (!n){ $("est"+i).textContent = "not pulled yet"; band.style.display = dot.style.display = "none"; }
+      else {
+        const mh = g.s[i]/n, w = half(n);
+        $("est"+i).textContent = `${n} pull${n>1?"s":""} · average ${f2(mh)}`;
+        band.style.display = dot.style.display = "";
+        band.style.left = 100*Math.max(0, mh-w) + "%"; band.style.right = 100*(1-Math.min(1, mh+w)) + "%";
+        dot.style.left = `calc(${100*mh}% - 1.5px)`;
+      }
+      truth.style.display = g.over ? "" : "none"; truth.style.left = `calc(${100*g.m[i]}% - 1px)`;
+    }
+    $("slotRound").textContent = g.over
+      ? `Finished after ${g.t} pull${g.t===1?"":"s"} · total payout ${g.total}`
+      : `Pull ${g.t} of ${N} · total payout ${g.total}`;
+    setButtons();
+  }
+  // expected regret of the example policies from the notes, on these machines, over n rounds
+  function policies(n, D){
+    const pick = (n_, s_) => { let best = -1, arg = []; for (let a=0;a<K;a++){ const v = s_[a]/n_[a]; if (v > best + 1e-12){ best = v; arg = [a]; } else if (Math.abs(v-best) <= 1e-12) arg.push(a); } return arg[Math.floor(Math.random()*arg.length)]; };
+    const sim = explore => { let tot = 0;
+      for (let r=0;r<SIMS;r++){ const n_ = new Array(K).fill(0), s_ = new Array(K).fill(0); let commit = -1;
+        for (let t=0;t<n;t++){
+          let a;
+          if (t < K*explore) a = t % K;
+          else if (explore > 1){ if (commit < 0) commit = pick(n_, s_); a = commit; }
+          else a = pick(n_, s_);
+          n_[a]++; if (Math.random() < g.m[a]) s_[a]++; tot += D[a];
+        } }
+      return tot/SIMS; };
+    return [
+      {name:"Always machine 1", v:n*D[0], exact:true},
+      {name:"Uniformly random", v:n/K*D.reduce((x,y) => x+y, 0), exact:true},
+      {name:"Each once, then best average", v:sim(1)},
+      {name:`Explore ${ETC_L} each, then commit`, v:sim(ETC_L), note:"next lecture"}
+    ];
+  }
+  function finish(){
+    g.over = true; busy = false; render(); $("slotStatus").textContent = "";
+    const n = g.t; if (!n) return;
+    const best = Math.max(...g.m), D = g.m.map(v => best - v), b = g.m.indexOf(best);
+    const yours = D.reduce((acc,d,i) => acc + d*g.n[i], 0);
+    const rows = g.m.map((v,i) => `<tr${i===b?' class="best"':""}><th scope="row"><span class="sw" style="--sw:var(${COLS[i]})"></span>Machine ${i+1}</th><td>${f2(v)}</td><td>${f2(D[i])}</td><td>${g.n[i]}</td><td>${f2(D[i]*g.n[i])}</td></tr>`).join("");
+    const pol = [{name:"You, this play", v:yours, you:true}, ...policies(n, D)];
+    const vmax = Math.max(...pol.map(p => p.v), 1e-9);
+    const bars = pol.map(p => `<span class="lab">${p.you ? "<b>"+p.name+"</b>" : p.name}${p.note ? ` <em>(${p.note})</em>` : ""}</span>`
+      + `<span class="track"><span class="fill" style="width:${100*p.v/vmax}%;background:var(${p.you ? "--accent" : "--edge"})"></span></span>`
+      + `<span class="num">${p.v.toFixed(1)}</span>`).join("");
+    $("slotReport").innerHTML = `
+      <p>Machine ${b+1} was best: it pays 1 with probability <i>m</i>* = ${f2(best)}.</p>
+      <table class="regret"><thead><tr><th scope="col">Machine</th><th scope="col">Mean <i>m<sub>a</sub></i></th><th scope="col">Gap <i>Δ<sub>a</sub></i></th><th scope="col">Pulls <i>N<sub>a</sub></i></th><th scope="col"><i>Δ<sub>a</sub> N<sub>a</sub></i></th></tr></thead>
+      <tbody>${rows}</tbody><tfoot><tr><th scope="row" colspan="4">Sum</th><td>${f2(yours)}</td></tr></tfoot></table>
+      <p>Compared with always playing machine ${b+1}, your choices cost Σ<sub><i>a</i></sub> <i>Δ<sub>a</sub> N<sub>a</sub></i> = ${f2(yours)}. By Lemma 1.1, the expected value of this sum is the regret of the way you played. Your actual payout, ${g.total}, fell short of <i>n m</i>* = ${(n*best).toFixed(1)} by ${(n*best - g.total).toFixed(1)}: that has the same expectation, but also contains the luck of the draws.</p>
+      <p class="small-lab">Regret over ${n} pull${n===1?"":"s"} on these machines. Yours is for this play; the first two policies are exact, the last two are averaged over ${SIMS.toLocaleString("en-GB")} simulated plays.</p>
+      <div class="bars">${bars}</div>`;
+  }
+  $("slotReveal").addEventListener("click", () => { if (g && !g.over && g.t) finish(); });
+  $("slotNew").addEventListener("click", newGame);
+  newGame();
+  return { start(){}, redraw(){} };
+}
+
 /* ---------- boot ---------- */
 const widgets = {};
 const defs = [["phase-demo", phaseWidget], ["self-demo", selfWidget], ["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],
-              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget]];
+              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget]];
 function boot(){
   // Build each widget independently, so one failure cannot stop the others.
   for (const [id, mk] of defs) if ($(id)) { try { widgets[id] = mk(); } catch (e) { console.error("simulation " + id + " failed to load", e); } }
