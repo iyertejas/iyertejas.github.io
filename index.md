@@ -21,8 +21,7 @@ I am a member of the Interacting Random Systems group at WIAS, within the DFG pr
 ## News
 
 - **Nov 2026.** I am co-organising the workshop [*Stochastic Processes with Reinforcement*](https://www.wias-berlin.de/workshops/SPR26/) with Elena Magnanini at WIAS Berlin, 3–6 November 2026.
-- **Oct 2026.** Lecture notes for my reinforcement learning course now go online after each lecture, with interactive simulations: [Lecture 1](course-rl-2026-lecture-1.html) has a slot machine to play.
-- **Winter 2026/27.** New course at TU Berlin: [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html).
+- **Winter 2026/27.** New course at TU Berlin: [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html). Lecture notes go online after each lecture, with interactive simulations: [Lecture 1](course-rl-2026-lecture-1.html) has a slot machine to play.
 
 ## Contact
 
