@@ -46,7 +46,7 @@ $$
 
 (b) Hence prove Hoeffding's lemma: if $$X \in [a, b]$$ almost surely, with mean $$m$$, then $$X$$ is $$\frac{b-a}{2}$$-sub-Gaussian.
 
-*Hint:* reduce to $$m = 0$$. Then use convexity of $$x \mapsto e^{\lambda x}$$ to bound $$e^{\lambda x}$$, for $$x \in [a, b]$$, by a linear combination of $$e^{\lambda a}$$ and $$e^{\lambda b}$$.
+*Hint:* reduce to $$m = 0$$, and use convexity of $$x \mapsto e^{\lambda x}$$.
 
 **Exercise 4 (the lower tail).** Under the assumptions of Theorem 1.10:
 
