@@ -10,7 +10,7 @@ I teach master's courses in probability at TU Berlin. Course materials are linke
 
 ## Courses at TU Berlin
 
-- **Winter 2026/27.** [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html). A mathematically rigorous treatment of bandits and Markov decision processes. Lecture notes go online as the course runs, with [interactive simulations](course-rl-2026-lecture-1.html#try-it-a-slot-machine).
+- **Winter 2026/27.** [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html). A mathematically rigorous treatment of bandits and Markov decision processes. Lecture notes go online as the course runs, with [interactive simulations](course-rl-2026-lecture-1.html#slot-demo).
 - **Summer 2026.** [Branching Processes](course-branching-2026.html). Bienaymé–Galton–Watson processes via generating functions, martingale limits and the Kesten–Stigum theorem, spine techniques, introduction to criticality and continuum random trees.
 - **Winter 2025/26.** [Percolation](course-percolation-2025.html). The canonical probabilistic phase transition: from finite clusters to an infinite cluster.
 - **Summer 2025.** [Topics in Branching Processes](course-branching-2025.html). Bienaymé–Galton–Watson processes and their long-run behaviour (the Kolmogorov and Yaglom limits, Kesten–Stigum and Seneta–Heyde).

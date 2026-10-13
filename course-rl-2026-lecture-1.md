@@ -21,6 +21,13 @@ These notes cover the first lecture: the stochastic bandit model, regret and the
 
 A learner repeatedly chooses between $$K$$ options, called *arms*, and receives a random reward from the arm it chooses. Think of a video platform choosing between a cat video, a dog video and a politics video, and being rewarded when you watch. Each choice earns a reward now and also gives information about the arm chosen, and information only comes from arms that are tried. Balancing the two is the *exploration–exploitation trade-off*.
 
+**Try it.** Three slot machines pay out 1 or 0, each with its own unknown probability, and you have 50 pulls. Under each machine you see how often you have pulled it, its average payout so far, and a shaded confidence interval. When you finish (or stop early), the machines are revealed and your regret is split up as in Lemma 1.6 below.
+
+{% include sim-slots.html %}
+
+The shaded intervals are $$\hat m_a \pm \sqrt{\log(2/\delta)/(2N_a)}$$ with $$\delta = 0.1$$; see the Chernoff bound below (Theorem 1.10 and Corollary 1.11). Each contains the true mean with probability at least 0.9 *if the number of pulls is fixed in advance*. Your pulls depend on what you have seen, so this guarantee does not directly apply; dealing with that is one of the main themes of the next lectures.
+{: .caption}
+
 **Definition 1.1 (stochastic bandit model).** Fix $$K \ge 2$$ arms and a horizon $$n \in \mathbb N$$.
 
 - An *environment* is $$\nu = (\mu_1, \dots, \mu_K)$$, a list of probability measures on $$\mathbb R$$ with finite means $$m_1, \dots, m_K$$. Write $$m^* = \max_a m_a$$ for the best mean and $$\Delta_a = m^* - m_a$$ for the *gap* of arm $$a$$.
@@ -162,15 +169,6 @@ $$
 *Proof.* For the first, set the right-hand side of the upper tail bound equal to $$\delta$$ and solve for $$\varepsilon$$. The second is Exercise 6(a). $$\square$$
 
 The width shrinks like $$1/\sqrt s$$ and depends on the error probability $$\delta$$ only through $$\sqrt{\log(1/\delta)}$$, so very small error probabilities are cheap. For Gaussian rewards the exponent $$\frac{s\varepsilon^2}{2\sigma^2}$$ cannot be improved (Exercise 5).
-
-## Try it: a slot machine
-
-Three slot machines pay out 1 or 0, each with its own unknown probability. You have 50 pulls. Under each machine you see how often you have pulled it, its average payout so far, and a confidence interval from the Chernoff bound. When you finish (or stop early), the machines are revealed and your regret is split up as in Lemma 1.6.
-
-{% include sim-slots.html %}
-
-The intervals are $$\hat m_a \pm \sqrt{\log(2/\delta)/(2N_a)}$$ with $$\delta = 0.1$$: the two-sided intervals of Corollary 1.11 for rewards in $$[0, 1]$$, which are $$\frac12$$-sub-Gaussian. Each one contains the true mean with probability at least 0.9 *if the number of pulls is fixed in advance*. Your pulls depend on what you have seen, so this guarantee does not directly apply; dealing with that is one of the main themes of the next lectures.
-{: .caption}
 
 ## Next lecture
 
