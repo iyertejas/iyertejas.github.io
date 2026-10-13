@@ -11,7 +11,9 @@ math: true
 [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html) · TU Berlin · Winter 2026/27
 {: .lede}
 
-Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html).
+Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises marked <span class="tag">used later</span> are needed in later lectures.
+
+**On AI.** Using AI tools is permitted, but optional. I recommend being stuck on a problem for a while before checking a solution; in my own work, working offline with pen and paper is a good way to achieve this.
 
 *These notes and exercises were prepared by the lecturer with the help of AI tools, and checked by the lecturer. Please report any errors or unclear points, in the lecture or by email.*
 {: .note}
@@ -26,7 +28,7 @@ Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html).
 
 (d) Do any of these policies have regret that grows more slowly than $$n$$?
 
-**Exercise 2 (scaling and sums).**
+**Exercise 2 (scaling and sums).** <span class="tag">used later</span>
 
 (a) Show that if $$X$$ is $$\sigma$$-sub-Gaussian and $$c \in \mathbb R$$, then $$cX$$ is $$\lvert c\rvert\sigma$$-sub-Gaussian.
 
@@ -34,7 +36,7 @@ Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html).
 
 (c) Show by an example that the conclusion of (b) can fail if $$X_1$$ and $$X_2$$ are not independent.
 
-**Exercise 3 (Hoeffding's lemma).**
+**Exercise 3 (Hoeffding's lemma).** <span class="tag">used later</span>
 
 (a) Let $$a \le 0 \le b$$ with $$a < b$$. Show that for every $$\lambda \in \mathbb R$$,
 
@@ -48,7 +50,7 @@ $$
 
 *Hint:* reduce to $$m = 0$$, and use convexity of $$x \mapsto e^{\lambda x}$$.
 
-**Exercise 4 (the lower tail).** Under the assumptions of Theorem 1.10:
+**Exercise 4 (the lower tail).** <span class="tag">used later</span> Under the assumptions of Theorem 1.10:
 
 (a) Show that $$\mathbb P(\hat m - m \le -\varepsilon) \le \exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$ for every $$\varepsilon \ge 0$$.
 
@@ -82,7 +84,7 @@ $$
 
 (b) Can the argument be repaired without the false claim? (*Hint:* when is the $$s$$-th reward from arm $$a$$ drawn, compared with the decision to pull arm $$a$$ for the $$s$$-th time?)
 
-**Exercise 8 (potential rewards).** Let $$Y_1, Y_2, \dots$$ be independent random vectors $$Y_t = (Y_{t,1}, \dots, Y_{t,K})$$ with $$Y_{t,a} \sim \mu_a$$, and let $$U_1, U_2, \dots$$ be independent uniform random variables, independent of the $$Y$$'s. Any policy can be run by setting $$A_t = f_t(A_1, X_1, \dots, A_{t-1}, X_{t-1}, U_t)$$ for suitable functions $$f_t$$. Set $$X_t = Y_{t,A_t}$$.
+**Exercise 8 (potential rewards).** <span class="tag">used later</span> Let $$Y_1, Y_2, \dots$$ be independent random vectors $$Y_t = (Y_{t,1}, \dots, Y_{t,K})$$ with $$Y_{t,a} \sim \mu_a$$, and let $$U_1, U_2, \dots$$ be independent uniform random variables, independent of the $$Y$$'s. Any policy can be run by setting $$A_t = f_t(A_1, X_1, \dots, A_{t-1}, X_{t-1}, U_t)$$ for suitable functions $$f_t$$. Set $$X_t = Y_{t,A_t}$$.
 
 (a) Note that $$A_t$$ is independent of $$Y_t$$, and deduce that $$\mathbb P(X_t \in \cdot \mid H_{t-1}, A_t) = \mu_{A_t}$$.
 
