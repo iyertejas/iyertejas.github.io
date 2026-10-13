@@ -34,9 +34,19 @@ Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises m
 
 (c) Show by an example that the conclusion of (b) can fail if $$X_1$$ and $$X_2$$ are not independent.
 
-**Exercise 3 (Hoeffding's lemma).** Let $$X \in [a, b]$$ almost surely, with mean $$m$$. Show that $$X$$ is $$\frac{b-a}{2}$$-sub-Gaussian.
+**Exercise 3 (Hoeffding's lemma).**
 
-*Hint:* Use convexity of $$x \mapsto e^{\lambda x}$$ and Taylor's theorem.
+(a) Let $$a \le 0 \le b$$ with $$a < b$$. Show that for every $$\lambda \in \mathbb R$$,
+
+$$
+\frac{b\, e^{\lambda a} - a\, e^{\lambda b}}{b - a} \le e^{\lambda^2 (b - a)^2 / 8}.
+$$
+
+*Hint:* with $$p = -a/(b - a)$$ and $$h = \lambda(b - a)$$, take logarithms and use Taylor's theorem to second order in $$h$$.
+
+(b) Hence prove Hoeffding's lemma: if $$X \in [a, b]$$ almost surely, with mean $$m$$, then $$X$$ is $$\frac{b-a}{2}$$-sub-Gaussian.
+
+*Hint:* reduce to $$m = 0$$. Then use convexity of $$x \mapsto e^{\lambda x}$$ to bound $$e^{\lambda x}$$, for $$x \in [a, b]$$, by a linear combination of $$e^{\lambda a}$$ and $$e^{\lambda b}$$.
 
 **Exercise 4 (the lower tail).** Under the assumptions of Theorem 1.10:
 
