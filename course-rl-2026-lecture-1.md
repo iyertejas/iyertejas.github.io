@@ -21,7 +21,7 @@ These notes cover the first lecture: the stochastic bandit model, regret and the
 
 A learner repeatedly chooses between $$K$$ options, called *arms*, and receives a random reward from the arm it chooses. Think of a video platform choosing between a cat video, a dog video and a politics video, and being rewarded when you watch. Each choice earns a reward now and also gives information about the arm chosen, and information only comes from arms that are tried. Balancing the two is the *exploration–exploitation trade-off*.
 
-**Definition (stochastic bandit model).** Fix $$K \ge 2$$ arms and a horizon $$n \in \mathbb N$$.
+**Definition 1.1 (stochastic bandit model).** Fix $$K \ge 2$$ arms and a horizon $$n \in \mathbb N$$.
 
 - An *environment* is $$\nu = (\mu_1, \dots, \mu_K)$$, a list of probability measures on $$\mathbb R$$ with finite means $$m_1, \dots, m_K$$. Write $$m^* = \max_a m_a$$ for the best mean and $$\Delta_a = m^* - m_a$$ for the *gap* of arm $$a$$.
 - In each round $$t = 1, \dots, n$$ the learner picks an arm $$A_t \in [K] = \{1, \dots, K\}$$ and receives a real-valued reward $$X_t$$. This reward is all it observes in that round.
@@ -34,9 +34,9 @@ $$
 
 In words: given the past and the arm pulled, the reward is a fresh draw from that arm's distribution. Rewards are not assumed independent of the past in any other sense. The learner's choices depend on earlier rewards, and that is what makes the problem interesting.
 
-**Remark (stationarity).** In this model the distributions $$\mu_a$$ do not change over time. One can also allow the reward distribution of arm $$a$$ in round $$t$$ to be $$\mu_{a,t}$$, with a mean $$m_{a,t}$$ that changes with $$t$$: the video platform's users change their tastes. Such *non-stationary* bandits are harder, and in the first part of the course we stay with the stationary model.
+**Remark 1.2 (stationarity).** In this model the distributions $$\mu_a$$ do not change over time. One can also allow the reward distribution of arm $$a$$ in round $$t$$ to be $$\mu_{a,t}$$, with a mean $$m_{a,t}$$ that changes with $$t$$: the video platform's users change their tastes. Such *non-stationary* bandits are harder, and in the first part of the course we stay with the stationary model.
 
-**Definition (policy).** A *policy* $$\pi$$ tells the learner how to choose $$A_t$$ on the basis of the history $$H_{t-1}$$, possibly using extra randomness. (Formally, $$\pi = (\pi_t)_{t \ge 1}$$ is a sequence of probability kernels from $$([K] \times \mathbb R)^{t-1}$$ to $$[K]$$: for each possible history $$h = (a_1, x_1, \dots, a_{t-1}, x_{t-1})$$, $$\pi_t(\cdot \mid h)$$ is a probability measure on $$[K]$$, and for each arm $$a$$, $$h \mapsto \pi_t(a \mid h)$$ is measurable. The learner draws $$A_t$$ from $$\pi_t(\cdot \mid H_{t-1})$$; that is, $$\mathbb P(A_t = a \mid H_{t-1}) = \pi_t(a \mid H_{t-1})$$.)
+**Definition 1.3 (policy).** A *policy* $$\pi$$ tells the learner how to choose $$A_t$$ on the basis of the history $$H_{t-1}$$, possibly using extra randomness. (Formally, $$\pi = (\pi_t)_{t \ge 1}$$ is a sequence of probability kernels from $$([K] \times \mathbb R)^{t-1}$$ to $$[K]$$: for each possible history $$h = (a_1, x_1, \dots, a_{t-1}, x_{t-1})$$, $$\pi_t(\cdot \mid h)$$ is a probability measure on $$[K]$$, and for each arm $$a$$, $$h \mapsto \pi_t(a \mid h)$$ is measurable. The learner draws $$A_t$$ from $$\pi_t(\cdot \mid H_{t-1})$$; that is, $$\mathbb P(A_t = a \mid H_{t-1}) = \pi_t(a \mid H_{t-1})$$.)
 
 A policy is *deterministic* if each $$\pi_t(\cdot \mid h)$$ is a point mass, that is, $$A_t$$ is a function of $$H_{t-1}$$. The point of defining $$\pi$$ on possible histories $$h$$, rather than on the random history, is that the same policy can be run in any environment. A policy and an environment together determine the law of $$H_n = (A_1, X_1, \dots, A_n, X_n)$$: writing $$h_{t-1} = (a_1, x_1, \dots, a_{t-1}, x_{t-1})$$,
 
@@ -46,11 +46,11 @@ $$
 
 In words: choose an arm, draw a reward from it, choose the next arm given what has been seen, and so on. We write $$\mathbb P_\pi$$ and $$\mathbb E_\pi$$ for probabilities and expectations under this law.
 
-Examples of policies: always play arm 1; play an arm chosen uniformly at random in every round; play each arm once and from then on always play the arm with the highest average reward so far.
+**Example 1.4 (policies).** Always play arm 1; play an arm chosen uniformly at random in every round; play each arm once and from then on always play the arm with the highest average reward so far.
 
 ## 2. Regret and the regret decomposition
 
-**Definition (regret).** The *regret* of a policy $$\pi$$ after $$n$$ rounds is
+**Definition 1.5 (regret).** The *regret* of a policy $$\pi$$ after $$n$$ rounds is
 
 $$
 R_n(\pi) = n\,m^* - \mathbb E_\pi\Big[\sum_{t=1}^n X_t\Big].
@@ -64,7 +64,7 @@ $$
 
 Always playing arm $$a$$ gives regret $$n\Delta_a$$, and playing uniformly at random gives $$\frac nK \sum_a \Delta_a$$ (Exercise 1). Both grow linearly in $$n$$. The central question of the first part of the course is how slowly regret can grow, and what stops it from growing more slowly.
 
-**Lemma 1.1 (regret decomposition).** For every policy $$\pi$$,
+**Lemma 1.6 (regret decomposition).** For every policy $$\pi$$,
 
 $$
 R_n(\pi) = \sum_{a=1}^K \Delta_a\, \mathbb E_\pi[N_a(n)].
@@ -93,7 +93,7 @@ $$
 
 So controlling regret means controlling how often each suboptimal arm is pulled.
 
-**Remark.** The proof only uses the conditional mean of $$X_t$$ given the past and the current arm. The arm $$A_t$$ may depend heavily on earlier rewards; what matters is that it is chosen before $$X_t$$ is drawn. Exercise 7 gives a tempting but wrong argument for the same lemma.
+**Remark 1.7.** The proof only uses the conditional mean of $$X_t$$ given the past and the current arm. The arm $$A_t$$ may depend heavily on earlier rewards; what matters is that it is chosen before $$X_t$$ is drawn. Exercise 7 gives a tempting but wrong argument for the same lemma.
 
 ## 3. Sub-Gaussian random variables
 
@@ -112,31 +112,35 @@ since the last integrand is the density of $$N(\lambda\sigma^2, \sigma^2)$$. Con
 
 The definition below asks for the same bound on the moment generating function, with $$\le$$ in place of $$=$$.
 
-**Definition (sub-Gaussian).** A random variable $$X$$ with mean $$m$$ is *$$\sigma$$-sub-Gaussian* if
+**Definition 1.8 (sub-Gaussian).** A random variable $$X$$ with mean $$m$$ is *$$\sigma$$-sub-Gaussian* if
 
 $$
 \mathbb E\big[e^{\lambda (X - m)}\big] \le e^{\lambda^2 \sigma^2 / 2} \qquad \text{for all } \lambda \in \mathbb R.
 $$
 
-**Examples.**
+**Lemma 1.9 (examples).**
 
-- If $$X \sim N(m, \sigma^2)$$, equality holds by the computation above, so $$X$$ is $$\sigma$$-sub-Gaussian.
-- If $$X \in [a, b]$$ almost surely, then $$X$$ is $$\frac{b-a}{2}$$-sub-Gaussian (Hoeffding's lemma, Exercise 3). In particular, rewards in $$[0, 1]$$ are $$\frac12$$-sub-Gaussian.
-- If $$X_1, X_2$$ are independent and $$\sigma_1$$-, $$\sigma_2$$-sub-Gaussian, then $$X_1 + X_2$$ is $$\sqrt{\sigma_1^2 + \sigma_2^2}$$-sub-Gaussian, and $$cX_1$$ is $$\lvert c\rvert\sigma_1$$-sub-Gaussian (Exercise 2).
+(a) If $$X \sim N(m, \sigma^2)$$, then $$X$$ is $$\sigma$$-sub-Gaussian, with equality in the definition.
+
+(b) If $$X \in [a, b]$$ almost surely, then $$X$$ is $$\frac{b-a}{2}$$-sub-Gaussian (Hoeffding's lemma). In particular, rewards in $$[0, 1]$$ are $$\frac12$$-sub-Gaussian.
+
+(c) If $$X$$ is $$\sigma$$-sub-Gaussian and $$c \in \mathbb R$$, then $$cX$$ is $$\lvert c\rvert\sigma$$-sub-Gaussian. If $$X_1, X_2$$ are independent and $$\sigma_1$$-, $$\sigma_2$$-sub-Gaussian, then $$X_1 + X_2$$ is $$\sqrt{\sigma_1^2 + \sigma_2^2}$$-sub-Gaussian.
+
+*Proof.* Part (a) is the computation above, (b) is Exercise 3 and (c) is Exercise 2. $$\square$$
 
 The definition is a bound on the moment generating function, and it is exactly what the proof below uses. For bounded rewards the constant $$\sigma$$ is known without knowing the distribution.
 
 ## 4. The Chernoff bound
 
-**Theorem 1.2 (Chernoff bound).** Let $$X_1, \dots, X_s$$ be independent and $$\sigma$$-sub-Gaussian with mean $$m$$, and let $$\hat m = \frac1s \sum_i X_i$$. Then for every $$\varepsilon \ge 0$$,
+**Theorem 1.10 (Chernoff bound).** Let $$X_1, \dots, X_s$$ be independent and $$\sigma$$-sub-Gaussian with mean $$m$$, and let $$\hat m = \frac1s \sum_i X_i$$. Then for every $$\varepsilon \ge 0$$,
 
 $$
-\mathbb P(\hat m - m \ge \varepsilon) \le \exp\Big(-\frac{s\varepsilon^2}{2\sigma^2}\Big).
+\mathbb P(\hat m - m \ge \varepsilon) \le \exp\Big(-\frac{s\varepsilon^2}{2\sigma^2}\Big) \qquad\text{and}\qquad \mathbb P(\hat m - m \le -\varepsilon) \le \exp\Big(-\frac{s\varepsilon^2}{2\sigma^2}\Big).
 $$
 
-The same bound holds for $$\mathbb P(\hat m - m \le -\varepsilon)$$ (Exercise 4).
+Consequently, $$\mathbb P(\lvert\hat m - m\rvert \ge \varepsilon) \le 2\exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$.
 
-*Proof.* Let $$S = \sum_i (X_i - m)$$, so that $$\{\hat m - m \ge \varepsilon\} = \{S \ge s\varepsilon\}$$. For any $$\lambda > 0$$, Markov's inequality applied to $$e^{\lambda S}$$, followed by independence, gives
+*Proof.* We prove the upper tail; the lower tail and the two-sided bound are Exercise 4. Let $$S = \sum_i (X_i - m)$$, so that $$\{\hat m - m \ge \varepsilon\} = \{S \ge s\varepsilon\}$$. For any $$\lambda > 0$$, Markov's inequality applied to $$e^{\lambda S}$$, followed by independence, gives
 
 $$
 \begin{aligned}
@@ -147,26 +151,28 @@ $$
 
 The exponent is minimised at $$\lambda = \varepsilon/\sigma^2$$, which gives $$\exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$. $$\square$$
 
-**Confidence form.** Setting the right-hand side equal to $$\delta$$: with probability at least $$1 - \delta$$,
+**Corollary 1.11 (confidence intervals).** Under the assumptions of Theorem 1.10, let $$\delta \in (0, 1)$$. Each of the following holds with probability at least $$1 - \delta$$:
 
 $$
-\hat m < m + \sqrt{\frac{2\sigma^2 \log(1/\delta)}{s}}.
+\hat m < m + \sqrt{\frac{2\sigma^2 \log(1/\delta)}{s}} \qquad\text{and}\qquad \lvert\hat m - m\rvert < \sqrt{\frac{2\sigma^2 \log(2/\delta)}{s}}.
 $$
+
+*Proof.* For the first, set the right-hand side of the upper tail bound equal to $$\delta$$ and solve for $$\varepsilon$$. The second is Exercise 6(a). $$\square$$
 
 The width shrinks like $$1/\sqrt s$$ and depends on the error probability $$\delta$$ only through $$\sqrt{\log(1/\delta)}$$, so very small error probabilities are cheap. For Gaussian rewards the exponent $$\frac{s\varepsilon^2}{2\sigma^2}$$ cannot be improved (Exercise 5).
 
 ## Try it: a slot machine
 
-Three slot machines pay out 1 or 0, each with its own unknown probability. You have 50 pulls. Under each machine you see how often you have pulled it, its average payout so far, and a confidence interval from the Chernoff bound. When you finish (or stop early), the machines are revealed and your regret is split up as in Lemma 1.1.
+Three slot machines pay out 1 or 0, each with its own unknown probability. You have 50 pulls. Under each machine you see how often you have pulled it, its average payout so far, and a confidence interval from the Chernoff bound. When you finish (or stop early), the machines are revealed and your regret is split up as in Lemma 1.6.
 
 {% include sim-slots.html %}
 
-The intervals are $$\hat m_a \pm \sqrt{\log(2/\delta)/(2N_a)}$$ with $$\delta = 0.1$$: two-sided Chernoff intervals (Exercise 6) for rewards in $$[0, 1]$$, which are $$\frac12$$-sub-Gaussian. Each one contains the true mean with probability at least 0.9 *if the number of pulls is fixed in advance*. Your pulls depend on what you have seen, so this guarantee does not directly apply; dealing with that is one of the main themes of the next lectures.
+The intervals are $$\hat m_a \pm \sqrt{\log(2/\delta)/(2N_a)}$$ with $$\delta = 0.1$$: the two-sided intervals of Corollary 1.11 for rewards in $$[0, 1]$$, which are $$\frac12$$-sub-Gaussian. Each one contains the true mean with probability at least 0.9 *if the number of pulls is fixed in advance*. Your pulls depend on what you have seen, so this guarantee does not directly apply; dealing with that is one of the main themes of the next lectures.
 {: .caption}
 
 ## Next lecture
 
-Explore-then-commit: play each arm a fixed number of times, then commit to the arm with the best empirical mean. Lemma 1.1 and Theorem 1.2 are exactly what we need to analyse it.
+Explore-then-commit: play each arm a fixed number of times, then commit to the arm with the best empirical mean. Lemma 1.6 and Theorem 1.10 are exactly what we need to analyse it.
 
 ## Reading
 
