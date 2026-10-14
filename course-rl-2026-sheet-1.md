@@ -13,7 +13,7 @@ math: true
 
 Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises marked <span class="tag">used later</span> are needed in later lectures.
 
-**On AI.** The exercises are not graded, so this is advice rather than a rule: I recommend working on them without AI tools, offline with pen and paper. Being stuck on a problem for a while is where most of the learning happens, and checking a solution too early cuts that short.
+**On AI.** The exercises are not graded, so this is advice rather than a rule: I recommend working on them without AI tools, offline with pen and paper. Being stuck on a problem for a while is where most of the learning happens, and checking a solution too early cuts that short. Using AI for other things, such as background you are missing, a second explanation, or checking an argument you have already written, is a different matter; just bear in mind that it can be confidently wrong, so make sure to check every step.
 
 *These notes and exercises were prepared by the lecturer with the help of AI tools, and checked by the lecturer. Please report any errors or unclear points, in the lecture or by email.*
 {: .note}
