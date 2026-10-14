@@ -18,7 +18,7 @@ Lectures every Tuesday 16:15–17:45 in room MA 644 (Mathematics building, TU Be
 
 Notes and exercise sheets appear here after each lecture. They are prepared with the help of AI tools; corrections are welcome.
 
-**On AI.** Using AI tools for the exercises is permitted, but optional. I recommend being stuck on a problem for a while before checking a solution; in my own work, working offline with pen and paper is a good way to achieve this.
+**On AI.** The exercises are not graded, so this is advice rather than a rule: I recommend working on them without AI tools, offline with pen and paper. Being stuck on a problem for a while is where most of the learning happens, and checking a solution too early cuts that short.
 
 - **Lecture 1** (13 October). [Stochastic bandits and concentration](course-rl-2026-lecture-1.html) <span class="tag">interactive</span>, with [Exercise Sheet 1](course-rl-2026-sheet-1.html).
 
