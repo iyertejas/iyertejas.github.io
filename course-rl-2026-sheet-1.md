@@ -18,7 +18,7 @@ Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises m
 *These notes and exercises were prepared by the lecturer with the help of AI tools, and checked by the lecturer. Please report any errors or unclear points, in the lecture or by email.*
 {: .note}
 
-**Exercise 1 (regret of simple policies).** Fix an environment with $$K$$ arms.
+**Exercise 1 (regret of simple policies).** Fix a $$K$$-armed SBM.
 
 (a) Show that the policy that always plays arm $$a$$ has regret $$R_n = n\Delta_a$$.
 

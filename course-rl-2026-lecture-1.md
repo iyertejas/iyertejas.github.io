@@ -28,7 +28,7 @@ A learner repeatedly chooses between $$K$$ options, called *arms*, and receives 
 The shaded intervals are $$\hat m_a \pm \sqrt{\log(2/\delta)/(2N_a)}$$ with $$\delta = 0.1$$; see the Chernoff bound below (Theorem 1.10 and Corollary 1.11). Each contains the true mean with probability at least 0.9 *if the number of pulls is fixed in advance*. Your pulls depend on what you have seen, so this guarantee does not directly apply; dealing with that is one of the main themes of the next lectures.
 {: .caption}
 
-**Definition 1.1 (stochastic bandit model).** Fix $$K \ge 2$$ arms and a horizon $$n \in \mathbb N$$.
+**Definition 1.1 (stochastic bandit model).** Fix $$K \ge 2$$ arms and a horizon $$n \in \mathbb N$$. A *$$K$$-armed stochastic bandit model* (SBM) consists of the following.
 
 - An *environment* is $$\nu = (\mu_1, \dots, \mu_K)$$, a list of probability measures on $$\mathbb R$$ with finite means $$m_1, \dots, m_K$$. Write $$m^* = \max_a m_a$$ for the best mean and $$\Delta_a = m^* - m_a$$ for the *gap* of arm $$a$$.
 - In each round $$t = 1, \dots, n$$ the learner picks an arm $$A_t \in [K] = \{1, \dots, K\}$$ and receives a real-valued reward $$X_t$$. This reward is all it observes in that round.
@@ -71,7 +71,7 @@ $$
 
 Always playing arm $$a$$ gives regret $$n\Delta_a$$, and playing uniformly at random gives $$\frac nK \sum_a \Delta_a$$ (Exercise 1). Both grow linearly in $$n$$. The central question of the first part of the course is how slowly regret can grow, and what stops it from growing more slowly.
 
-**Lemma 1.6 (regret decomposition).** For every policy $$\pi$$,
+**Lemma 1.6 (regret decomposition).** In any SBM, for every policy $$\pi$$,
 
 $$
 R_n(\pi) = \sum_{a=1}^K \Delta_a\, \mathbb E_\pi[N_a(n)].
