@@ -43,12 +43,12 @@ In words: given the past and the arm pulled, the reward is a fresh draw from tha
 
 **Remark 1.2 (stationarity).** In this model the distributions $$\mu_a$$ do not change over time. One can also allow the reward distribution of arm $$a$$ in round $$t$$ to be $$\mu_{a,t}$$, with a mean $$m_{a,t}$$ that changes with $$t$$: the video platform's users change their tastes. Such *non-stationary* bandits are harder, and in the first part of the course we stay with the stationary model.
 
-**Definition 1.3 (policy).** A *policy* $$\pi$$ tells the learner how to choose $$A_t$$ on the basis of the history $$H_{t-1}$$, possibly using extra randomness. (Formally, $$\pi = (\pi_t)_{t \ge 1}$$ is a sequence of probability kernels from $$([K] \times \mathbb R)^{t-1}$$ to $$[K]$$: for each possible history $$h = (a_1, x_1, \dots, a_{t-1}, x_{t-1})$$, $$\pi_t(\cdot \mid h)$$ is a probability measure on $$[K]$$, and for each arm $$a$$, $$h \mapsto \pi_t(a \mid h)$$ is measurable. The learner draws $$A_t$$ from $$\pi_t(\cdot \mid H_{t-1})$$; that is, $$\mathbb P(A_t = a \mid H_{t-1}) = \pi_t(a \mid H_{t-1})$$.)
+**Definition 1.3 (policy).** A *policy* $$\pi$$ tells the learner how to choose $$A_t$$ on the basis of the history $$H_{t-1}$$, possibly using extra randomness. (Formally, $$\pi = (\pi_t)_{t \ge 1}$$ is a sequence of probability kernels from $$([K] \times \mathbb R)^{t-1}$$ to $$[K]$$: for each possible history $$h = (a_1, x_1, \dots, a_{t-1}, x_{t-1})$$, $$\pi_t(\cdot, h)$$ is a probability measure on $$[K]$$, and for each arm $$a$$, $$h \mapsto \pi_t(a, h)$$ is measurable. The learner draws $$A_t$$ from $$\pi_t(\cdot, H_{t-1})$$; that is, $$\mathbb P(A_t = a \mid H_{t-1}) = \pi_t(a, H_{t-1})$$.)
 
-A policy is *deterministic* if each $$\pi_t(\cdot \mid h)$$ is a point mass, that is, $$A_t$$ is a function of $$H_{t-1}$$. The point of defining $$\pi$$ on possible histories $$h$$, rather than on the random history, is that the same policy can be run in any environment. A policy and an environment together determine the law of $$H_n = (A_1, X_1, \dots, A_n, X_n)$$: writing $$h_{t-1} = (a_1, x_1, \dots, a_{t-1}, x_{t-1})$$,
+A policy is *deterministic* if each $$\pi_t(\cdot, h)$$ is a point mass, that is, $$A_t$$ is a function of $$H_{t-1}$$. The point of defining $$\pi$$ on possible histories $$h$$, rather than on the random history, is that the same policy can be run in any environment. A policy and an environment together determine the law of $$H_n = (A_1, X_1, \dots, A_n, X_n)$$: writing $$h_{t-1} = (a_1, x_1, \dots, a_{t-1}, x_{t-1})$$,
 
 $$
-\mathbb P_\pi\big(A_1 = a_1, X_1 \in dx_1, \dots, A_n = a_n, X_n \in dx_n\big) = \prod_{t=1}^n \pi_t(a_t \mid h_{t-1})\, \mu_{a_t}(dx_t).
+\mathbb P_\pi\big(A_1 = a_1, X_1 \in dx_1, \dots, A_n = a_n, X_n \in dx_n\big) = \prod_{t=1}^n \pi_t(a_t, h_{t-1})\, \mu_{a_t}(dx_t).
 $$
 
 In words: choose an arm, draw a reward from it, choose the next arm given what has been seen, and so on. We write $$\mathbb P_\pi$$ and $$\mathbb E_\pi$$ for probabilities and expectations under this law.
