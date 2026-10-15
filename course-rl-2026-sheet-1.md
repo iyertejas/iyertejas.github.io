@@ -52,24 +52,24 @@ $$
 
 **Exercise 4 (the lower tail).** <span class="tag">used later</span> Under the assumptions of Theorem 1.10:
 
-(a) Show that $$\mathbb P(\hat m - m \le -\varepsilon) \le \exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$ for every $$\varepsilon \ge 0$$.
+(a) Show that $$\mathbb P(\hat m_s - m \le -\varepsilon) \le \exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$ for every $$\varepsilon \ge 0$$.
 
-(b) Deduce that $$\mathbb P(\lvert\hat m - m\rvert \ge \varepsilon) \le 2 \exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$.
+(b) Deduce that $$\mathbb P(\lvert\hat m_s - m\rvert \ge \varepsilon) \le 2 \exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$.
 
-**Exercise 5 (the Chernoff exponent is sharp for Gaussians).** Let $$X_1, \dots, X_s$$ be independent $$N(m, \sigma^2)$$ random variables and $$\hat m = \frac1s \sum_i X_i$$. Show that for every $$\varepsilon > 0$$,
+**Exercise 5 (the Chernoff exponent is sharp for Gaussians).** Let $$X_1, \dots, X_s$$ be independent $$N(m, \sigma^2)$$ random variables and $$\hat m_s = \frac1s \sum_i X_i$$. Show that for every $$\varepsilon > 0$$,
 
 $$
-\lim_{s \to \infty} \frac1s \log \mathbb P(\hat m - m \ge \varepsilon) = -\frac{\varepsilon^2}{2\sigma^2}.
+\lim_{s \to \infty} \frac1s \log \mathbb P(\hat m_s - m \ge \varepsilon) = -\frac{\varepsilon^2}{2\sigma^2}.
 $$
 
-*Hint:* $$\hat m - m \sim N(0, \sigma^2/s)$$. For a standard normal $$Z$$ with density $$\varphi$$, use that $$\frac{z}{1 + z^2}\, \varphi(z) \le \mathbb P(Z > z) \le \frac{\varphi(z)}{z}$$ for $$z > 0$$.
+*Hint:* $$\hat m_s - m \sim N(0, \sigma^2/s)$$. For a standard normal $$Z$$ with density $$\varphi$$, use that $$\frac{z}{1 + z^2}\, \varphi(z) \le \mathbb P(Z > z) \le \frac{\varphi(z)}{z}$$ for $$z > 0$$.
 
 **Exercise 6 (how many samples?).**
 
 (a) Under the assumptions of Theorem 1.10, show that with probability at least $$1 - \delta$$,
 
 $$
-\lvert\hat m - m\rvert < \sqrt{\frac{2\sigma^2 \log(2/\delta)}{s}}.
+\lvert\hat m_s - m\rvert < \sqrt{\frac{2\sigma^2 \log(2/\delta)}{s}}.
 $$
 
 (b) Rewards take values in $$[0, 1]$$. How many independent samples are enough to guarantee that the empirical mean is within 0.05 of the true mean with probability at least 0.95?
