@@ -63,7 +63,7 @@ $$
 R_n(\pi) = n\,m^* - \mathbb E_\pi\Big[\sum_{t=1}^n X_t\Big].
 $$
 
-It compares $$\pi$$ with an oracle that knows the means and always plays a best arm. Regret also depends on the environment $$\nu$$, which is fixed and does not change with $$t$$ or $$n$$; when we compare different environments we write $$R_n(\pi, \nu)$$. The *pull counts* are
+It compares $$\pi$$ with an oracle that knows the means and always plays a best arm. Regret also depends on the environment $$\nu$$, which is fixed for the whole run: it does not change from round to round. When we compare different environments we write $$R_n(\pi, \nu)$$. Some results fix $$\nu$$ and let $$n$$ grow; others fix the horizon $$n$$ first and then ask for the worst environment, which may depend on $$n$$. In both cases the environment stays fixed during the run. The *pull counts* are
 
 $$
 N_a(t) = \sum_{s=1}^{t} \mathbf 1\{A_s = a\}, \qquad a \in [K].
