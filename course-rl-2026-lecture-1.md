@@ -115,7 +115,7 @@ $$
 \end{aligned}
 $$
 
-since the last integrand is the density of $$N(\lambda\sigma^2, \sigma^2)$$. Consequently, if $$X_1, \dots, X_s$$ are independent $$N(m, \sigma^2)$$, the moment generating function of $$\sum_i (X_i - m)$$ is the product $$e^{s\lambda^2\sigma^2/2}$$, which is that of $$N(0, s\sigma^2)$$. Since a moment generating function that is finite everywhere determines the law, $$\sum_i X_i \sim N(sm, s\sigma^2)$$, and the sample mean $$\hat m = \frac1s \sum_i X_i \sim N(m, \sigma^2/s)$$.
+since the last integrand is the density of $$N(\lambda\sigma^2, \sigma^2)$$. Consequently, if $$X_1, \dots, X_s$$ are independent $$N(m, \sigma^2)$$, the moment generating function of $$\sum_i (X_i - m)$$ is the product $$e^{s\lambda^2\sigma^2/2}$$, which is that of $$N(0, s\sigma^2)$$. Since a moment generating function that is finite everywhere determines the law, $$\sum_i X_i \sim N(sm, s\sigma^2)$$, and the sample mean $$\hat m_s = \frac1s \sum_i X_i \sim N(m, \sigma^2/s)$$.
 
 The definition below asks for the same bound on the moment generating function, with $$\le$$ in place of $$=$$.
 
@@ -139,15 +139,15 @@ The definition is a bound on the moment generating function, and it is exactly w
 
 ## 4. The Chernoff bound
 
-**Theorem 1.10 (Chernoff bound).** Let $$X_1, \dots, X_s$$ be independent and $$\sigma$$-sub-Gaussian with mean $$m$$, and let $$\hat m = \frac1s \sum_i X_i$$. Then for every $$\varepsilon \ge 0$$,
+**Theorem 1.10 (Chernoff bound).** Let $$X_1, \dots, X_s$$ be independent and $$\sigma$$-sub-Gaussian with mean $$m$$, and let $$\hat m_s = \frac1s \sum_i X_i$$. Then for every $$\varepsilon \ge 0$$,
 
 $$
-\mathbb P(\hat m - m \ge \varepsilon) \le \exp\Big(-\frac{s\varepsilon^2}{2\sigma^2}\Big) \qquad\text{and}\qquad \mathbb P(\hat m - m \le -\varepsilon) \le \exp\Big(-\frac{s\varepsilon^2}{2\sigma^2}\Big).
+\mathbb P(\hat m_s - m \ge \varepsilon) \le \exp\Big(-\frac{s\varepsilon^2}{2\sigma^2}\Big) \qquad\text{and}\qquad \mathbb P(\hat m_s - m \le -\varepsilon) \le \exp\Big(-\frac{s\varepsilon^2}{2\sigma^2}\Big).
 $$
 
-Consequently, $$\mathbb P(\lvert\hat m - m\rvert \ge \varepsilon) \le 2\exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$.
+Consequently, $$\mathbb P(\lvert\hat m_s - m\rvert \ge \varepsilon) \le 2\exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$.
 
-*Proof.* We prove the upper tail; the lower tail and the two-sided bound are Exercise 4. Let $$S = \sum_i (X_i - m)$$, so that $$\{\hat m - m \ge \varepsilon\} = \{S \ge s\varepsilon\}$$. For $$\varepsilon = 0$$ the bound is trivial, so let $$\varepsilon > 0$$, and fix any $$\lambda > 0$$. Then
+*Proof.* We prove the upper tail; the lower tail and the two-sided bound are Exercise 4. Let $$S = \sum_i (X_i - m)$$, so that $$\{\hat m_s - m \ge \varepsilon\} = \{S \ge s\varepsilon\}$$. For $$\varepsilon = 0$$ the bound is trivial, so let $$\varepsilon > 0$$, and fix any $$\lambda > 0$$. Then
 
 $$
 \begin{aligned}
@@ -163,7 +163,7 @@ This holds for every $$\lambda > 0$$, so we may choose $$\lambda$$ to minimise t
 **Corollary 1.11 (confidence intervals).** Under the assumptions of Theorem 1.10, let $$\delta \in (0, 1)$$. Each of the following holds with probability at least $$1 - \delta$$:
 
 $$
-\hat m < m + \sqrt{\frac{2\sigma^2 \log(1/\delta)}{s}} \qquad\text{and}\qquad \lvert\hat m - m\rvert < \sqrt{\frac{2\sigma^2 \log(2/\delta)}{s}}.
+\hat m_s < m + \sqrt{\frac{2\sigma^2 \log(1/\delta)}{s}} \qquad\text{and}\qquad \lvert\hat m_s - m\rvert < \sqrt{\frac{2\sigma^2 \log(2/\delta)}{s}}.
 $$
 
 *Proof.* For the first, set the right-hand side of the upper tail bound equal to $$\delta$$ and solve for $$\varepsilon$$. The second is Exercise 6(a). $$\square$$
