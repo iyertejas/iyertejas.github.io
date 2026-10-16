@@ -13,8 +13,6 @@ math: true
 
 Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises marked <span class="tag">used later</span> are needed in later lectures.
 
-**On AI.** The exercises are not graded, so this is advice rather than a rule: I recommend working on them without AI tools, offline with pen and paper. Being stuck on a problem for a while is where most of the learning happens, and checking a solution too early cuts that short. Using AI for other things, such as background you are missing, a second explanation, or checking an argument you have already written, is a different matter; just bear in mind that it can be confidently wrong, so make sure to check every step.
-
 *These notes and exercises were prepared by the lecturer with the help of AI tools, and checked by the lecturer. Please report any errors or unclear points, in the lecture or by email.*
 {: .note}
 
@@ -76,7 +74,7 @@ $$
 
 (c) There are $$K$$ arms, and each is sampled $$s$$ times, independently. Show that the probability that at least one empirical mean is at distance $$\varepsilon$$ or more from its true mean is at most $$2K \exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$. How must $$s$$ grow with $$K$$ to keep this probability below a fixed $$\delta$$?
 
-**Exercise 7 (AI audit).** The following proof of Lemma 1.6 was written by a (by now probably defunct) AI model. Its conclusion is correct; its argument is not.
+**Exercise 7 (Find the flaw).** The following proof of Lemma 1.6 was written by a (by now probably defunct) AI model. Its conclusion is correct; its argument is not.
 
 > *Proof.* Group the rewards by arm: $$\sum_t X_t = \sum_a \sum_{t : A_t = a} X_t$$. The rewards obtained from arm $$a$$ are i.i.d. with mean $$m_a$$, and there are $$N_a(n)$$ of them. Since the number of pulls is independent of the reward values, the expected sum of $$N_a(n)$$ i.i.d. variables with mean $$m_a$$ is $$m_a \mathbb E[N_a(n)]$$. Hence $$\mathbb E\big[\sum_t X_t\big] = \sum_a m_a \mathbb E[N_a(n)]$$, and the claim follows from $$n = \sum_a N_a(n)$$.
 
