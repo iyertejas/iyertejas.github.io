@@ -14,7 +14,7 @@ sims: true
 
 These notes cover the first lecture: the stochastic bandit model, regret and the regret decomposition, sub-Gaussian random variables and the Chernoff bound. The exercises are on [Exercise Sheet 1](course-rl-2026-sheet-1.html).
 
-*These notes and exercises were prepared by the lecturer with the help of AI tools, and checked by the lecturer. Please report any errors or unclear points, in the lecture or by email.*
+Please report any errors or unclear points, in the lecture or by email.
 {: .note}
 
 ## 1. The stochastic bandit model
@@ -177,3 +177,6 @@ Explore-then-commit: play each arm a fixed number of times, then commit to the a
 ## Reading
 
 T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020, freely available [online](https://tor-lattimore.com/downloads/book/book.pdf): Chapter 4 (the model and the regret decomposition) and Chapter 5 (concentration of measure).
+
+These notes and exercises were prepared by the lecturer with the help of AI tools, and checked by the lecturer.
+{: .note .credit}

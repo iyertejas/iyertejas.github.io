@@ -13,7 +13,7 @@ math: true
 
 Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises marked <span class="tag">used later</span> are needed in later lectures.
 
-*These notes and exercises were prepared by the lecturer with the help of AI tools, and checked by the lecturer. Please report any errors or unclear points, in the lecture or by email.*
+Please report any errors or unclear points, in the lecture or by email.
 {: .note}
 
 **Exercise 1 (regret of simple policies).** Fix a $$K$$-armed SBM.
@@ -89,3 +89,6 @@ $$
 (b) Use (a) to give a short proof of Lemma 1.6.
 
 (c) Is $$A_t$$ independent of $$Y_{t-1}$$? Of $$X_{t-1}$$? Give a policy for which it is not.
+
+These notes and exercises were prepared by the lecturer with the help of AI tools, and checked by the lecturer.
+{: .note .credit}
