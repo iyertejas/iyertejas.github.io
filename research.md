@@ -71,7 +71,7 @@ I studied condensation and degree distributions in recursive trees with fitness 
 
 {% include sim-superlinear.html %}
 
-Each vertex has a weight W with P(W ≥ x) = x<sup>1−α</sup> and receives newcomers with probability proportional to (children + 1)<sup>2</sup> + W; the blue path leads to the largest hub. When 2(α − 1) > 1 the edges collect on a single vertex of infinite degree; when 2(α − 1) < 1 they pass along a line of ever larger hubs, and the limiting tree has a single infinite path <a class="cite" href="publications.html#genealogy">[arXiv 2023]</a>.
+Each vertex has a weight W with P(W ≥ x) = x<sup>1−α</sup> and receives newcomers with probability proportional to (children + 1)<sup>2</sup> + W; the highlighted path leads to the largest hub. When 2(α − 1) > 1 the edges collect on a single vertex of infinite degree; when 2(α − 1) < 1 they pass along a line of ever larger hubs, and the limiting tree has a single infinite path <a class="cite" href="publications.html#genealogy">[arXiv 2023]</a>.
 {: .caption}
 
 ## How fast does a population grow?

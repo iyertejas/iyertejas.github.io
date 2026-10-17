@@ -2,12 +2,13 @@
 layout: default
 title: "Tejas Iyer"
 nav: "home"
-photo: "photo.jpg"
 ---
 # Tejas Iyer
 
 Postdoctoral Fellow, Weierstrass Institute for Applied Analysis and Stochastics (WIAS), Berlin
-{: .lede}
+{: .role}
+
+{% include portrait.html %}
 
 I am a mathematician working in probability theory. This involves the rigorous analysis of random systems arising in diverse contexts, including learning algorithms, complex networks and the structure of biological populations. A key aspect of my research is understanding tipping points in such systems, where a small change in parameters leads to dramatic large-scale consequences.
 
