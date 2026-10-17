@@ -207,6 +207,7 @@ body.research .content > p.caption{max-width:84ch}
 .content > blockquote{max-width:65ch;margin:0 0 1.2em;padding:.2rem 0 .2rem 1.1rem;border-left:3px solid var(--rule)}
 .content > blockquote p{margin:0}
 .content > p.note{color:var(--muted);font-size:1rem}
+.content > p.credit{font-family:var(--sans);font-size:.8rem;margin-top:3rem}
 .content .katex-display{max-width:46rem;margin:.4em 0 1.2em;overflow-x:auto;overflow-y:hidden;padding:.15em 0}
 .content li .katex,.content p .katex{font-size:1.04em}
 body.notes .content > h2{font-size:1.15rem;margin:2.6rem 0 .7rem}
