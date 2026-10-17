@@ -13,11 +13,11 @@
   onload="renderMathInElement(document.querySelector('main'),{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false},{left:'$$',right:'$$',display:true}],throwOnError:false})"></script>{% endif %}
 </head>
 <body class="{{ page.body_class }}{% if page.nav == "home" %} home{% endif %}">
-<div class="split">
+{% if page.body_class contains "notes" %}<div class="split plain">{% else %}<div class="split">
 <aside class="side" aria-label="A sample from a random process">
   <canvas id="motif" aria-hidden="true"></canvas>
   <p class="mcap"><span id="motifText"></span> <button type="button" id="motifAgain">Draw another</button></p>
-</aside>
+</aside>{% endif %}
 <div class="wrap">
 <header class="top">
   <a class="who" href="index.html">Tejas Iyer</a>

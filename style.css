@@ -54,6 +54,9 @@ section.first{border-top:0;padding-top:0}
 .mcap button{font:inherit;color:var(--ink);background:none;border:0;border-radius:0;padding:0;cursor:pointer;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:.18em}
 .mcap button:hover{background:none;color:var(--accent)}
 .wrap{min-width:0;max-width:1040px;padding:0 clamp(1.1rem,4vw,2.5rem) 0 clamp(1.1rem,4vw,3rem)}
+/* Lecture notes and exercise sheets: no side panel, centred column */
+.split.plain{display:block}
+.split.plain .wrap{max-width:52rem;margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
 @media (max-width:960px){
   .split{display:block}
   .side{position:static;height:auto;padding:1rem clamp(1.1rem,4vw,2.5rem)}
