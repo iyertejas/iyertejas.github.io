@@ -917,9 +917,24 @@ function bpveWidget(){
   function stat(){
     const f = runs.filter(fast).length;
     $("bpveStatus").textContent = e.b < 6
-      ? `Of ${RUNS} runs, ${f} grew like Mₙ ≈ 6ⁿ and ${RUNS-f} like 2ⁿ.`
+      ? `Of ${RUNS} runs, ${f} grew like Mₙ ≈ 6ⁿ and ${RUNS-f} like 2ⁿ. Averaging the reciprocal of the series over ${LBS.toLocaleString("en-GB")} spines gives P(lim Zₙ/Mₙ > 0) ≥ ${lowerBound().toFixed(2)}.`
       : f === 0 ? `No run grew like Mₙ ≈ 6ⁿ.`
       : `${f} of ${RUNS} runs ${f===1?"is":"are"} still close to Mₙ ≈ 6ⁿ after a jackpot, but ${f===1?"it":"they"} cannot stay there.`;
+  }
+  // Lower bound of Theorem 1.2: P(lim Z_n/M_n > 0) ≥ E[1/(M* + S_∞)], S_∞ = ∑_n (X̂_n − 1)/M_{n+1},
+  // with M* = limsup 1/M_n = 0 here. Estimated from LBS fresh spines, run for LBN generations
+  // (the terms decay like (b/6)^n, so the tail beyond LBN is negligible for b ≤ 5.5).
+  const LBS = 2000, LBN = 150;
+  function lowerBound(){
+    const b = e.b, jt = [], pt = [], q = []; let lM = 0;
+    for (let n=0;n<LBN;n++){
+      const lK = Math.log10(20) + n*Math.log10(b), m = 6 - 8*Math.pow(10, -lK);
+      lM += Math.log10(m); q[n] = 4/m;
+      jt[n] = Math.pow(10, lK - lM) - Math.pow(10, -lM); pt[n] = Math.pow(10, -lM);
+    }
+    let acc = 0;
+    for (let i=0;i<LBS;i++){ let S = 0; for (let n=0;n<LBN;n++) S += Math.random() < q[n] ? jt[n] : pt[n]; acc += 1/S; }
+    return acc/LBS;
   }
   function start(){
     cancelAnimationFrame(anim);
