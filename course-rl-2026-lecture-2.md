@@ -171,7 +171,7 @@ $$
 
 So $$\hat m_{a,s} + w_\delta(s)$$ is an upper bound on $$m_a$$ that fails with probability at most $$\delta$$, and it tightens as $$s$$ grows. The first term exploits; the second, the exploration term, explores. This is where the sub-Gaussian assumption enters.
 
-**How small must $$\delta$$ be?** With $$\delta = n^{-c}$$, the exploration term is $$\sqrt{2c \log n/s}$$, which is of constant order only after order $$\log n$$ samples. Over $$n$$ rounds, the algorithm consults the bound for the optimal arm at up to $$n$$ different sample sizes $$s$$. If it fails at one of them, the algorithm may stop playing the optimal arm and lose order $$n$$. By a union bound over $$s \in [n]$$, some failure happens with probability at most $$n\delta$$, so the expected loss is at most about $$n \cdot n\delta$$. To make this $$O(1)$$ we take $$\delta = 1/n^2$$. **So $$\delta$$ depends on the horizon $$n$$:** the longer we play, the more often we test, and the more reliable each test must be. With $$\delta$$ fixed, regret is linear.
+We will take $$\delta = 1/n^2$$. The bound for the optimal arm is consulted at up to $$n$$ different sample sizes, so it must fail with probability much smaller than $$1/n$$; the proof of Theorem 2.6 makes this precise.
 
 **Algorithm 2.5 (UCB).** For a $$K$$-armed SBM with horizon $$n$$ and $$\delta(n) \in (0, 1)$$, the policy $$\mathrm{UCB}(\delta(n))$$ is as follows.
 
