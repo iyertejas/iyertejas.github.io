@@ -177,6 +177,3 @@ Explore-then-commit: play each arm a fixed number of times, then commit to the a
 ## Reading
 
 T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020, freely available [online](https://tor-lattimore.com/downloads/book/book.pdf): Chapter 4 (the model and the regret decomposition) and Chapter 5 (concentration of measure).
-
-These notes and exercises were prepared by the lecturer with the help of AI tools, and checked by the lecturer.
-{: .note .credit}

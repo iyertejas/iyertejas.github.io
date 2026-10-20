@@ -251,3 +251,52 @@ button:disabled:hover{background:transparent}
 
 /* small label, e.g. marking lecture notes with a simulation */
 .tag{display:inline-block;font-family:var(--sans);font-size:.74rem;font-weight:700;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:2px;padding:.05rem .45rem;vertical-align:.12em;margin-left:.2rem;white-space:nowrap}
+
+/* ===== Policy-function figure and reward table (Lecture 2) ===== */
+.pf-figure{margin:.6rem 0 1.6rem;max-width:46rem}
+.pf-figure svg{display:block;width:100%;height:auto}
+#table-demo h3{font-family:var(--sans);font-size:.95rem;margin:1.6rem 0 .3rem}
+.rt-p{font-family:var(--sans);font-size:.88rem;line-height:1.5;color:var(--muted);max-width:72ch;margin:0 0 .9rem}
+.rt-field{display:flex;align-items:center;gap:.6rem}
+.rt-field label{color:var(--muted)}
+#table-demo select{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--rule);border-radius:2px;padding:.3rem .5rem}
+.rt-mean{flex:1 1 170px;max-width:240px}
+.rt-mean label{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--ink)}
+.rt-check{display:inline-flex;align-items:center;gap:.45rem}
+.rt-check input{accent-color:var(--accent);width:1rem;height:1rem;margin:0}
+.rt-round{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums}
+.rt-buttons{margin-bottom:.6rem}
+.rt-interval,.rt-chart{display:block;width:100%;height:auto;max-width:46rem;overflow:visible}
+#table-demo .status{margin:.2rem 0 1rem;min-height:3em;max-width:72ch}
+.rt-decks{display:grid;gap:.7rem;font-family:var(--sans)}
+.rt-deck{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:.8rem;align-items:center}
+.rt-deck-lab{display:grid;font-size:.88rem}
+.rt-deck-lab span{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.rt-sw{display:inline-block;width:.7em;height:.7em;border-radius:50%;background:var(--sw);margin-right:.45em;vertical-align:-.04em}
+.rt-cards{display:flex;gap:3px;overflow-x:auto;padding:3px 2px 6px}
+.rt-card{flex:0 0 auto;position:relative;width:24px;height:36px;display:inline-grid;place-items:center;border:1px solid var(--rule);border-radius:3px;background:color-mix(in srgb,var(--rule) 30%,var(--paper));font-family:var(--sans);font-size:.95rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+.rt-card .idx{position:absolute;top:1px;left:2px;font-size:8px;color:var(--muted)}
+.rt-card.down{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--rule) 80%,transparent) 4px 5px)}
+.rt-card.turned{background:var(--panel);border-color:var(--sw,var(--edge));color:var(--ink)}
+.rt-card.turned.one{background:color-mix(in srgb,var(--sw,var(--accent)) 18%,var(--panel));font-weight:700}
+.rt-card.next{border:1.5px dashed var(--sw,var(--edge))}
+.rt-card .ghost{opacity:.5}
+.rt-card.fresh{box-shadow:0 0 0 2px var(--sw);animation:rtflip .35s ease-out}
+@keyframes rtflip{from{transform:rotateY(90deg)}to{transform:rotateY(0)}}
+@media (prefers-reduced-motion:reduce){.rt-card.fresh{animation:none}}
+.rt-key{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;font-family:var(--sans);font-size:.8rem;color:var(--muted);margin:.7rem 0 1rem}
+.rt-key .rt-card{width:18px;height:24px;font-size:.7rem;margin-right:.4rem;vertical-align:middle}
+.rt-scroll{overflow:auto;max-height:15rem;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);margin:.4rem 0 .8rem}
+.rt-scroll-free{max-height:none}
+.rt-table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:.85rem;font-variant-numeric:tabular-nums}
+.rt-table th,.rt-table td{padding:.3rem .8rem .3rem 0;text-align:right;border-bottom:1px solid var(--rule);font-weight:400;white-space:nowrap}
+.rt-table thead th{color:var(--muted);font-size:.78rem;background:var(--paper);position:sticky;top:0}
+.rt-table tbody tr:last-child th,.rt-table tbody tr:last-child td{border-bottom:0}
+.rt-lemma th:first-child,.rt-lemma th[scope=row]{text-align:left;white-space:normal}
+.rt-empty{text-align:left!important;color:var(--muted)}
+.rt-flag{color:var(--accent);font-weight:700!important}
+.rt-legend{display:grid;gap:.35rem;font-family:var(--sans);font-size:.85rem;margin:.6rem 0 1rem}
+.rt-leg{display:grid;grid-template-columns:34px minmax(0,1fr);gap:.7rem;align-items:center}
+.rt-leg small{color:var(--muted);font-variant-numeric:tabular-nums}
+.rt-math{white-space:nowrap}
+@media (max-width:560px){ .rt-deck{grid-template-columns:minmax(0,1fr);gap:.3rem} .rt-round{margin-left:0;flex-basis:100%} }

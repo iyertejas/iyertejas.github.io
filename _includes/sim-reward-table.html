@@ -1,0 +1,56 @@
+<figure class="demo" id="table-demo">
+<div class="controls">
+<div class="rt-field"><label for="rtPolicy">Policy</label>
+<select id="rtPolicy">
+<option value="egreedy" selected>ε-greedy, ε = 0.2</option>
+<option value="uniform">Uniform random</option>
+<option value="ucb">UCB(1/n²)</option>
+</select></div>
+<div class="slider rt-mean"><label for="rtM1">m<sub>1</sub></label>
+<input type="range" id="rtM1" min="0" max="1" step="0.05" value="0.7"><output id="rtM1Out" for="rtM1">0.70</output></div>
+<div class="slider rt-mean"><label for="rtM2">m<sub>2</sub></label>
+<input type="range" id="rtM2" min="0" max="1" step="0.05" value="0.5"><output id="rtM2Out" for="rtM2">0.50</output></div>
+<div class="slider rt-mean"><label for="rtM3">m<sub>3</sub></label>
+<input type="range" id="rtM3" min="0" max="1" step="0.05" value="0.3"><output id="rtM3Out" for="rtM3">0.30</output></div>
+</div>
+
+<h3>One game, horizon 20</h3>
+<p class="rt-p">Dealing samples the whole table at once, 20 cards per deck together with U<sub>1</sub>, …, U<sub>20</sub>; stepping only reads it.</p>
+<div class="controls rt-buttons">
+<button id="rtStep" type="button">Step</button>
+<button id="rtPlay" type="button">Play</button>
+<button id="rtDeal" type="button">Deal a new table</button>
+<label class="rt-check"><input type="checkbox" id="rtReveal"> Show the whole table</label>
+<span class="rt-round" id="rtRound"></span>
+</div>
+<svg class="rt-interval" id="rtInterval" viewBox="0 0 700 112" role="img" aria-label="The interval from 0 to 1 split into pieces of length pi_t(a, H_(t-1)), with U_t marked"></svg>
+<p class="status" id="rtStatus" aria-live="polite"></p>
+<div class="rt-decks" id="rtDecks"></div>
+<p class="rt-key"><span><span class="rt-card turned one"><span>1</span></span>used, paid 1</span> <span><span class="rt-card turned"><span>0</span></span>used, paid 0</span> <span><span class="rt-card next"></span>next card</span> <span><span class="rt-card down"></span>drawn, not yet used</span></p>
+<div class="rt-scroll">
+<table class="rt-table">
+<thead><tr><th scope="col"><i>t</i></th><th scope="col"><i>U<sub>t</sub></i></th><th scope="col"><i>A<sub>t</sub></i></th><th scope="col"><i>s</i> = <i>N<sub>A<sub>t</sub></sub></i>(<i>t</i>)</th><th scope="col"><i>X<sub>t</sub></i> = <i>Y<sub>A<sub>t</sub>,s</sub></i></th></tr></thead>
+<tbody id="rtLog"></tbody>
+</table>
+</div>
+
+<h3>Same game, three constructions</h3>
+<p class="rt-p">The policy above, run 20,000 times under each construction. If the reward table is the same model as Definition 1.1, the laws of <i>N</i><sub>1</sub>(<i>n</i>) coincide up to sampling noise.</p>
+<div class="controls rt-buttons">
+<div class="rt-field"><label for="rtN">Horizon <i>n</i></label>
+<select id="rtN"><option value="10">10</option><option value="20" selected>20</option><option value="40">40</option></select></div>
+<label class="rt-check"><input type="checkbox" id="rtPeek"> Add the rule that peeks at the next card</label>
+<button id="rtRun" type="button">Run again</button>
+<span class="rt-round" id="rtRunStatus"></span>
+</div>
+<svg class="rt-chart" id="rtChart" viewBox="0 0 680 280" role="img" aria-label="The law of N_1(n) under each construction"></svg>
+<div class="rt-legend" id="rtLegend"></div>
+<p class="rt-p">Both sides of the identity <span class="rt-math">E[Σ<sub><i>t</i></sub> <i>X<sub>t</sub></i>] = Σ<sub><i>a</i></sub> <i>m<sub>a</sub></i> E[<i>N<sub>a</sub></i>(<i>n</i>)]</span> from the proof of Lemma 1.6, estimated from the same runs:</p>
+<div class="rt-scroll rt-scroll-free">
+<table class="rt-table rt-lemma">
+<thead><tr><th scope="col">Construction</th><th scope="col">average Σ <i>X<sub>t</sub></i></th><th scope="col">Σ <i>m<sub>a</sub></i> · average <i>N<sub>a</sub></i>(<i>n</i>)</th><th scope="col">gap</th></tr></thead>
+<tbody id="rtLemma"></tbody>
+</table>
+</div>
+<p class="small-lab">With 20,000 runs, a total variation distance of about 0.01 and a gap of a few hundredths are sampling noise.</p>
+</figure>

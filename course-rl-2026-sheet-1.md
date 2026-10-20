@@ -89,6 +89,3 @@ $$
 (b) Use (a) to give a short proof of Lemma 1.6.
 
 (c) Is $$A_t$$ independent of $$Y_{t-1}$$? Of $$X_{t-1}$$? Give a policy for which it is not.
-
-These notes and exercises were prepared by the lecturer with the help of AI tools, and checked by the lecturer.
-{: .note .credit}

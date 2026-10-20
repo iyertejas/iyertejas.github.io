@@ -16,11 +16,12 @@ Lectures every Tuesday 16:15–17:45 in room MA 644 (Mathematics building, TU Be
 
 ## Lecture notes
 
-Notes and exercise sheets appear here after each lecture. I prepare them with the help of AI tools and check them myself; corrections are welcome.
+Notes and exercise sheets appear here after each lecture; corrections are welcome.
 
-The exercises are not graded, but I recommend working on them with pen and paper, without AI tools: being stuck for a while is where most of the learning happens.
+The exercises are not graded, but I recommend working on them with pen and paper: being stuck for a while is where most of the learning happens.
 
 - **Lecture 1** (13 October). [Stochastic bandits and concentration](course-rl-2026-lecture-1.html) <span class="tag">interactive</span>, with [Exercise Sheet 1](course-rl-2026-sheet-1.html).
+- **Lecture 2** (20 October). [Explore-then-commit and UCB](course-rl-2026-lecture-2.html) <span class="tag">interactive</span>, with [Exercise Sheet 2](course-rl-2026-sheet-2.html).
 
 ## Description
 
@@ -108,4 +109,4 @@ Two arms succeed with probabilities ½ + Δ/2 and ½ − Δ/2; the better arm is
 The course will draw substantially on:
 
 - L. Döring et al., *The Mathematics of Reinforcement Learning*.
-- T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020. Freely available [online](https://tor-lattimore.com/downloads/book/book.pdf). Chapters 4 and 5 cover the first lecture.
+- T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020. Freely available [online](https://tor-lattimore.com/downloads/book/book.pdf). Chapters 4 and 5 cover the first lecture, Chapters 6 and 7 the second.
