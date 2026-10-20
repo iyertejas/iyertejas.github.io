@@ -1574,6 +1574,19 @@ function runWidget(P, mode){
 }
 const etcRunWidget = () => runWidget("er", "etc"), ucbRunWidget = () => runWidget("ur", "ucb");
 
+/* ---------- self-check questions: pick an answer, see the reasoning ---------- */
+function initQuizzes(){
+  document.querySelectorAll(".quiz .q").forEach(q => {
+    const why = q.querySelector(".q-why"), ans = q.dataset.answer;
+    q.querySelectorAll(".q-opts button").forEach(btn => btn.addEventListener("click", () => {
+      q.querySelectorAll(".q-opts button").forEach(b => { b.classList.remove("chosen", "right", "wrong"); b.setAttribute("aria-pressed", "false"); });
+      btn.classList.add("chosen", btn.dataset.v === ans ? "right" : "wrong"); btn.setAttribute("aria-pressed", "true");
+      why.hidden = false;
+    }));
+  });
+}
+initQuizzes();
+
 /* ---------- boot ---------- */
 const widgets = {};
 const defs = [["phase-demo", phaseWidget], ["self-demo", selfWidget], ["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],

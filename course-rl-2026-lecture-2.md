@@ -273,6 +273,12 @@ Regret at horizon $$n$$ against the gap, for two arms with rewards $$N(\Delta, 1
 
 UCB is deterministic, and explores by computing confidence bounds. Next time we explore by randomising instead: each arm is played with the probability that it is the best, given what has been seen so far.
 
+## Check yourself
+
+Six true-or-false questions on this lecture. Decide, then click to see the reasoning; nothing is recorded.
+
+{% include quiz-lecture-2.html %}
+
 ## Reading
 
 T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020, freely available [online](https://tor-lattimore.com/downloads/book/book.pdf): Chapter 6 (explore-then-commit), [Section 4](#4-what-is-wrong-with-etc).6 (the reward table, there called the stack of rewards), Chapter 7 (UCB; [Theorem 2.6](#theorem-2-6) is their Theorem 7.1, the worst-case bound their Theorem 7.2).

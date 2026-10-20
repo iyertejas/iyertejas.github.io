@@ -313,3 +313,12 @@ button:disabled:hover{background:transparent}
 .l2-key>span{display:inline-block}
 .l2-key svg{vertical-align:-2px;margin-right:.35rem}
 #etcrun-demo .status,#ucbrun-demo .status{min-height:3em;max-width:72ch;margin:.3rem 0 .6rem}
+/* self-check questions */
+.quiz{display:grid;gap:1.1rem;max-width:46rem;margin:.4rem 0 2rem}
+.quiz .q{border-left:3px solid var(--rule);padding:.2rem 0 .2rem 1rem}
+.quiz .q-text{margin:0 0 .5rem}
+.quiz .q-opts{display:flex;gap:.6rem}
+.quiz .q-opts button{min-width:5.5rem}
+.quiz .q-opts button.right{background:color-mix(in srgb,var(--good) 18%,transparent);border-color:var(--good);color:var(--ink)}
+.quiz .q-opts button.wrong{background:color-mix(in srgb,var(--bad) 16%,transparent);border-color:var(--bad);color:var(--ink)}
+.quiz .q-why p{margin:.6rem 0 0;font-size:.95rem;color:var(--ink);max-width:65ch}
