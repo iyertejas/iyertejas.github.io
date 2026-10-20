@@ -834,151 +834,102 @@ function phaseWidget(){
 }
 
 /* =========================================================
-   3b. Branching process in a varying environment: growth scales are Kesten–Stigum
-   limits of truncated processes.
+   3b. Branching process in a varying environment, and the random series behind it.
    In generation n each individual has 2 children, except that with probability
    p_n = 4/K_n it has a jackpot of K_n = 20·b^n children, so the mean is m_n = 6 − 2p_n.
-   For a candidate C_n (2^n or M_n = m_0 ⋯ m_{n−1}), truncate X_n at γC_{n+1} (γ = 4):
-   a truncated jackpot has no children in the truncated process Z̃_n, whose mean is M̃_n.
-   C_n is a growth scale iff ∑ C_n P(X_n > γC_{n+1}) < ∞, C_n ≍ M̃_n, and Z̃_n/M̃_n
-   converges in L¹ (Iyer, arXiv 2026, Theorems 1.2 and 1.6). Here: 2^n iff b > 2, M_n iff b < 6.
-   Z_n and both truncated processes are simulated on one genealogy: each individual
-   carries two bits recording whether it belongs to the 2^n- and the M_n-truncated process.
+   With M_n = m_0 ⋯ m_{n−1}, Z_n/M_n converges in L¹ iff ∑ (X̂_n − 1)/M_{n+1} < ∞ a.s.,
+   where X̂_n is size-biased: X̂_n = K_n with probability 4/m_n, and 2 otherwise
+   (Iyer, arXiv 2026, Theorem 1.2 and Remark 1.3). Here: iff b < 6.
    ========================================================= */
 function bpveWidget(){
-  const G = 30, RUNS = 40, DUR = 2600, GAM = 4, L2 = Math.log10(2);
-  let runs = [], e = null, cand = "2", anim = 0, shown = G;
-  const BIT = {"2": 1, "M": 2};
+  const G = 30, RUNS = 40, DUR = 2600, L2 = Math.log10(2);
+  let runs = [], spines = [], e = null, anim = 0, shown = G;
   const sup = n => String(n).split("").map(d => "⁰¹²³⁴⁵⁶⁷⁸⁹"[+d]).join("");
-  const pow10 = l => l===0 ? "1" : l===1 ? "10" : "10"+(l<0?"⁻":"")+sup(Math.abs(l));
   const std = () => { let u=0,v=0; while(!u) u=Math.random(); v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
   const poisson = l => { if (l > 30) return Math.max(0, Math.round(l + Math.sqrt(l)*std()));
     let k=0, p=1, L=Math.exp(-l); for(;;){ p*=Math.random(); if (p<=L) return k; k++; } };
-  const jackpots = (N, p) => { if (N < 60){ let J=0; for (let i=0;i<N;i++) if (Math.random()<p) J++; return J; } return Math.min(N, poisson(N*p)); };
   function environment(b){
     const K = [], p = [], m = [], LM = [0];
     for (let n=0;n<G;n++){ K[n] = Math.round(20*Math.pow(b,n)); p[n] = 4/K[n]; m[n] = 2*(1-p[n]) + K[n]*p[n]; LM.push(LM[n] + Math.log10(m[n])); }
-    const T = {};
-    for (const c of ["2","M"]){
-      const logC = n => c === "2" ? n*L2 : LM[n];
-      const cut = [], LMt = [0];   // cut[n]: jackpots in generation n are truncated; LMt: log10 M̃_n
-      for (let n=0;n<G;n++){
-        cut[n] = Math.log10(K[n]) > Math.log10(GAM) + logC(n+1);
-        LMt.push(LMt[n] + Math.log10(cut[n] ? 2*(1-p[n]) : m[n]));
-      }
-      T[c] = {cut, LMt, logC: Array.from({length:G+1}, (_, n) => logC(n))};
-    }
-    return {b, K, p, m, LM, T};
+    return {b, K, p, m, LM};
   }
   function one(){
-    let N = [0,0,0,1];   // counts by membership bits (1: in the 2^n-truncated process, 2: in the M_n one)
-    const lz = [0], lt = {"2": [0], "M": [0]};
+    let Z = 1; const lz = [0];
     for (let n=0;n<G;n++){
-      const drop = (e.T["2"].cut[n] ? 1 : 0) | (e.T["M"].cut[n] ? 2 : 0), next = [0,0,0,0];
-      for (let s=0;s<4;s++){ if (!N[s]) continue;
-        const J = jackpots(N[s], e.p[n]); next[s] += 2*(N[s]-J); next[s & ~drop] += e.K[n]*J; }
-      N = next;
-      lz.push(Math.log10(N[0]+N[1]+N[2]+N[3]));
-      lt["2"].push(Math.log10(N[1]+N[3])); lt["M"].push(Math.log10(N[2]+N[3]));   // −∞ if extinct
+      let J = 0;
+      if (Z < 60){ for (let i=0;i<Z;i++) if (Math.random()<e.p[n]) J++; } else J = Math.min(Z, poisson(Z*e.p[n]));
+      Z = 2*(Z-J) + e.K[n]*J; lz.push(Math.log10(Z));
     }
-    return {lz, lt};
+    return lz;
   }
-  const bitten = r => r.lt[cand][G] < r.lz[G];
-  // Which conditions hold, from the asymptotics (b runs over multiples of 0.5).
-  function conditions(c, b){
-    if (c === "2") return b < 2 ? [true, "truncated mean outgrows Cₙ", true] : b === 2 ? ["diverges", true, true] : [true, true, true];
-    return b < 6 ? [true, true, true] : b === 6 ? [true, true, "fails"] : [true, "truncated mean falls behind Cₙ", true];
+  function spine(){ // log10 of the partial sums S_n, n ≥ 1
+    let S = 0; const ls = [NaN];
+    for (let n=0;n<G;n++){
+      const x = Math.random() < e.K[n]*e.p[n]/e.m[n] ? e.K[n] : 2;
+      S += (x-1)/Math.pow(10, e.LM[n+1]); ls.push(Math.log10(S));
+    }
+    return ls;
   }
-  function frame(cv, lo, hi, step){
-    const {ctx,w,h} = setupCanvas(cv); ctx.clearRect(0,0,w,h);
-    const pL=44, pR=34, pT=10, pB=42, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (hi-Math.max(lo,l))/(hi-lo)*(h-pT-pB);
-    ctx.font = `12px ${css("--sans")}`; ctx.strokeStyle=css("--rule"); ctx.fillStyle=css("--muted"); ctx.lineWidth=1;
-    for (let l=lo; l<=hi; l+=step){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(l))+.5); ctx.lineTo(X(G),Math.round(Y(l))+.5); ctx.stroke();
-      ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(pow10(l), pL-8, Y(l)); }
+  const fast = r => r[G] > (e.LM[G] + G*L2)/2;
+  function axes(ctx, w, h, lo, hi, X, Y, pL, pB, step){
+    const muted=css("--muted"), rule=css("--rule");
+    ctx.font = `12px ${css("--sans")}`; ctx.strokeStyle=rule; ctx.fillStyle=muted; ctx.lineWidth=1;
+    for (let l=lo;l<=hi;l+=step){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(l))+.5); ctx.lineTo(X(G),Math.round(Y(l))+.5); ctx.stroke();
+      ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(l===0?"1":l===1?"10":"10"+(l<0?"⁻":"")+sup(Math.abs(l)), pL-8, Y(l)); }
     ctx.textAlign="center"; ctx.textBaseline="top";
     for (let n=0;n<=G;n+=5) ctx.fillText(String(n), X(n), h-pB+8);
     ctx.fillText("generation", (X(0)+X(G))/2, h-pB+24);
-    return {ctx, X, Y};
-  }
-  function range(vals){
-    let lo = 0, hi = 0; for (const v of vals) if (isFinite(v)){ if (v<lo) lo=v; if (v>hi) hi=v; }
-    const span = hi - lo, st = span > 40 ? 10 : span > 16 ? 5 : span > 6 ? 2 : 1;
-    lo = Math.floor(lo/st)*st; hi = Math.ceil(hi/st)*st; if (hi === lo) hi = lo + st;
-    return {lo, hi, st};
-  }
-  function path(ctx, X, Y, f){
-    ctx.beginPath(); ctx.moveTo(X(0), Y(f(0)));
-    for (let n=1;n<=shown;n++){ const v = f(n); ctx.lineTo(X(n), Y(v)); if (!isFinite(v)) break; }
-    ctx.stroke();
   }
   function drawPop(){
-    const T = e.T[cand], rel = n => (cand === "2" ? e.LM[n] : n*L2) - T.logC[n];
-    const vals = []; for (let n=0;n<=G;n++) vals.push(rel(n)); for (const r of runs) for (let n=0;n<=G;n++) vals.push(r.lz[n] - T.logC[n]);
-    const {lo, hi, st} = range(vals), {ctx, X, Y} = frame($("bpvePlot"), lo, hi, st);
-    const muted = css("--muted");
+    const {ctx,w,h} = setupCanvas($("bpvePlot")); ctx.clearRect(0,0,w,h);
+    let mx = e.LM[G]; for (const r of runs) for (const v of r) if (v > mx) mx = v;
+    const step = mx > 40 ? 10 : 5, top = Math.ceil(mx/step)*step;
+    const pL=44, pR=34, pT=10, pB=42, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (1-l/top)*(h-pT-pB);
+    axes(ctx, w, h, 0, top, X, Y, pL, pB, step);
+    const muted=css("--muted"), cF=css("--accent"), cS=css("--c1");
     ctx.setLineDash([4,4]); ctx.strokeStyle=muted; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(G),Y(0)); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); for (let n=1;n<=G;n++) ctx.lineTo(X(n),Y(rel(n))); ctx.stroke();
-    ctx.fillStyle = muted; ctx.textAlign="left"; ctx.textBaseline="middle";
-    ctx.fillText("Cₙ", X(G)+6, Y(0)); ctx.fillText(cand === "2" ? "Mₙ" : "2ⁿ", X(G)+6, Y(rel(G)));
-    ctx.setLineDash([]); ctx.lineWidth=1.4;
-    const blue = css("--c4"), grey = css("--edge");
-    for (const pass of [true, false]) for (const r of runs){   // bitten runs underneath
-      if (bitten(r) !== pass) continue;
-      ctx.strokeStyle = pass ? grey : blue; ctx.globalAlpha = pass ? .55 : .8;
-      path(ctx, X, Y, n => r.lz[n] - T.logC[n]); }
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(G),Y(G*L2)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); for (let n=1;n<=G;n++) ctx.lineTo(X(n),Y(e.LM[n])); ctx.stroke();
+    ctx.textAlign="left"; ctx.textBaseline="middle"; ctx.fillText("2ⁿ", X(G)+6, Y(G*L2)); ctx.fillText("Mₙ", X(G)+6, Y(e.LM[G]));
+    ctx.setLineDash([]); ctx.lineWidth=1.4; ctx.globalAlpha=.75;
+    for (const r of runs){ ctx.strokeStyle = fast(r) ? cF : cS; ctx.beginPath(); ctx.moveTo(X(0),Y(r[0]));
+      for (let n=1;n<=shown;n++) ctx.lineTo(X(n),Y(r[n])); ctx.stroke(); }
     ctx.globalAlpha=1;
   }
-  function drawTrunc(){
-    const T = e.T[cand], vals = [];
-    for (const r of runs) for (let n=0;n<=G;n++) vals.push(r.lt[cand][n] - T.LMt[n]);
-    let {lo, hi, st} = range(vals);
-    if (runs.some(r => !isFinite(r.lt[cand][G]))) lo -= st;   // room for runs whose truncated process died out
-    const {ctx, X, Y} = frame($("bpveTrunc"), lo, hi, st);
-    ctx.strokeStyle = css("--c4"); ctx.lineWidth = 1.4; ctx.globalAlpha = .75;
-    for (const r of runs) path(ctx, X, Y, n => r.lt[cand][n] - T.LMt[n]);
-    ctx.globalAlpha = 1;
+  function drawSeries(){
+    const {ctx,w,h} = setupCanvas($("bpveSeries")); ctx.clearRect(0,0,w,h);
+    let mx = 1; for (const s of spines) if (s[G] > mx) mx = s[G];
+    const lo = -1, top = Math.ceil(mx);
+    const pL=44, pR=34, pT=10, pB=42, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (top-l)/(top-lo)*(h-pT-pB);
+    axes(ctx, w, h, lo, top, X, Y, pL, pB, 1);
+    ctx.lineWidth=1.4; ctx.globalAlpha=.75; ctx.strokeStyle=css("--c4");
+    for (const s of spines){ ctx.beginPath(); ctx.moveTo(X(1),Y(s[1]));
+      for (let n=2;n<=shown;n++) ctx.lineTo(X(n),Y(s[n])); ctx.stroke(); }
+    ctx.globalAlpha=1;
   }
-  const draw = () => { if (!e) return; drawPop(); drawTrunc(); };
-  function marks(){
-    conditions(cand, e.b).forEach((c, i) => { const v = $("bpveV"+(i+1));
-      v.textContent = c === true ? "✓" : "✗"; v.title = c === true ? "holds" : c; v.style.color = c === true ? "" : css("--accent"); });
-  }
+  const draw = () => { if (!e) return; drawPop(); drawSeries(); };
   function verdict(b){
     const bs = b.toFixed(1);
-    $("bpveVerdict").textContent = b <= 2
-      ? `b = ${bs} ≤ 2: Mₙ ≈ 6ⁿ is a growth scale and 2ⁿ is not.`
-      : b < 6
-      ? `2 < b = ${bs} < 6: both 2ⁿ and Mₙ ≈ 6ⁿ are growth scales, coming from two different truncations.`
-      : `b = ${bs} ≥ 6: 2ⁿ is a growth scale and Mₙ is not.`;
+    $("bpveVerdict").textContent = b < 6
+      ? `b = ${bs} < 6: a jackpot on the spine adds a term of order (b/6)ⁿ, and these are summable, so the series converges. Hence Zₙ/Mₙ converges in L¹, and its limit is positive with positive probability.`
+      : `b = ${bs} ≥ 6: the spine has a jackpot in about two generations out of three, each adding a term of order (b/6)ⁿ ≥ 1, so the series diverges. Hence Zₙ/Mₙ → 0 almost surely.`;
   }
   function stat(){
-    const c = conditions(cand, e.b), k = runs.filter(r => !bitten(r)).length, name = cand === "2" ? "2ⁿ" : "Mₙ";
-    $("bpveStatus").textContent = c.every(x => x === true)
-      ? (k === RUNS ? `With Cₙ = ${name}, nothing is truncated here, so the truncated process is the process itself, and growth like Cₙ is Kesten–Stigum for Zₙ.`
-                    : `With Cₙ = ${name}, the truncation never bit in ${k} of these ${RUNS} runs. In those runs the process equals the truncated process, so Zₙ/Cₙ inherits its Kesten–Stigum limit.`)
-      : c[0] !== true ? `Cₙ = ${name} is not a growth scale: jackpots keep exceeding 4Cₙ₊₁, so the truncation bites in every run eventually (here in ${RUNS-k} of ${RUNS} by generation 30).`
-      : c[2] !== true ? `Cₙ = ${name} is not a growth scale: nothing is truncated, and Kesten–Stigum fails: Zₙ/Mₙ → 0.`
-      : cand === "2" ? `Cₙ = 2ⁿ is not a growth scale: later jackpots fall below 4Cₙ₊₁, so the truncated process keeps them and its mean outgrows Cₙ.`
-      : `Cₙ = Mₙ is not a growth scale: the truncation removes the jackpots, so the truncated mean grows only like 2ⁿ and falls behind Cₙ.`;
+    const f = runs.filter(fast).length;
+    $("bpveStatus").textContent = e.b < 6
+      ? `Of ${RUNS} runs, ${f} grew like Mₙ ≈ 6ⁿ and ${RUNS-f} like 2ⁿ.`
+      : f === 0 ? `No run grew like Mₙ ≈ 6ⁿ.`
+      : `${f} of ${RUNS} runs ${f===1?"is":"are"} still close to Mₙ ≈ 6ⁿ after a jackpot, but ${f===1?"it":"they"} cannot stay there.`;
   }
-  function animate(){
-    cancelAnimationFrame(anim); marks(); $("bpveStatus").textContent = "";
+  function start(){
+    cancelAnimationFrame(anim);
+    const b = jack(); verdict(b); e = environment(b);
+    runs = Array.from({length:RUNS}, one); spines = Array.from({length:RUNS}, spine); $("bpveStatus").textContent = "";
     if (reduced){ shown = G; draw(); stat(); return; }
     const t0 = performance.now();
     const tick = now => { const u = Math.min(1,(now-t0)/DUR); shown = Math.max(1, Math.round(u*G)); draw(); if (u<1) anim = requestAnimationFrame(tick); else stat(); };
     anim = requestAnimationFrame(tick);
   }
-  function start(){
-    const b = jack(); verdict(b); e = environment(b);
-    runs = Array.from({length:RUNS}, one); animate();
-  }
-  $("bpveCand").addEventListener("click", ev => {
-    const btn = ev.target.closest("button"); if (!btn || btn.dataset.c === cand) return;
-    cand = btn.dataset.c;
-    for (const x of $("bpveCand").querySelectorAll("button")) x.setAttribute("aria-pressed", x === btn ? "true" : "false");
-    if (e) animate();   // same runs, other truncation
-  });
   const jack = bindSlider("bpveB", 1, verdict, start);
   $("bpveRun").addEventListener("click", start);
   return { start, redraw: draw };
