@@ -26,13 +26,13 @@ Please report any errors or unclear points, in the lecture or by email.
 
 (c) Where does (b) use that rewards are Gaussian?
 
-**Exercise 2.3 (tuning ETC with $$K$$ arms).**
+**Exercise 2.3 (ETC must explore, whatever the rewards).** Let $$\mu$$ have mean 0 and variance $$\sigma^2 \in (0, \infty)$$; it need not be sub-Gaussian. For $$\Delta > 0$$, take the 2-armed SBM in which arm 1 pays $$\Delta + \xi$$ and arm 2 pays $$\xi$$, with $$\xi \sim \mu$$, so that $$m_1 = \Delta$$ and $$m_2 = 0$$. Fix $$\theta > 0$$ and run $$\mathrm{ETC}(\ell)$$ with $$\ell = \lceil \theta/\Delta^2 \rceil$$.
 
-(a) Give an example of a $$K$$-armed SBM where the bound of Theorem 2.4(b) is far larger than $$\sum_{a : \Delta_a > 0} (4/\Delta_a) \log n$$.
+(a) Show that $$\mathbb P(\hat A = 2) \to \mathbb P\big(Z \ge \sqrt\theta/(\sigma\sqrt2)\big)$$ as $$\Delta \to 0$$, for a standard normal $$Z$$. (*Hint:* write $$\hat m_{2,\ell} - \hat m_{1,\ell}$$ in terms of the $$D_i$$ from the proof of Theorem 2.4, and apply the central limit theorem to $$(D_1 + \dots + D_\ell)/\sqrt\ell$$. Note that $$\sqrt\ell\, \Delta \to \sqrt\theta$$.)
 
-(b) Explain why no single $$\ell$$ avoids this: what does exploration cost, and what goes wrong if $$\ell$$ is much smaller than $$1/\Delta_{\min}^2$$?
+(b) Deduce that there are $$c > 0$$ and $$\Delta_0 > 0$$ such that $$R_n(\mathrm{ETC}(\ell)) \ge c\, n\Delta$$ whenever $$\Delta \le \Delta_0$$ and $$n \ge 4\ell$$.
 
-(c) Compare with Theorem 2.6.
+(c) Compare with Theorem 2.4(b). Which part of $$\ell_{\min} = \lceil (4/\Delta^2) \log n \rceil$$ is forced by the fluctuations of the samples, and which part buys the small error probability $$1/n$$?
 
 **Exercise 2.4 (greedy and ε-greedy).** <span class="tag">used later</span> The *greedy* policy plays each arm once and then always plays an arm with the largest empirical mean.
 

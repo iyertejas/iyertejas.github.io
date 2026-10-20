@@ -58,7 +58,7 @@ Recall that $$\mathbb P_\pi(A_t = a \mid H_{t-1}) = \pi_t(a, H_{t-1})$$. Split $
 </svg>
 </figure>
 
-The policy function for $$K = 4$$ and a history $$h$$. The pieces have lengths $$\pi_t(a, h)$$ and endpoints $$s_a = \pi_t(1, h) + \dots + \pi_t(a, h)$$. A uniform $$U_t$$ lands in the $$a$$-th piece with probability $$\pi_t(a, h)$$, and then $$A_t = f_t(h, U_t) = a$$.
+The policy function for $$K = 4$$, with $$s_a = \pi_t(1, h) + \dots + \pi_t(a, h)$$.
 {: .caption}
 
 **Definition 2.1 (policy function).** Given a policy $$\pi$$ and $$t \in \mathbb N$$, the *policy function* $$f_t : ([K] \times \mathbb R)^{t-1} \times [0, 1] \to [K]$$ is
@@ -145,13 +145,11 @@ The $$D_i$$ are independent (all cards are; this is where the reward table is us
 
 Part (b) follows by taking $$\ell = \ell_{\min}$$ in (a), using $$e^{-\ell_{\min}\Delta_a^2/4} \le n^{-\Delta_a^2/\Delta_{\min}^2} \le 1/n$$ (Exercise 2.1).
 
-The proof used one thing special to ETC: the decision $$\hat A$$ compares averages at the fixed index $$\ell$$, so Theorem 1.10 applies directly. Independence of the cards holds for any policy.
-
 ## 4. What is wrong with ETC
 
 To choose $$\ell_{\min}$$ in Theorem 2.4(b) we need $$\Delta_{\min}$$, which the learner does not know. And $$\ell_{\min}$$ is set by the smallest gap, so every arm is explored that long, even arms that are clearly bad.
 
-**Remark.** Without $$\Delta$$, $$\ell$$ of order $$n^{2/3}$$ gives regret of order $$n^{2/3}$$, and no fixed $$\ell$$ does better (Exercise 2.2). With $$K$$ arms, arm $$a$$ costs about $$(\Delta_a/\Delta_{\min}^2) \cdot 4 \log n$$ in Theorem 2.4(b), rather than $$(4/\Delta_a) \log n$$ (Exercise 2.3). UCB will fix both.
+**Remark.** Without $$\Delta$$, $$\ell$$ of order $$n^{2/3}$$ gives regret of order $$n^{2/3}$$, and no fixed $$\ell$$ does better (Exercise 2.2). With $$K$$ arms, arm $$a$$ costs about $$(\Delta_a/\Delta_{\min}^2) \cdot 4 \log n$$ in Theorem 2.4(b), rather than $$(4/\Delta_a) \log n$$. UCB will fix both. Exploring much less than $$1/\Delta_{\min}^2$$ rounds per arm fails anyway, whatever the rewards (Exercise 2.3).
 
 Exploring as little as possible does not work either. The *greedy* policy plays each arm once and then always plays an arm with the largest empirical mean. With rewards in $$\{0, 1\}$$, if the best arm's first reward is 0 and another arm's is 1, greedy never plays the best arm again, so its regret is linear in $$n$$ (Exercise 2.4). Greedy treats an estimate as the truth.
 
@@ -161,15 +159,13 @@ Exploring as little as possible does not work either. The *greedy* policy plays 
 
 **Principle (optimism in the face of uncertainty).** Play the arm whose mean could be largest: the arm with the largest upper confidence bound. Greedy, but realistic.
 
-Greedy fails because it treats $$\hat m_a$$ as the truth. UCB uses instead an upper bound on $$m_a$$ that is rarely wrong. An arm whose bound is still above the best mean has not been ruled out, so it keeps being tested; once its bound drops below the best mean, it is (almost) never played again.
-
 **Confidence bounds.** Fix an arm $$a$$, a number of samples $$s$$ and $$\delta \in (0, 1)$$, and put $$w_\delta(s) = \sqrt{2 \log(1/\delta)/s}$$. The lower tail of Theorem 1.10 (Sheet 1, Exercise 4) with $$\varepsilon = w_\delta(s)$$ gives
 
 $$
 \mathbb P\big(\hat m_{a,s} + w_\delta(s) \le m_a\big) \le e^{-s\, w_\delta(s)^2/2} = \delta. \tag{1}
 $$
 
-So $$\hat m_{a,s} + w_\delta(s)$$ is an upper bound on $$m_a$$ that fails with probability at most $$\delta$$, and it tightens as $$s$$ grows. The first term exploits; the second, the exploration term, explores. This is where the sub-Gaussian assumption enters.
+So $$\hat m_{a,s} + w_\delta(s)$$ is an upper bound on $$m_a$$ that fails with probability at most $$\delta$$, and it tightens as $$s$$ grows. This is where the sub-Gaussian assumption enters.
 
 **Algorithm 2.5 (UCB).** For a $$K$$-armed SBM with horizon $$n$$ and $$\delta(n) \in (0, 1)$$, the policy $$\mathrm{UCB}(\delta(n))$$ is as follows.
 
