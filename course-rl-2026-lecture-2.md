@@ -79,6 +79,8 @@ Picture a deck of cards for each arm: deck $$a$$ is $$Y_{a,1}, Y_{a,2}, \dots$$,
 
 **All the randomness comes first.** The whole table $$(Y_{a,s})$$ and the uniforms $$(U_t)$$ can be sampled at the start, before round 1, and nothing new is drawn during the game. The process $$(A_t, X_t)_{t \le n}$$ is then a deterministic function of them, built by the recursion above. Turning over a card is only a picture of which entry of the table the recursion reads: nothing has to be uncovered to get an SBM. What matters is that $$A_t$$ is a function of $$U_1, \dots, U_t$$ and the cards already used, so no decision depends on a card before that card is used.
 
+**Remark.** The two policies of this lecture, explore-then-commit and UCB, are deterministic (with ties broken in a fixed way): each $$\pi_t(\cdot, h)$$ is a point mass, so $$A_t = f_t(H_{t-1}, U_t)$$ does not depend on $$U_t$$. For them the uniforms play no role, and the reward table is just the decks $$(Y_{a,s})$$. The uniforms are needed for randomised policies, such as ε-greedy (Exercise 2.4) and the policies of the next lecture.
+
 **Try it.** Deal a table, then step through a game: $$U_t$$ picks a piece of $$[0, 1)$$, and the chosen arm uses its next card. Below the game, the same policy is run 20,000 times under three constructions of the bandit process, to check that they give the same law.
 
 {% include sim-reward-table.html %}
