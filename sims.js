@@ -1210,89 +1210,17 @@ function rewardTableWidget(){
       : `<tr><td colspan="5" class="rt-empty">No rounds played yet.</td></tr>`;
   }
 
-  /* the law check */
-  function simulate(c, pol, n, m){
-    const r = rng(seed()), hist = new Float64Array(n+1);
-    const Y = [new Uint8Array(n), new Uint8Array(n), new Uint8Array(n)], Yr = new Uint8Array(n*K), U = new Float64Array(n);
-    const N = [0,0,0], S = [0,0,0], sumN = [0,0,0], table = c === "table" || c === "peek";
-    let sumX = 0;
-    for (let run=0; run<RUNS; run++){
-      N[0] = N[1] = N[2] = 0; S[0] = S[1] = S[2] = 0;
-      if (table){ for (let a=0;a<K;a++) for (let s=0;s<n;s++) Y[a][s] = r() < m[a] ? 1 : 0; for (let t=0;t<n;t++) U[t] = r(); }
-      else if (c === "round"){ for (let i=0;i<n*K;i++) Yr[i] = r() < m[i % K] ? 1 : 0; }
-      for (let t=1;t<=n;t++){
-        let a = pick(probs(pol, t, n, N, S), table ? U[t-1] : r());
-        if (c === "peek" && Y[a][N[a]] === 0){ for (let b=0;b<K;b++) if (Y[b][N[b]] === 1){ a = b; break; } }
-        const x = c === "fresh" ? (r() < m[a] ? 1 : 0) : c === "round" ? Yr[(t-1)*K + a] : Y[a][N[a]];
-        N[a]++; S[a] += x; sumX += x;
-      }
-      hist[N[0]]++; sumN[0] += N[0]; sumN[1] += N[1]; sumN[2] += N[2];
-    }
-    for (let k=0;k<=n;k++) hist[k] /= RUNS;
-    return { c, hist, meanX: sumX/RUNS, lemma: (m[0]*sumN[0] + m[1]*sumN[1] + m[2]*sumN[2])/RUNS };
-  }
-  const SERIES = {
-    fresh: { label:"Definition 1.1: a fresh draw at each pull", col:"var(--ink)", w:2.5, dash:"", mark:"" },
-    table: { label:"Definition 2.2: the reward table", col:"var(--c3)", w:1, dash:"", mark:"circle" },
-    round: { label:"Sheet 1, Exercise 8: a table indexed by round", col:"var(--c1)", w:1.75, dash:"6 4", mark:"" },
-    peek:  { label:"The reward table with the peeking rule", col:"var(--accent)", w:1.75, dash:"", mark:"square" }
-  };
-  const swatch = sp => `<svg width="34" height="14" viewBox="0 0 34 14" aria-hidden="true"><line x1="2" y1="7" x2="32" y2="7" stroke="${sp.col}" stroke-width="${sp.w}" stroke-dasharray="${sp.dash}"/>`
-    + (sp.mark === "circle" ? `<circle cx="17" cy="7" r="3.5" fill="${sp.col}"/>` : sp.mark === "square" ? `<rect x="13.5" y="3.5" width="7" height="7" fill="${sp.col}"/>` : "") + `</svg>`;
-  function drawChart(res, n){
-    const W = fit("rtChart", 680, 280), H = 280, L = 50, R = 16, T = 30, B = 42, pw = W-L-R, ph = H-T-B;
-    let ymax = 0; res.forEach(r => r.hist.forEach(v => { if (v > ymax) ymax = v; }));
-    const ystep = [0.02, 0.05, 0.1, 0.2, 0.25, 0.5].find(s => ymax/s <= 6) || 0.5, ytop = Math.ceil(ymax*1.05/ystep)*ystep;
-    const X = k => L + k/n*pw, Yc = v => T + ph - v/ytop*ph, xstep = n <= 10 ? 2 : n <= 20 ? 5 : 10;
-    const lab = (x, y, s, a = "middle") => `<text x="${x}" y="${y}" text-anchor="${a}" font-family="var(--sans)" font-size="12" fill="var(--muted)">${s}</text>`;
-    let o = "";
-    for (let v=0; v<=ytop+1e-9; v+=ystep) o += `<line x1="${L}" x2="${W-R}" y1="${Yc(v)}" y2="${Yc(v)}" stroke="var(--rule)"/>` + lab(L-8, Yc(v)+4, v.toFixed(2), "end");
-    for (let k=0; k<=n; k+=xstep) o += lab(X(k), T+ph+18, k);
-    o += lab(L + pw/2, H-4, "k, the number of pulls of arm 1") + lab(L-44, 12, "P(N₁(n) = k)", "start");
-    o += `<line x1="${L}" x2="${W-R}" y1="${T+ph}" y2="${T+ph}" stroke="var(--muted)"/>`;
-    for (const r of res){
-      const sp = SERIES[r.c];
-      o += `<polyline points="${Array.from(r.hist, (v,k) => `${X(k).toFixed(1)},${Yc(v).toFixed(1)}`).join(" ")}" fill="none" stroke="${sp.col}" stroke-width="${sp.w}" stroke-dasharray="${sp.dash}" stroke-linejoin="round"/>`;
-      if (sp.mark === "circle") r.hist.forEach((v,k) => { o += `<circle cx="${X(k)}" cy="${Yc(v)}" r="3.5" fill="${sp.col}"/>`; });
-      if (sp.mark === "square") r.hist.forEach((v,k) => { o += `<rect x="${X(k)-3}" y="${Yc(v)-3}" width="6" height="6" fill="${sp.col}"/>`; });
-    }
-    $("rtChart").innerHTML = o;
-    const base = res[0].hist;
-    $("rtLegend").innerHTML = res.map(r => {
-      let note = "the reference law";
-      if (r.c !== "fresh"){ let d = 0; for (let k=0;k<=n;k++) d += Math.abs(r.hist[k] - base[k]); note = `total variation distance to Definition 1.1: ${(d/2).toFixed(3)}`; }
-      return `<div class="rt-leg">${swatch(SERIES[r.c])}<span>${SERIES[r.c].label}<br><small>${note}</small></span></div>`;
-    }).join("");
-    $("rtLemma").innerHTML = res.map(r => {
-      const gap = r.meanX - r.lemma;
-      return `<tr><th scope="row">${SERIES[r.c].label}</th><td>${r.meanX.toFixed(3)}</td><td>${r.lemma.toFixed(3)}</td><td${Math.abs(gap) > 0.1 ? ' class="rt-flag"' : ""}>${gap < 0 ? "−" : "+"}${Math.abs(gap).toFixed(3)}</td></tr>`;
-    }).join("");
-  }
-  let ran = false, lastRes = null, lastN = 0;
-  function run(){
-    ran = true;
-    $("rtRunStatus").textContent = "Running…"; $("rtRun").disabled = true;
-    setTimeout(() => {
-      const n = +$("rtN").value, pol = policy(), m = means();
-      const list = ["fresh", "table", "round"]; if ($("rtPeek").checked) list.push("peek");
-      lastRes = list.map(c => simulate(c, pol, n, m)); lastN = n; drawChart(lastRes, n);
-      $("rtRunStatus").textContent = `${RUNS.toLocaleString("en-GB")} runs each`; $("rtRun").disabled = false;
-    }, 20);
-  }
 
-  const reset = () => { deal(); if (ran) run(); };
+  const reset = () => deal();
   ["rtM1","rtM2","rtM3"].forEach(id => bindSlider(id, 2, null, reset));
   $("rtPolicy").addEventListener("change", reset);
   $("rtStep").addEventListener("click", () => { stop(); step(); });
   $("rtPlay").addEventListener("click", play);
   $("rtDeal").addEventListener("click", deal);
   $("rtReveal").addEventListener("change", drawDecks);
-  $("rtN").addEventListener("change", run);
-  $("rtPeek").addEventListener("change", run);
-  $("rtRun").addEventListener("click", run);
   deal();
   for (let i=0;i<6;i++) step();
-  return { start(){ if (!ran) run(); }, redraw(){ drawInterval(); if (lastRes) drawChart(lastRes, lastN); } };
+  return { start(){}, redraw(){ drawInterval(); } };
 }
 
 /* ---------- boot ---------- */

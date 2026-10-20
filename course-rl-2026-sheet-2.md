@@ -44,6 +44,6 @@ Please report any errors or unclear points, in the lecture or by email.
 
 (a) Step through a game with ε-greedy. In each round, check that $$A_t$$ is the piece of $$[0, 1)$$ containing $$U_t$$, and that $$X_t$$ is the next card of deck $$A_t$$. Then turn on *Show the whole table*. Which cards had the policy seen when it chose $$A_t$$?
 
-(b) Under *Same game, three constructions*, compare the law of $$N_1(n)$$ under Definition 1.1, Definition 2.2 and the table indexed by round (Sheet 1, Exercise 8). Then add the rule that peeks at the next card. Why is it not a policy, and why does the identity $$\mathbb E\big[\sum_t X_t\big] = \sum_a m_a\, \mathbb E[N_a(n)]$$ fail for it?
+(b) Suppose a rule for choosing $$A_t$$ were allowed to look at the next unused card of each deck, and to switch to another arm when the card it was about to use is 0 and another arm's next card is 1. Why is this not a policy? Show by an example that $$\mathbb P(X_t \in \cdot \mid H_{t-1}, A_t) = \mu_{A_t}$$ fails for it.
 
 **Exercise 2.6 (the worst-case bound).** <span class="tag">used later</span> Prove $$R_n \le 8\sqrt{Kn \log n} + 3 \sum_a \Delta_a$$ for UCB with $$\delta = 1/n^2$$. (*Hint:* split the arms by whether $$\Delta_a$$ is above or below a threshold, and optimise the threshold.)

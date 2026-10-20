@@ -266,7 +266,7 @@ button:disabled:hover{background:transparent}
 .rt-check input{accent-color:var(--accent);width:1rem;height:1rem;margin:0}
 .rt-round{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums}
 .rt-buttons{margin-bottom:.6rem}
-.rt-interval,.rt-chart{display:block;width:100%;height:auto;max-width:46rem;overflow:visible}
+.rt-interval{display:block;width:100%;height:auto;max-width:46rem;overflow:visible}
 #table-demo .status{margin:.2rem 0 1rem;min-height:3em;max-width:72ch}
 .rt-decks{display:grid;gap:.7rem;font-family:var(--sans)}
 .rt-deck{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:.8rem;align-items:center}
@@ -287,16 +287,9 @@ button:disabled:hover{background:transparent}
 .rt-key{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;font-family:var(--sans);font-size:.8rem;color:var(--muted);margin:.7rem 0 1rem}
 .rt-key .rt-card{width:18px;height:24px;font-size:.7rem;margin-right:.4rem;vertical-align:middle}
 .rt-scroll{overflow:auto;max-height:15rem;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);margin:.4rem 0 .8rem}
-.rt-scroll-free{max-height:none}
 .rt-table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:.85rem;font-variant-numeric:tabular-nums}
 .rt-table th,.rt-table td{padding:.3rem .8rem .3rem 0;text-align:right;border-bottom:1px solid var(--rule);font-weight:400;white-space:nowrap}
 .rt-table thead th{color:var(--muted);font-size:.78rem;background:var(--paper);position:sticky;top:0}
 .rt-table tbody tr:last-child th,.rt-table tbody tr:last-child td{border-bottom:0}
-.rt-lemma th:first-child,.rt-lemma th[scope=row]{text-align:left;white-space:normal}
 .rt-empty{text-align:left!important;color:var(--muted)}
-.rt-flag{color:var(--accent);font-weight:700!important}
-.rt-legend{display:grid;gap:.35rem;font-family:var(--sans);font-size:.85rem;margin:.6rem 0 1rem}
-.rt-leg{display:grid;grid-template-columns:34px minmax(0,1fr);gap:.7rem;align-items:center}
-.rt-leg small{color:var(--muted);font-variant-numeric:tabular-nums}
-.rt-math{white-space:nowrap}
 @media (max-width:560px){ .rt-deck{grid-template-columns:minmax(0,1fr);gap:.3rem} .rt-round{margin-left:0;flex-basis:100%} }
