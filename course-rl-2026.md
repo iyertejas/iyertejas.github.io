@@ -23,6 +23,8 @@ The exercises are not graded, but I recommend working on them with pen and paper
 - **Lecture 1** (13 October). [Stochastic bandits and concentration](course-rl-2026-lecture-1.html) <span class="tag">interactive</span>, with [Exercise Sheet 1](course-rl-2026-sheet-1.html).
 - **Lecture 2** (20 October). [Explore-then-commit and UCB](course-rl-2026-lecture-2.html) <span class="tag">interactive</span>, with [Exercise Sheet 2](course-rl-2026-sheet-2.html).
 
+All numbered definitions and results, with one-line statements: [Results so far](course-rl-2026-results.html).
+
 ## Description
 
 Reinforcement learning concerns decision-making under uncertainty when information is acquired through interaction with an environment. An agent repeatedly chooses actions, observes their consequences, and uses these observations to improve future decisions. A central difficulty is that actions can serve two purposes at once: obtaining reward now and gathering information that may improve later decisions. This tension is known as the exploration–exploitation trade-off.

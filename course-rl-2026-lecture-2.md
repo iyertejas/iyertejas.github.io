@@ -262,3 +262,5 @@ UCB is deterministic, and explores by computing confidence bounds. Next time we 
 ## Reading
 
 T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020, freely available [online](https://tor-lattimore.com/downloads/book/book.pdf): Chapter 6 (explore-then-commit), [Section 4](#4-what-is-wrong-with-etc).6 (the reward table, there called the stack of rewards), Chapter 7 (UCB; [Theorem 2.6](#theorem-2-6) is their Theorem 7.1, the worst-case bound their Theorem 7.2).
+
+<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-1.html">← Lecture 1</a><a href="course-rl-2026-sheet-2.html">Exercise Sheet 2</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>

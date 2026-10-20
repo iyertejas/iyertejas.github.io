@@ -10,6 +10,10 @@ Run it after adding or editing a lecture page or exercise sheet; it is idempoten
 2. Every reference in running text ("Lemma 1.6", "Theorem 2.4(b)", "Exercise 2.5",
    "Sheet 1, Exercise 8", "Section 4") becomes a link to that id, on the same page
    or on the page where the result lives. Maths, existing links and HTML are left alone.
+3. Each "used later" tag on a sheet gets links to the places in the lecture notes
+   that refer to the exercise (the nearest numbered result or section before each reference).
+4. Each lecture page and sheet ends with previous/next links, the results page and the course page.
+The results page (course-rl-2026-results.md) is written by hand: add new results there.
 """
 import re, glob, os
 
@@ -34,7 +38,7 @@ def slug(heading):
     s = re.sub(r"[^\w\- ]", "", heading.strip().lower())
     return s.replace(" ", "-")
 
-PROTECT = re.compile(r"\$\$.*?\$\$|\[[^\]]*\]\([^)]*\)|<[^>]+>|\{%.*?%\}|\{:[^}]*\}", re.S)
+PROTECT = re.compile(r"<span class=\"used-in\">.*?</span>|<nav class=\"notes-nav\".*?</nav>|\$\$.*?\$\$|\[[^\]]*\]\([^)]*\)|<[^>]+>|\{%.*?%\}|\{:[^}]*\}", re.S)
 
 def link_refs(text, here, sections):
     kind, num = page_of(here)
@@ -94,6 +98,92 @@ def process(path):
         open(path, "w", encoding="utf-8").write(out)
         print("updated", path)
 
+NAME = {"definition":"Definition","lemma":"Lemma","theorem":"Theorem","corollary":"Corollary","remark":"Remark",
+        "example":"Example","algorithm":"Algorithm","proposition":"Proposition"}
+
+def where_used():
+    """exercise anchor (page, id) -> list of (lecture page, nearest anchor id, its name)"""
+    used = {}
+    for path in sorted(glob.glob(f"{COURSE}-lecture-*.md")):
+        here = os.path.basename(path)[:-3]; k = page_of(here)[1]
+        body = open(path, encoding="utf-8").read()
+        events = []
+        for m in re.finditer(r"^\{: #([a-z]+)-(\d+)-(\d+)\}$", body, re.M):
+            events.append((m.start(), "lab", m.group(1), f"{m.group(1)}-{m.group(2)}-{m.group(3)}", f"{NAME.get(m.group(1), m.group(1).title())} {m.group(2)}.{m.group(3)}"))
+        for m in re.finditer(r"^## (\d+)\. (.+)$", body, re.M):
+            events.append((m.start(), "sec", "", slug(f"{m.group(1)}. {m.group(2)}"), f"Lecture {k}, Section {m.group(1)}"))
+        for m in re.finditer(r"\]\((course-rl-2026-sheet-\d+)\.html#(exercise-[\d-]+)\)", body):
+            events.append((m.start(), "ref", m.group(1), m.group(2), ""))
+        events.sort()
+        # a labelled paragraph's IAL comes after its text, so for a reference use the next label if it closes the same block
+        blocks = [(b.start(), b.end()) for b in re.finditer(r"(?:[^\n]+\n?)+", body)]
+        def block_of(pos):
+            for a, e in blocks:
+                if a <= pos < e: return (a, e)
+            return (pos, pos)
+        # a paragraph that opens in bold without a number ("**Remark.**", "**Try it.**") ends the text that belongs to the result before it
+        for a, e in blocks:
+            if body[a:a+2] == "**" and not re.search(r"^\{: #", body[a:e], re.M):
+                events.append((a, "cut", "", "", ""))
+        events.sort()
+        for pos, typ, x, y, nm in events:
+            if typ != "ref": continue
+            a, e = block_of(pos)
+            own = [ev for ev in events if ev[1] == "lab" and a <= ev[0] <= e]
+            before = [ev for ev in events if ev[1] in ("lab", "sec", "cut") and ev[0] < a]
+            secs = [ev for ev in events if ev[1] == "sec" and ev[0] < a]
+            if own: tgt = own[0]
+            elif before and before[-1][1] == "lab": tgt = before[-1]        # in the statement, proof or text following a result
+            else: tgt = secs[-1] if secs else None                         # otherwise name the section
+            if tgt is None: continue
+            lst = used.setdefault((x, y), [])
+            if (here, tgt[3], tgt[4]) not in lst: lst.append((here, tgt[3], tgt[4]))
+    return used
+
+def tag_used_in(path, used):
+    here = os.path.basename(path)[:-3]
+    s = open(path, encoding="utf-8").read()
+    s2 = re.sub(r' ?<span class="used-in">.*?</span>', "", s)
+    def add(m):
+        blk_id = m.group(2)
+        places = used.get((here, blk_id), [])
+        if not places: return m.group(0)
+        links = "; ".join(f'<a href="{pg}.html#{aid}">{nm}</a>' for pg, aid, nm in places[:3])
+        return m.group(1).replace('<span class="tag">used later</span>', f'<span class="tag">used later</span> <span class="used-in">in {links}</span>', 1) + m.group(3)
+    s2 = re.sub(r'(\*\*Exercise[^\n]*?<span class="tag">used later</span>[^\n]*\n(?:[^\n]+\n)*?)(?=\{: #)(\{: #(exercise-[\d-]+)\})',
+                lambda m: add_wrap(m, add), s2)
+    if s2 != s:
+        open(path, "w", encoding="utf-8").write(s2); print("tagged", path)
+
+def add_wrap(m, add):
+    class M:  # adapter: group(1) text, group(2) id, group(3) the IAL line
+        def __init__(s, m): s.m = m
+        def group(s, i): return {1: s.m.group(1), 2: s.m.group(3), 3: s.m.group(2)}[i]
+    return add(M(m))
+
+def nav(path):
+    here = os.path.basename(path)[:-3]; kind, k = page_of(here)
+    exists = lambda p: os.path.exists(p + ".md")
+    items = []
+    if kind == "lecture":
+        if exists(lecture_page(k-1)): items.append(f'<a href="{lecture_page(k-1)}.html">← Lecture {k-1}</a>')
+        if exists(sheet_page(k)): items.append(f'<a href="{sheet_page(k)}.html">Exercise Sheet {k}</a>')
+        if exists(lecture_page(k+1)): items.append(f'<a href="{lecture_page(k+1)}.html">Lecture {k+1} →</a>')
+    else:
+        if exists(sheet_page(k-1)): items.append(f'<a href="{sheet_page(k-1)}.html">← Exercise Sheet {k-1}</a>')
+        if exists(lecture_page(k)): items.append(f'<a href="{lecture_page(k)}.html">Lecture {k} notes</a>')
+        if exists(sheet_page(k+1)): items.append(f'<a href="{sheet_page(k+1)}.html">Exercise Sheet {k+1} →</a>')
+    if exists(f"{COURSE}-results"): items.append(f'<a href="{COURSE}-results.html">Results so far</a>')
+    items.append(f'<a href="{COURSE}.html">Course page</a>')
+    block = '<nav class="notes-nav" aria-label="Course notes">' + "".join(items) + "</nav>"
+    s = open(path, encoding="utf-8").read()
+    s2 = re.sub(r'\n*<nav class="notes-nav".*?</nav>\n*$', "", s, flags=re.S).rstrip("\n") + "\n\n" + block + "\n"
+    if s2 != s:
+        open(path, "w", encoding="utf-8").write(s2); print("nav", path)
+
 if __name__ == "__main__":
-    for p in sorted(glob.glob(f"{COURSE}-lecture-*.md") + glob.glob(f"{COURSE}-sheet-*.md")):
-        process(p)
+    pages = sorted(glob.glob(f"{COURSE}-lecture-*.md") + glob.glob(f"{COURSE}-sheet-*.md"))
+    for p in pages: process(p)
+    used = where_used()
+    for p in sorted(glob.glob(f"{COURSE}-sheet-*.md")): tag_used_in(p, used)
+    for p in pages: nav(p)

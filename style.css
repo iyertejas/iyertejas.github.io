@@ -305,3 +305,7 @@ button:disabled:hover{background:transparent}
 /* jump targets for cross-references */
 .content [id]{scroll-margin-top:1.2rem}
 .content p:target{background:color-mix(in srgb,var(--accent) 9%,transparent);box-shadow:-.6rem 0 0 color-mix(in srgb,var(--accent) 9%,transparent),.6rem 0 0 color-mix(in srgb,var(--accent) 9%,transparent)}
+/* where a "used later" exercise is used; links between notes pages */
+.used-in{font-family:var(--sans);font-size:.8rem;color:var(--muted);margin-left:.15rem}
+.used-in a{color:var(--muted)}
+.notes-nav{display:flex;flex-wrap:wrap;gap:.5rem 1.6rem;font-family:var(--sans);font-size:.92rem;border-top:1px solid var(--rule);padding-top:1rem;margin-top:3rem}
