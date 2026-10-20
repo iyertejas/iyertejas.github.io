@@ -1,0 +1,17 @@
+<figure class="demo" id="etc-demo">
+<div class="controls">
+<div class="slider"><label for="etcGap">Gap Δ</label>
+<input type="range" id="etcGap" min="0.05" max="1" step="0.05" value="0.2"><output id="etcGapOut" for="etcGap">0.20</output></div>
+<div class="rt-field"><label for="etcN">Horizon <i>n</i></label>
+<select id="etcN"><option value="1000">1,000</option><option value="10000" selected>10,000</option><option value="100000">100,000</option></select></div>
+</div>
+<div class="controls">
+<div class="slider l2-wide"><label for="etcL">Exploration ℓ</label>
+<input type="range" id="etcL" min="0" max="1000" step="1" value="600"><output id="etcLOut" for="etcL"></output></div>
+<button id="etcToMin" type="button">ℓ = ℓ<sub>min</sub></button>
+<button id="etcToBest" type="button">Best ℓ</button>
+</div>
+<svg class="l2-chart" id="etcChart" viewBox="0 0 680 300" role="img" aria-label="Regret of explore-then-commit against the exploration length, with the bound of Theorem 2.4(a)"></svg>
+<div class="l2-legend" id="etcLegend"></div>
+<p class="status" id="etcStatus" aria-live="polite"></p>
+</figure>

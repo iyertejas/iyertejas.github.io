@@ -1,0 +1,17 @@
+<figure class="demo" id="ucb-demo">
+<div class="controls">
+<div class="slider"><label for="ucbGap">Gap Δ</label>
+<input type="range" id="ucbGap" min="0.05" max="1" step="0.05" value="0.3"><output id="ucbGapOut" for="ucbGap">0.30</output></div>
+<div class="rt-field"><label for="ucbN">Horizon <i>n</i></label>
+<select id="ucbN"><option value="500">500</option><option value="2000" selected>2,000</option><option value="5000">5,000</option></select></div>
+</div>
+<div class="controls">
+<div class="slider l2-wide"><label for="ucbC">Exponent <i>c</i> in δ = <i>n</i><sup>−<i>c</i></sup></label>
+<input type="range" id="ucbC" min="0" max="4" step="0.125" value="2"><output id="ucbCOut" for="ucbC">2.00</output></div>
+<button id="ucbToBest" type="button">Best <i>c</i></button>
+<button id="ucbRun" type="button">Run again</button>
+</div>
+<svg class="l2-chart" id="ucbChart" viewBox="0 0 680 300" role="img" aria-label="Average regret of UCB against the exponent c in delta = n^(-c)"></svg>
+<div class="l2-legend" id="ucbLegend"></div>
+<p class="status" id="ucbStatus" aria-live="polite"></p>
+</figure>

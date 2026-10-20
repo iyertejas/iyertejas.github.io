@@ -1223,10 +1223,237 @@ function rewardTableWidget(){
   return { start(){}, redraw(){ drawInterval(); } };
 }
 
+/* =========================================================
+   7. Lecture 2 notes: ETC, UCB and the comparison
+   ========================================================= */
+// Numerical Recipes erfc: fractional error below 1.2e-7 everywhere, so tails stay accurate on a log scale
+function erfcL2(x){
+  const z = Math.abs(x), t = 1/(1 + 0.5*z);
+  const r = t*Math.exp(-z*z - 1.26551223 + t*(1.00002368 + t*(0.37409196 + t*(0.09678418 + t*(-0.18628806
+          + t*(0.27886807 + t*(-1.13520398 + t*(1.48851587 + t*(-0.82215223 + t*0.17087277)))))))));
+  return x >= 0 ? r : 2 - r;
+}
+const tailL2 = x => 0.5*erfcL2(x/Math.SQRT2);                       // P(Z >= x), Z standard normal
+function rngL2(seed){ let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const seedL2 = () => (Math.random()*4294967296) >>> 0;
+function gaussFill(r, arr, shift){                                    // arr[i] = shift + N(0,1), Box–Muller in pairs
+  for (let i=0; i<arr.length; i+=2){
+    let u = r(); while (u === 0) u = r();
+    const v = r(), rad = Math.sqrt(-2*Math.log(u));
+    arr[i] = shift + rad*Math.cos(2*Math.PI*v); if (i+1 < arr.length) arr[i+1] = shift + rad*Math.sin(2*Math.PI*v);
+  }
+}
+function logTicksL2(lo, hi){
+  const out = [], e0 = Math.floor(Math.log10(lo)), e1 = Math.ceil(Math.log10(hi)), mult = e1 - e0 <= 2 ? [1,2,5] : [1];
+  for (let e=e0; e<=e1; e++) for (const m of mult){ const v = m*Math.pow(10,e); if (v >= lo*0.999 && v <= hi*1.001) out.push(v); }
+  return out;
+}
+function linTicksL2(lo, hi, k = 5){
+  const s0 = (hi-lo)/k, p = Math.pow(10, Math.floor(Math.log10(s0))), step = [1,2,2.5,5,10].map(m => m*p).find(s => s >= s0);
+  const out = []; for (let v = Math.ceil(lo/step - 1e-9)*step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10)); return out;
+}
+const fmtL2 = v => v >= 1000 ? Math.round(v).toLocaleString("en-GB") : v >= 10 ? v.toFixed(0) : v >= 1 ? (+v.toFixed(1)).toString() : (+v.toPrecision(2)).toString();
+// a small chart: o = {x:{min,max,log,label,fmt}, y:{min,max,log,label}, lines:[{pts,col,w,dash,marks}], vlines:[{x,col,dash}], dots:[{x,y,col,r,hollow}]}
+function plotL2(id, o){
+  const el = $(id), H = o.height || 300;
+  const W = Math.max(320, Math.min(680, Math.round(el.getBoundingClientRect().width) || 680));
+  el.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const L = 56, R = 14, T = 28, B = 46, pw = W-L-R, ph = H-T-B;
+  const fx = v => o.x.log ? Math.log10(v) : v, fy = v => o.y.log ? Math.log10(v) : v;
+  const X = v => L + (fx(v) - fx(o.x.min))/(fx(o.x.max) - fx(o.x.min))*pw;
+  const Y = v => T + ph - (fy(Math.min(Math.max(v, o.y.min), o.y.max)) - fy(o.y.min))/(fy(o.y.max) - fy(o.y.min))*ph;
+  const lab = (x, y, t, a = "middle") => `<text x="${x}" y="${y}" text-anchor="${a}" font-family="var(--sans)" font-size="12" fill="var(--muted)">${t}</text>`;
+  let s = "";
+  for (const v of (o.y.log ? logTicksL2(o.y.min, o.y.max) : linTicksL2(o.y.min, o.y.max)))
+    s += `<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--rule)"/>` + lab(L-7, Y(v)+4, fmtL2(v), "end");
+  const xt = o.x.log ? logTicksL2(o.x.min, o.x.max) : linTicksL2(o.x.min, o.x.max, W < 480 ? 4 : 8);
+  for (const v of xt) s += lab(X(v), T+ph+17, o.x.fmt ? o.x.fmt(v) : fmtL2(v));
+  s += `<line x1="${L}" x2="${W-R}" y1="${T+ph}" y2="${T+ph}" stroke="var(--muted)"/>`;
+  s += lab(L + pw/2, H-6, o.x.label) + lab(4, 14, o.y.label, "start");
+  for (const v of o.vlines || []) if (v.x >= o.x.min && v.x <= o.x.max)
+    s += `<line x1="${X(v.x)}" x2="${X(v.x)}" y1="${T}" y2="${T+ph}" stroke="${v.col}" stroke-width="1.5" stroke-dasharray="${v.dash || "5 4"}"/>`;
+  for (const ln of o.lines || []){
+    const pts = ln.pts.filter(p => isFinite(p[1]) && p[0] >= o.x.min && p[0] <= o.x.max);
+    s += `<polyline points="${pts.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ")}" fill="none" stroke="${ln.col}" stroke-width="${ln.w || 2}" stroke-dasharray="${ln.dash || ""}" stroke-linejoin="round"/>`;
+    if (ln.marks) for (const p of pts) s += `<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3" fill="${ln.col}"/>`;
+  }
+  for (const d of o.dots || [])
+    s += `<circle cx="${X(d.x)}" cy="${Y(d.y)}" r="${d.r || 5}" fill="${d.hollow ? "var(--paper)" : d.col}" stroke="${d.hollow ? d.col : "var(--paper)"}" stroke-width="${d.hollow ? 2 : 1.5}"/>`;
+  el.innerHTML = s;
+}
+function legendL2(id, items){
+  $(id).innerHTML = items.map(it => {
+    const sw = it.dot ? `<svg width="30" height="14" aria-hidden="true"><circle cx="15" cy="7" r="5" fill="${it.hollow ? "var(--paper)" : it.col}" stroke="${it.col}" stroke-width="${it.hollow ? 2 : 0}"/></svg>`
+      : `<svg width="30" height="14" aria-hidden="true"><line x1="1" y1="7" x2="29" y2="7" stroke="${it.col}" stroke-width="${it.w || 2}" stroke-dasharray="${it.dash || ""}"/></svg>`;
+    return `<div class="l2-leg">${sw}<div><span>${it.label}</span>${it.note ? ` <small>${it.note}</small>` : ""}</div></div>`;
+  }).join("");
+}
+
+// ETC on two Gaussian arms N(Δ,1), N(0,1): the regret is exact, since the gap estimate after ℓ pulls is N(Δ, 2/ℓ)
+function etcWidget(){
+  const regret = (l, n, D) => l*D + (n - 2*l)*D*tailL2(D*Math.sqrt(l/2));
+  const bound  = (l, n, D) => l*D + n*D*Math.exp(-l*D*D/4);
+  const n = () => +$("etcN").value, D = () => +$("etcGap").value, top = () => Math.floor(n()/2);
+  const lFromPos = p => Math.max(1, Math.min(top(), Math.round(Math.exp(p/1000*Math.log(top())))));
+  const posFromL = l => Math.round(1000*Math.log(l)/Math.log(top()));
+  let best = 1, exact = null;                              // exact: ℓ set by a button, until the slider moves
+  function findBest(){ const N = n(), d = D(); let b = 1, bv = Infinity; for (let l=1; l<=top(); l++){ const v = regret(l, N, d); if (v < bv){ bv = v; b = l; } } best = b; }
+  function draw(){
+    const N = n(), d = D(), T = top(), l = exact !== null ? Math.min(exact, T) : lFromPos(+$("etcL").value);
+    const lmin = Math.ceil(4*Math.log(N)/(d*d)), l23 = Math.ceil(Math.pow(N, 2/3));
+    $("etcLOut").textContent = l.toLocaleString("en-GB");
+    const ls = []; for (let k=0; k<=240; k++){ const v = Math.round(Math.exp(k/240*Math.log(T))); if (!ls.length || v > ls[ls.length-1]) ls.push(v); }
+    const ex = ls.map(v => [v, regret(v, N, d)]), bd = ls.map(v => [v, bound(v, N, d)]);
+    const ymin = Math.max(0.5, 0.6*regret(best, N, d)), ymax = 1.15*N*d;
+    plotL2("etcChart", { x:{min:1, max:T, log:true, label:"ℓ, pulls of each arm while exploring"}, y:{min:ymin, max:ymax, log:true, label:"regret Rₙ"},
+      lines:[{pts:bd, col:"var(--muted)", w:1.5, dash:"6 4"}, {pts:ex, col:"var(--c4)", w:2.5}],
+      vlines:[{x:lmin, col:"var(--c2)"}, {x:best, col:"var(--c1)", dash:"2 3"}, {x:l23, col:"var(--c5)", dash:"8 3 2 3"}],
+      dots:[{x:l, y:regret(l, N, d), col:"var(--ink)"}] });
+    legendL2("etcLegend", [
+      {col:"var(--c4)", w:2.5, label:"Regret of ETC(ℓ), computed exactly"},
+      {col:"var(--muted)", w:1.5, dash:"6 4", label:"Bound of Theorem 2.4(a)"},
+      {col:"var(--c2)", dash:"5 4", label:`ℓ<sub>min</sub> = ⌈4 log n / Δ²⌉ = ${lmin.toLocaleString("en-GB")}`, note: lmin > T ? "(more than n/2, so Theorem 2.4(b) does not apply)" : "(Theorem 2.4(b))"},
+      {col:"var(--c1)", dash:"2 3", label:`Best ℓ = ${best.toLocaleString("en-GB")}`},
+      {col:"var(--c5)", dash:"8 3 2 3", label:`ℓ = ⌈n<sup>2/3</sup>⌉ = ${l23.toLocaleString("en-GB")}`, note:"(needs no knowledge of Δ; Exercise 2.2)"}
+    ]);
+    const wrong = tailL2(d*Math.sqrt(l/2)), R = regret(l, N, d);
+    $("etcStatus").innerHTML = `With ℓ = ${l.toLocaleString("en-GB")}, ETC commits to the worse arm with probability ${wrong < 1e-4 ? wrong.toExponential(1) : wrong.toFixed(4)}. `
+      + `Its regret is ${fmtL2(R)}: ${fmtL2(l*d)} from exploring and ${fmtL2(R - l*d)} from committing wrongly. `
+      + `At the best ℓ it is ${fmtL2(regret(best, N, d))}${lmin <= T ? `, and at ℓ<sub>min</sub> it is ${fmtL2(regret(lmin, N, d))}` : ""}.`;
+  }
+  const reset = () => { exact = null; findBest(); draw(); };
+  bindSlider("etcGap", 2, null, reset);
+  $("etcN").addEventListener("change", reset);
+  $("etcL").addEventListener("input", () => { exact = null; draw(); });
+  $("etcToMin").addEventListener("click", () => { exact = Math.min(top(), Math.ceil(4*Math.log(n())/(D()*D()))); $("etcL").value = posFromL(exact); draw(); });
+  $("etcToBest").addEventListener("click", () => { exact = best; $("etcL").value = posFromL(best); draw(); });
+  reset();
+  return { start(){}, redraw: draw };
+}
+
+// UCB with δ = n^(-c) on two Gaussian arms, every c run on the same reward tables
+function ucbWidget(){
+  const CS = Array.from({length:33}, (_, i) => i/8);
+  let res = null, job = 0;
+  const n = () => +$("ucbN").value, D = () => +$("ucbGap").value;
+  function run(){
+    const my = ++job, N = n(), d = D(), RUNS = N <= 2000 ? 300 : 150, r = rngL2(seedL2());
+    const inv = new Float64Array(N+1); for (let k=1; k<=N; k++) inv[k] = 1/Math.sqrt(k);
+    const coef = CS.map(c => Math.sqrt(2*c*Math.log(N)));
+    const sumN2 = new Float64Array(CS.length), lost = new Float64Array(CS.length);
+    const Y1 = new Float64Array(N), Y2 = new Float64Array(N);
+    let done = 0;
+    res = null; $("ucbStatus").textContent = "Simulating…";
+    function batch(){
+      if (my !== job) return;
+      const t0 = performance.now();
+      while (done < RUNS && performance.now() - t0 < 30){
+        gaussFill(r, Y1, d); gaussFill(r, Y2, 0);
+        for (let ci=0; ci<CS.length; ci++){
+          const b = coef[ci]; let n1 = 1, n2 = 1, s1 = Y1[0], s2 = Y2[0];
+          for (let t=3; t<=N; t++){
+            if (s1/n1 + b*inv[n1] >= s2/n2 + b*inv[n2]){ s1 += Y1[n1]; n1++; } else { s2 += Y2[n2]; n2++; }
+          }
+          sumN2[ci] += n2; if (n2 > N/2) lost[ci]++;
+        }
+        done++;
+      }
+      $("ucbStatus").textContent = `Simulating… ${Math.round(100*done/RUNS)}%`;
+      if (done < RUNS) { requestAnimationFrame(batch); return; }
+      res = { N, d, RUNS, reg: CS.map((c, i) => d*sumN2[i]/RUNS), lost: CS.map((c, i) => lost[i]/RUNS) };
+      draw();
+    }
+    requestAnimationFrame(batch);
+  }
+  function bestC(){ let b = 0; res.reg.forEach((v, i) => { if (v < res.reg[b]) b = i; }); return b; }
+  function draw(){
+    if (!res) return;
+    const ci = Math.round(+$("ucbC").value*8), c = CS[ci], b = bestC(), thm = 3*res.d + 16*Math.log(res.N)/res.d;
+    const ymax = 1.2*Math.max(...res.reg, thm), ymin = Math.max(0.5, 0.6*Math.min(...res.reg));
+    plotL2("ucbChart", { x:{min:0, max:4, label:"c, where δ = n⁻ᶜ", fmt:v => v.toString()}, y:{min:ymin, max:ymax, log:true, label:"average regret"},
+      lines:[{pts:CS.map((x, i) => [x, res.reg[i]]), col:"var(--c3)", w:2.5, marks:true}],
+      vlines:[{x:2, col:"var(--c2)"}, {x:CS[b], col:"var(--c1)", dash:"2 3"}],
+      dots:[{x:2, y:thm, col:"var(--muted)", hollow:true}, {x:c, y:res.reg[ci], col:"var(--ink)"}] });
+    legendL2("ucbLegend", [
+      {col:"var(--c3)", w:2.5, label:`Regret of UCB(n<sup>−c</sup>), Δ · average N<sub>2</sub>(n) over ${res.RUNS} runs`},
+      {col:"var(--c2)", dash:"5 4", label:"c = 2, that is δ = 1/n² (Theorem 2.6)"},
+      {col:"var(--muted)", dot:true, hollow:true, label:`Bound of Theorem 2.6: 3Δ + 16 log n / Δ = ${fmtL2(thm)}`},
+      {col:"var(--c1)", dash:"2 3", label:`Best c in this simulation: ${CS[b]}`}
+    ]);
+    const delta = Math.pow(res.N, -c);
+    $("ucbStatus").innerHTML = `${c === 0 ? "With c = 0 the bonus is zero, so UCB is greedy. " : `With c = ${c}, δ = ${delta < 1e-3 ? delta.toExponential(1) : delta.toPrecision(2)}. `}`
+      + `Average regret ${fmtL2(res.reg[ci])}; in ${(100*res.lost[ci]).toFixed(1)}% of runs the worse arm was played more than n/2 times.`;
+  }
+  const rerun = () => run();
+  bindSlider("ucbGap", 2, null, rerun);
+  $("ucbN").addEventListener("change", rerun);
+  $("ucbRun").addEventListener("click", rerun);
+  $("ucbC").addEventListener("input", () => { $("ucbCOut").textContent = (+$("ucbC").value).toFixed(2); draw(); });
+  $("ucbToBest").addEventListener("click", () => { if (!res) return; const c = CS[bestC()]; $("ucbC").value = c; $("ucbCOut").textContent = c.toFixed(2); draw(); });
+  let started = false;
+  return { start(){ if (!started){ started = true; run(); } }, redraw: draw };
+}
+
+// Regret against the gap: ETC tuned with Δ, ETC with ℓ = n^(2/3), and UCB(1/n²)
+function compareWidget(){
+  const GAPS = Array.from({length:17}, (_, i) => Math.pow(10, -2 + 2*i/16));
+  const etc = (l, n, D) => l*D + (n - 2*l)*D*tailL2(D*Math.sqrt(l/2));
+  let res = null, job = 0;
+  function run(){
+    const my = ++job, N = +$("cmpN").value, RUNS = N <= 1000 ? 400 : 100, r = rngL2(seedL2());
+    const inv = new Float64Array(N+1); for (let k=1; k<=N; k++) inv[k] = 1/Math.sqrt(k);
+    const b = Math.sqrt(4*Math.log(N)), sum = new Float64Array(GAPS.length);
+    const Y1 = new Float64Array(N), Y2 = new Float64Array(N);
+    let gi = 0, done = 0; res = null;
+    function batch(){
+      if (my !== job) return;
+      const t0 = performance.now();
+      while (gi < GAPS.length && performance.now() - t0 < 30){
+        const d = GAPS[gi];
+        gaussFill(r, Y1, d); gaussFill(r, Y2, 0);
+        let n1 = 1, n2 = 1, s1 = Y1[0], s2 = Y2[0];
+        for (let t=3; t<=N; t++){ if (s1/n1 + b*inv[n1] >= s2/n2 + b*inv[n2]){ s1 += Y1[n1]; n1++; } else { s2 += Y2[n2]; n2++; } }
+        sum[gi] += d*n2;
+        if (++done === RUNS){ done = 0; gi++; }
+      }
+      $("cmpProgress").textContent = gi < GAPS.length ? `Simulating UCB… ${Math.round(100*(gi*RUNS + done)/(GAPS.length*RUNS))}%` : `UCB: ${RUNS} runs per gap`;
+      if (gi < GAPS.length) { requestAnimationFrame(batch); return; }
+      res = { N, ucb: GAPS.map((d, i) => sum[i]/RUNS) };
+      draw();
+    }
+    requestAnimationFrame(batch);
+  }
+  function draw(){
+    if (!res) return;
+    const N = res.N, T = Math.floor(N/2), l23 = Math.ceil(Math.pow(N, 2/3));
+    const dense = Array.from({length:121}, (_, i) => Math.pow(10, -2 + 2*i/120));
+    const tuned = dense.map(d => [d, etc(Math.min(T, Math.ceil(4*Math.log(N)/(d*d))), N, d)]);
+    const fixed = dense.map(d => [d, etc(Math.min(T, l23), N, d)]);
+    const oracle = dense.map(d => { let bv = Infinity; for (let l=1; l<=T; l += Math.max(1, Math.floor(l/50))) bv = Math.min(bv, etc(l, N, d)); return [d, bv]; });
+    const ucb = GAPS.map((d, i) => [d, res.ucb[i]]);
+    const all = [...tuned, ...fixed, ...ucb].map(p => p[1]);
+    plotL2("cmpChart", { height:320, x:{min:0.01, max:1, log:true, label:"gap Δ"}, y:{min:Math.max(0.5, 0.7*Math.min(...all)), max:1.3*Math.max(...all), log:true, label:"regret Rₙ"},
+      lines:[{pts:fixed, col:"var(--c5)", w:2, dash:"8 3 2 3"}, {pts:oracle, col:"var(--c2)", w:1.5, dash:"2 3"}, {pts:tuned, col:"var(--c2)", w:2.5}, {pts:ucb, col:"var(--c3)", w:2.5, marks:true}],
+      vlines:[{x:Math.sqrt(2*Math.log(N)/N), col:"var(--muted)"}] });
+    legendL2("cmpLegend", [
+      {col:"var(--c3)", w:2.5, label:"UCB(1/n²)", note:"(simulated; needs no knowledge of Δ)"},
+      {col:"var(--c2)", w:2.5, label:"ETC(ℓ<sub>min</sub>)", note:"(exact; ℓ<sub>min</sub> uses Δ, capped at n/2)"},
+      {col:"var(--c2)", w:1.5, dash:"2 3", label:"ETC with the best ℓ for each Δ", note:"(exact; an oracle)"},
+      {col:"var(--c5)", w:2, dash:"8 3 2 3", label:`ETC(⌈n<sup>2/3</sup>⌉) = ETC(${l23.toLocaleString("en-GB")})`, note:"(exact; needs no knowledge of Δ)"},
+      {col:"var(--muted)", w:1.5, dash:"5 4", label:"Δ = √(K log n / n) with K = 2", note:"(the hardest gaps for UCB, Remark 2.7)"}
+    ]);
+  }
+  $("cmpN").addEventListener("change", run);
+  $("cmpRun").addEventListener("click", run);
+  let started = false;
+  return { start(){ if (!started){ started = true; run(); } }, redraw: draw };
+}
+
 /* ---------- boot ---------- */
 const widgets = {};
 const defs = [["phase-demo", phaseWidget], ["self-demo", selfWidget], ["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],
-              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget]];
+              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget]];
 function boot(){
   // Build each widget independently, so one failure cannot stop the others.
   for (const [id, mk] of defs) if ($(id)) { try { widgets[id] = mk(); } catch (e) { console.error("simulation " + id + " failed to load", e); } }
