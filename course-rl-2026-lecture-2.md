@@ -98,8 +98,6 @@ for the empirical mean of arm $$a$$ after $$s$$ pulls: the average of the first 
 
 Theorem 1.10 does not apply directly to $$\hat m_a(t)$$: the number of samples $$N_a(t)$$ is random and depends on the cards themselves, while Theorem 1.10 is about a fixed number of samples. The way round this, used for UCB below, is a union bound over the possible values $$s \in [n]$$ of $$N_a(t)$$.
 
-Sheet 1, Exercise 8 indexed potential rewards by *round* ($$Y_{t,a}$$: what arm $$a$$ would pay in round $$t$$); the reward table indexes them by *pull* ($$Y_{a,s}$$: what arm $$a$$ pays the $$s$$-th time it is played). The first makes expectations easy, the second makes concentration easy.
-
 ## 3. Explore-then-commit
 
 We now get to an explicit policy with sublinear regret.
