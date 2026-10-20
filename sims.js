@@ -834,58 +834,83 @@ function phaseWidget(){
 }
 
 /* =========================================================
-   3b. Branching process in a varying environment with two growth rates.
+   3b. Branching process in a varying environment with several growth rates.
    In generation n each individual has 2 children, except that with probability
-   p_n = 3^(-n)/5 it has a jackpot of K_n = 20·3^n children. Mean offspring ≈ 6.
+   p_n = 4/K_n it has a jackpot of K_n = 20·b^n children, so the mean is m_n = 6 − 2p_n
+   and M_n = m_0 ⋯ m_{n−1} ≈ 6^n. By the growth-scale criterion (Iyer, arXiv 2026,
+   Theorem 1.6, truncating at 4C_{n+1}): 2^n is a growth scale iff b > 2, and M_n iff b < 6.
    ========================================================= */
 function bpveWidget(){
-  const G = 30, RUNS = 40, DUR = 2600;
-  let runs = [], anim = 0, shown = G;
+  const G = 30, RUNS = 40, DUR = 2600, L2 = Math.log10(2);
+  let runs = [], e = null, anim = 0, shown = G;
+  const sup = n => String(n).split("").map(d => "⁰¹²³⁴⁵⁶⁷⁸⁹"[+d]).join("");
   const std = () => { let u=0,v=0; while(!u) u=Math.random(); v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
   const poisson = l => { if (l > 30) return Math.max(0, Math.round(l + Math.sqrt(l)*std()));
     let k=0, p=1, L=Math.exp(-l); for(;;){ p*=Math.random(); if (p<=L) return k; k++; } };
+  function environment(b){
+    const K = [], p = [], m = [], LM = [0];
+    for (let n=0;n<G;n++){ K[n] = Math.round(20*Math.pow(b,n)); p[n] = 4/K[n]; m[n] = 2*(1-p[n]) + K[n]*p[n]; LM.push(LM[n] + Math.log10(m[n])); }
+    return {b, K, p, m, LM};
+  }
   function one(){
     let Z = 1; const lz = [0];
     for (let n=0;n<G;n++){
-      const p = Math.pow(3,-n)/5, K = 20*Math.pow(3,n);
       let J = 0;
-      if (Z < 60){ for (let i=0;i<Z;i++) if (Math.random()<p) J++; } else J = Math.min(Z, poisson(Z*p));
-      Z = 2*(Z-J) + K*J; lz.push(Math.log10(Z));
+      if (Z < 60){ for (let i=0;i<Z;i++) if (Math.random()<e.p[n]) J++; } else J = Math.min(Z, poisson(Z*e.p[n]));
+      Z = 2*(Z-J) + e.K[n]*J; lz.push(Math.log10(Z));
     }
     return lz;
   }
-  const L2 = Math.log10(2), L6 = Math.log10(6), cut = n => n*(L2+L6)/2 + 1.5;
-  const fast = r => r[G] > cut(G);
+  const fast = r => r[G] > (e.LM[G] + G*L2)/2;   // nearer M_n than 2^n at the end
   function draw(){
+    if (!e) return;
     const {ctx,w,h} = setupCanvas($("bpvePlot")); ctx.clearRect(0,0,w,h);
-    const top = Math.ceil(G*L6/5)*5 + 1;
-    const pL=44, pR=44, pT=10, pB=42, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (1-l/top)*(h-pT-pB);
-    const muted=css("--muted"), rule=css("--rule"), cF=css("--accent"), cS=css("--c1");
-    ctx.font = `12px ${css("--sans")}`; ctx.strokeStyle=rule; ctx.fillStyle=muted; ctx.lineWidth=1;
-    for (let l=0;l<=top;l+=5){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(l))+.5); ctx.lineTo(w-pR,Math.round(Y(l))+.5); ctx.stroke();
-      ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(l===0?"1":"10"+String(l).split("").map(d=>"⁰¹²³⁴⁵⁶⁷⁸⁹"[+d]).join(""), pL-8, Y(l)); }
+    let mx = e.LM[G]; for (const r of runs) for (const v of r) if (v > mx) mx = v;
+    const step = mx > 40 ? 10 : 5, top = Math.ceil(mx/step)*step;
+    const pL=44, pR=34, pT=10, pB=42, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (1-l/top)*(h-pT-pB);
+    const muted=css("--muted"), cF=css("--accent"), cS=css("--c1");
+    ctx.font = `12px ${css("--sans")}`; ctx.strokeStyle=css("--rule"); ctx.fillStyle=muted; ctx.lineWidth=1;
+    for (let l=0;l<=top;l+=step){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(l))+.5); ctx.lineTo(X(G),Math.round(Y(l))+.5); ctx.stroke();
+      ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(l===0?"1":"10"+sup(l), pL-8, Y(l)); }
     ctx.textAlign="center"; ctx.textBaseline="top";
     for (let n=0;n<=G;n+=5) ctx.fillText(String(n), X(n), h-pB+8);
     ctx.fillText("generation", (X(0)+X(G))/2, h-pB+24);
-    ctx.setLineDash([4,4]); ctx.strokeStyle=muted; ctx.lineWidth=1;
-    for (const [lg,lab] of [[L2,"2ⁿ"],[L6,"6ⁿ"]]){ ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(G),Y(G*lg)); ctx.stroke();
-      ctx.textAlign="left"; ctx.textBaseline="middle"; ctx.fillText(lab, X(G)+6, Y(G*lg)); }
+    ctx.setLineDash([4,4]); ctx.strokeStyle=muted;
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(G),Y(G*L2)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); for (let n=1;n<=G;n++) ctx.lineTo(X(n),Y(e.LM[n])); ctx.stroke();
+    ctx.textAlign="left"; ctx.textBaseline="middle"; ctx.fillText("2ⁿ", X(G)+6, Y(G*L2)); ctx.fillText("Mₙ", X(G)+6, Y(e.LM[G]));
     ctx.setLineDash([]); ctx.lineWidth=1.4; ctx.globalAlpha=.75;
     for (const r of runs){ ctx.strokeStyle = fast(r) ? cF : cS; ctx.beginPath(); ctx.moveTo(X(0),Y(r[0]));
       for (let n=1;n<=shown;n++) ctx.lineTo(X(n),Y(r[n])); ctx.stroke(); }
     ctx.globalAlpha=1;
   }
+  function verdict(b){
+    const bs = b.toFixed(1);
+    $("bpveVerdict").textContent = b <= 2
+      ? `b = ${bs} ≤ 2: jackpots keep coming even in a population of size 2ⁿ, so Mₙ ≈ 6ⁿ is a growth scale and 2ⁿ is not.`
+      : b < 6
+      ? `2 < b = ${bs} < 6: both 2ⁿ and Mₙ ≈ 6ⁿ are growth scales. Which one a run follows depends on whether it has an early jackpot.`
+      : `b = ${bs} ≥ 6: jackpots are too large and too rare for the mean, so 2ⁿ is a growth scale and Mₙ ≈ 6ⁿ is not.`;
+  }
   function stat(){
-    const f = runs.filter(fast).length;
-    $("bpveStatus").textContent = `Of ${RUNS} runs, ${f} grew like 6ⁿ and ${RUNS-f} like 2ⁿ.`;
+    const f = runs.filter(fast).length, b = e.b;
+    $("bpveStatus").textContent = b <= 2
+      ? (f === RUNS ? `All ${RUNS} runs left 2ⁿ behind.` : `${f} of ${RUNS} runs have left 2ⁿ behind; the others will too, since 2ⁿ is not a growth scale.`)
+      : b < 6
+      ? `Of ${RUNS} runs, ${f} grew like Mₙ ≈ 6ⁿ and ${RUNS-f} like 2ⁿ.`
+      : f === 0 ? `No run grew like Mₙ ≈ 6ⁿ.`
+      : `${f} of ${RUNS} runs ${f===1?"is":"are"} still close to Mₙ ≈ 6ⁿ after a jackpot, but ${f===1?"it":"they"} cannot stay there.`;
   }
   function start(){
-    cancelAnimationFrame(anim); runs = Array.from({length:RUNS}, one); $("bpveStatus").textContent = "";
+    cancelAnimationFrame(anim);
+    const b = jack(); verdict(b); e = environment(b);
+    runs = Array.from({length:RUNS}, one); $("bpveStatus").textContent = "";
     if (reduced){ shown = G; draw(); stat(); return; }
     const t0 = performance.now();
     const tick = now => { const u = Math.min(1,(now-t0)/DUR); shown = Math.max(1, Math.round(u*G)); draw(); if (u<1) anim = requestAnimationFrame(tick); else stat(); };
     anim = requestAnimationFrame(tick);
   }
+  const jack = bindSlider("bpveB", 1, verdict, start);
   $("bpveRun").addEventListener("click", start);
   return { start, redraw: draw };
 }
