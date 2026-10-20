@@ -79,7 +79,7 @@ def process(path):
     blocks = body.split("\n\n")
     new = []
     for b in blocks:
-        if b.lstrip().startswith(("#", "{%", "<", "$$", "{:")) or b.strip() == "":
+        if b.lstrip().startswith(("#", "{%", "<", "$$\n", "{:")) or b.strip() == "":   # "$$\n" opens display maths
             new.append(b); continue
         m = LABEL.match(b.lstrip())
         if m:

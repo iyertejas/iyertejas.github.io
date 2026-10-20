@@ -1,0 +1,19 @@
+<figure class="demo" id="etcrun-demo">
+<div class="controls">
+<div class="slider"><label for="erGap">Gap Δ</label>
+<input type="range" id="erGap" min="0.1" max="1" step="0.05" value="0.5"><output id="erGapOut" for="erGap">0.50</output></div>
+<div class="slider l2-wide"><label for="erL">Exploration ℓ</label><input type="range" id="erL" min="1" max="333" step="1" value="111"><output id="erLOut" for="erL">111</output></div><button id="erToMin" type="button">ℓ = ℓ<sub>min</sub></button>
+</div>
+<div class="controls rt-buttons">
+<button id="erStep" type="button">Step</button>
+<button id="erPlay" type="button">Play</button>
+<button id="erNew" type="button">New run</button>
+<div class="rt-field"><label for="erSpeed">Speed</label>
+<select id="erSpeed"><option value="slow">slow</option><option value="medium" selected>medium</option><option value="fast">fast</option></select></div>
+<span class="rt-round" id="erRound"></span>
+</div>
+<svg class="l2-chart" id="erTop" viewBox="0 0 680 180" role="img" aria-label="ETC: the arms, their empirical means and true means"></svg>
+<p class="status" id="erStatus" aria-live="polite"></p>
+<svg class="l2-chart" id="erLow" viewBox="0 0 680 260" role="img" aria-label="ETC: the number of pulls of each arm over time"></svg>
+<p class="l2-key"><span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="var(--ink)"/></svg> empirical mean</span><span><svg width="14" height="14" aria-hidden="true"><line x1="7" y1="0" x2="7" y2="14" stroke="var(--muted)" stroke-width="2"/></svg> true mean</span><span><svg width="22" height="14" aria-hidden="true"><line x1="1" y1="7" x2="21" y2="7" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/></svg> end of exploration, <i>t</i> = <i>K</i>ℓ (lower panel)</span></p>
+</figure>

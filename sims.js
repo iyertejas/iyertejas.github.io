@@ -1450,10 +1450,134 @@ function compareWidget(){
   return { start(){ if (!started){ started = true; run(); } }, redraw: draw };
 }
 
+// Animated runs of ETC(ℓ) and UCB(1/n²) on three Gaussian arms N(0,1), N(−Δ,1), N(−2Δ,1), horizon 1000.
+// The rewards come from a reward table (Definition 2.2) dealt when the run starts.
+function runWidget(P, mode){
+  const K = 3, N = 1000, COL = ["var(--c4)", "var(--c1)", "var(--c5)"], LOGN = Math.log(N);
+  const w = s => Math.sqrt(4*LOGN/s);                                  // UCB width with δ = 1/n²
+  const D = () => +$(P+"Gap").value, ell = () => mode === "etc" ? +$(P+"L").value : 0;
+  let g = null, timer = 0, acc = 0;
+  function deal(){
+    stop();
+    const d = D(), r = rngL2(seedL2());
+    const Y = [0,1,2].map(a => { const y = new Float64Array(N); gaussFill(r, y, -a*d); return y; });
+    g = { d, m:[0, -d, -2*d], Y, t:0, n:[0,0,0], s:[0,0,0], hist:[[0],[0],[0]], last:null, commit:-1, l:ell() };
+    draw();
+  }
+  const mean = a => g.s[a]/g.n[a], index = a => mean(a) + w(g.n[a]);
+  function choose(){
+    if (mode === "ucb"){
+      if (g.t <= K) return g.t - 1;
+      let b = 0; for (let a=1; a<K; a++) if (index(a) > index(b)) b = a; return b;
+    }
+    if (g.t <= K*g.l) return (g.t - 1) % K;
+    if (g.commit < 0){ let b = 0; for (let a=1; a<K; a++) if (mean(a) > mean(b)) b = a; g.commit = b; }
+    return g.commit;
+  }
+  function step(){
+    if (g.t >= N) return false;
+    g.t++;
+    const idx = mode === "ucb" && g.t > K ? [0,1,2].map(index) : null;
+    const a = choose(), x = g.Y[a][g.n[a]];
+    g.n[a]++; g.s[a] += x;
+    for (let b=0; b<K; b++) g.hist[b].push(g.n[b]);
+    g.last = { t:g.t, a, x, idx };
+    return g.t < N;
+  }
+  function drawTop(){
+    const el = $(P+"Top"), W = Math.max(320, Math.min(680, Math.round(el.getBoundingClientRect().width) || 680)), H = 180;
+    el.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const L = W < 480 ? 64 : 92, R = 16, lo = -2*g.d - 2.2, hi = 2.2, X = v => L + (v - lo)/(hi - lo)*(W - L - R);
+    const rowY = a => 30 + a*46;
+    const cl = v => Math.min(Math.max(v, lo), hi);
+    let s = "";
+    for (let v = Math.ceil(lo); v <= hi; v++)
+      s += `<line x1="${X(v)}" x2="${X(v)}" y1="14" y2="${H-22}" stroke="var(--rule)"/><text x="${X(v)}" y="${H-6}" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--muted)">${v}</text>`;
+    for (let a=0; a<K; a++){
+      const y = rowY(a), chosen = g.last && g.last.a === a, committed = mode === "etc" && g.commit === a;
+      if (chosen || committed) s += `<rect x="2" y="${y-19}" width="${W-4}" height="38" rx="3" fill="${COL[a]}" fill-opacity="${committed ? .14 : .08}"/>`;
+      s += `<text x="8" y="${y-2}" font-family="var(--sans)" font-size="13" font-weight="700" fill="${COL[a]}">Arm ${a+1}</text>`;
+      s += `<text x="8" y="${y+13}" font-family="var(--sans)" font-size="11.5" fill="var(--muted)">N = ${g.n[a]}${committed ? (W < 480 ? " ✓" : " · committed") : ""}</text>`;
+      s += `<line x1="${X(g.m[a])}" x2="${X(g.m[a])}" y1="${y-15}" y2="${y+15}" stroke="var(--muted)" stroke-width="2"/>`;
+      if (g.n[a] > 0){
+        const mh = mean(a);
+        if (mode === "ucb"){
+          const a0 = mh - w(g.n[a]), a1 = mh + w(g.n[a]);
+          s += `<line x1="${X(cl(a0))}" x2="${X(cl(a1))}" y1="${y}" y2="${y}" stroke="${COL[a]}" stroke-width="10" stroke-opacity=".28" stroke-linecap="butt"/>`;
+          if (a1 > hi) s += `<path d="M${X(hi)-2} ${y-7}L${X(hi)+6} ${y}L${X(hi)-2} ${y+7}z" fill="${COL[a]}"/>`;
+          else s += `<line x1="${X(a1)}" x2="${X(a1)}" y1="${y-11}" y2="${y+11}" stroke="${COL[a]}" stroke-width="4"/>`;
+        }
+        s += `<circle cx="${X(cl(mh))}" cy="${y}" r="5.5" fill="${COL[a]}" stroke="var(--paper)" stroke-width="1.5"/>`;
+      }
+    }
+    el.innerHTML = s;
+  }
+  function drawLow(){
+    const lines = [0,1,2].map(a => {
+      const h = g.hist[a], step = Math.max(1, Math.floor(h.length/300)), pts = [];
+      for (let t=0; t<h.length; t+=step) pts.push([t, h[t]]);
+      pts.push([h.length-1, h[h.length-1]]);
+      return { pts, col:COL[a], w:2.25 };
+    });
+    const vlines = [];
+    if (mode === "ucb") for (let a=1; a<K; a++){ const b = 3 + 16*LOGN/((a*g.d)**2); if (b < N) lines.push({ pts:[[0,b],[N,b]], col:COL[a], w:1.5, dash:"5 4" }); }
+    else vlines.push({ x:K*g.l, col:"var(--muted)" });
+    plotL2(P+"Low", { height:260, x:{min:0, max:N, label:"round t"}, y:{min:0, max:N, label:"pulls Nₐ(t)"}, lines, vlines });
+  }
+  function status(){
+    $(P+"Round").textContent = `Round ${g.t} of ${N}`;
+    $(P+"Step").disabled = g.t >= N;
+    const L = g.last; let s;
+    if (!L) s = mode === "ucb" ? "Press Step. UCB first plays each arm once." : `Press Step. ETC first plays the arms in turn, ${g.l} times each.`;
+    else if (mode === "ucb"){
+      s = L.idx ? `Round ${L.t}: the indices are ${L.idx.map((v, a) => `<span style="color:${COL[a]}">${v.toFixed(2)}</span>`).join(", ")}, so A<sub>${L.t}</sub> = ${L.a+1}, which pays ${L.x.toFixed(2)}.`
+                : `Round ${L.t}: playing each arm once; A<sub>${L.t}</sub> = ${L.a+1}, which pays ${L.x.toFixed(2)}.`;
+    } else if (L.t <= K*g.l){
+      s = `Round ${L.t}: exploring, ${K*g.l - L.t} rounds left; A<sub>${L.t}</sub> = ${L.a+1}, which pays ${L.x.toFixed(2)}.`;
+    } else {
+      s = `ETC committed to arm ${g.commit+1} after ${K*g.l} rounds${g.commit === 0 ? ", the best arm" : `, a worse arm: every remaining round costs ${(g.commit*g.d).toFixed(2)}`}.`;
+    }
+    if (g.t >= N){
+      const reg = g.n[1]*g.d + g.n[2]*2*g.d;
+      s += ` Finished: Σ<sub>a</sub> Δ<sub>a</sub> N<sub>a</sub>(n) = ${reg.toFixed(1)}.`;
+    }
+    $(P+"Status").innerHTML = s;
+  }
+  function draw(){ drawTop(); drawLow(); status(); }
+  const RATE = { slow:4, medium:60, fast:400 };                        // rounds per second
+  function stop(){ cancelAnimationFrame(timer); timer = 0; $(P+"Play").textContent = "Play"; }
+  function play(){
+    if (timer){ stop(); return; }
+    if (g.t >= N) deal();
+    $(P+"Play").textContent = "Pause"; acc = 0;
+    let prev = performance.now();
+    const tick = now => {
+      acc += (now - prev)/1000*RATE[$(P+"Speed").value]; prev = now;
+      let more = true; while (acc >= 1 && more){ more = step(); acc -= 1; }
+      draw();
+      if (more) timer = requestAnimationFrame(tick); else stop();
+    };
+    timer = requestAnimationFrame(tick);
+  }
+  bindSlider(P+"Gap", 2, null, deal);
+  if (mode === "etc"){
+    const lmin = () => Math.min(333, Math.ceil(4*LOGN/(D()*D())));
+    $(P+"L").addEventListener("input", () => { $(P+"LOut").textContent = $(P+"L").value; });
+    $(P+"L").addEventListener("change", deal);
+    $(P+"ToMin").addEventListener("click", () => { $(P+"L").value = lmin(); $(P+"LOut").textContent = lmin(); deal(); });
+  }
+  $(P+"Step").addEventListener("click", () => { stop(); step(); draw(); });
+  $(P+"Play").addEventListener("click", play);
+  $(P+"New").addEventListener("click", deal);
+  deal();
+  return { start(){}, redraw(){ if (g) draw(); } };
+}
+const etcRunWidget = () => runWidget("er", "etc"), ucbRunWidget = () => runWidget("ur", "ucb");
+
 /* ---------- boot ---------- */
 const widgets = {};
 const defs = [["phase-demo", phaseWidget], ["self-demo", selfWidget], ["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],
-              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget]];
+              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget], ["etcrun-demo", etcRunWidget], ["ucbrun-demo", ucbRunWidget]];
 function boot(){
   // Build each widget independently, so one failure cannot stop the others.
   for (const [id, mk] of defs) if ($(id)) { try { widgets[id] = mk(); } catch (e) { console.error("simulation " + id + " failed to load", e); } }

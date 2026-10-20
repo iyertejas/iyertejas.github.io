@@ -113,6 +113,13 @@ We now get to an explicit policy with sublinear regret.
 2. Let $$\hat A$$ be an arm with the largest empirical mean after round $$K\ell$$, ties broken in any fixed way.
 3. In rounds $$K\ell + 1, \dots, n$$, play $$\hat A$$.
 
+**Try it.** Run $$\mathrm{ETC}(\ell)$$ step by step on three arms.
+
+{% include sim-etc-run.html %}
+
+$$\mathrm{ETC}(\ell)$$ with $$n = 1000$$ on three arms with Gaussian rewards $$N(m_a, 1)$$, where $$m_1 = 0$$, $$m_2 = -\Delta$$ and $$m_3 = -2\Delta$$; the rewards are read from a reward table dealt at the start of each run. In the first $$K\ell$$ rounds the arms are played in turn; then ETC commits to the arm with the largest empirical mean and plays it to the end. With a small $$\ell$$, run it a few times: sometimes the commitment is wrong, and the pull count of a worse arm keeps climbing until round $$n$$.
+{: .caption}
+
 **Theorem 2.4 (ETC).** Given a $$K$$-armed SBM with 1-sub-Gaussian rewards, explore-then-commit performs as follows.
 {: #theorem-2-4}
 
@@ -189,6 +196,13 @@ $$
 $$
 
 That is, $$\mathrm{UCB}_a(t-1) = \hat m_{a, N_a(t-1)} + w_{\delta(n)}(N_a(t-1))$$. With $$\delta(n) = 1/n^2$$, the bonus is $$\sqrt{4 \log n / N_a(t-1)}$$: it shrinks as arm $$a$$ is pulled, and grows slowly with the horizon.
+
+**Try it.** Run $$\mathrm{UCB}(1/n^2)$$ step by step on three arms.
+
+{% include sim-ucb-run.html %}
+
+$$\mathrm{UCB}(1/n^2)$$ with $$n = 1000$$ on three arms with Gaussian rewards $$N(m_a, 1)$$, where $$m_1 = 0$$, $$m_2 = -\Delta$$ and $$m_3 = -2\Delta$$. Step through the first rounds to see how the indices decide which arm is played, then press Play. The bars are $$\hat m_a \pm w(N_a)$$, with $$w(s) = \sqrt{4 \log n / s}$$, and the thick tick is the index. A suboptimal arm keeps being played until its bonus has shrunk to about its gap; after that its index stays below $$m_1$$ and it is hardly played again. The dashed lines in the lower panel are the bounds of [Theorem 2.6](#theorem-2-6), which are loose ([Remark 2.7](#remark-2-7)).
+{: .caption}
 
 **Theorem 2.6 (UCB).** Given a $$K$$-armed SBM with 1-sub-Gaussian rewards and horizon $$n \ge K$$, $$\mathrm{UCB}(\delta(n))$$ with $$\delta(n) = 1/n^2$$ satisfies, for every arm $$a$$ with $$\Delta_a > 0$$,
 {: #theorem-2-6}

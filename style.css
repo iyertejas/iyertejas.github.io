@@ -309,3 +309,7 @@ button:disabled:hover{background:transparent}
 .used-in{font-family:var(--sans);font-size:.8rem;color:var(--muted);margin-left:.15rem}
 .used-in a{color:var(--muted)}
 .notes-nav{display:flex;flex-wrap:wrap;gap:.5rem 1.6rem;font-family:var(--sans);font-size:.92rem;border-top:1px solid var(--rule);padding-top:1rem;margin-top:3rem}
+.l2-key{display:flex;flex-wrap:wrap;gap:.35rem 1.2rem;font-family:var(--sans);font-size:.82rem;color:var(--muted);margin:.4rem 0 0;max-width:46rem}
+.l2-key>span{display:inline-block}
+.l2-key svg{vertical-align:-2px;margin-right:.35rem}
+#etcrun-demo .status,#ucbrun-demo .status{min-height:3em;max-width:72ch;margin:.3rem 0 .6rem}
