@@ -16,7 +16,7 @@ Lectures every Tuesday 16:15–17:45 in room MA 644 (Mathematics building, TU Be
 
 ## Lecture notes
 
-Notes and exercise sheets appear here after each lecture; corrections are welcome.
+Notes and exercise sheets appear here after each lecture. I prepare them with the help of AI tools and check every step myself; corrections are welcome.
 
 The exercises are not graded, but I recommend working on them with pen and paper: being stuck for a while is where most of the learning happens.
 
