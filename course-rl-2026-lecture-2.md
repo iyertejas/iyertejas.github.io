@@ -86,7 +86,7 @@ Picture a deck of cards for each arm: deck $$a$$ is $$Y_{a,1}, Y_{a,2}, \dots$$,
 Bernoulli arms with the means set above. ε-greedy plays each arm once, then with probability 0.2 a uniform arm and otherwise an arm with the largest empirical mean; UCB is Algorithm 2.5 below. The peeking rule is not a policy: before choosing, it looks at the next card of each deck and swaps a 0 for a 1 when it can.
 {: .caption}
 
-**It is the same model.** When arm $$a$$ is pulled, the card used has not influenced any earlier decision, so given everything seen so far it is a fresh draw from $$\mu_a$$. Precisely, the process of Definition 2.2 satisfies $$\mathbb P(A_t = a \mid H_{t-1}) = \pi_t(a, H_{t-1})$$ and $$\mathbb P(X_t \in \cdot \mid H_{t-1}, A_t) = \mu_{A_t}$$. Hence $$H_n$$ has law $$\mathbb P_\pi$$, and every probability and expectation computed on the reward table is the right one. We use this without proof; Exercise 2.5 tests it in the simulation above. Many texts take Definition 2.2 as the definition of the bandit model; from now on we work on it.
+**It is the same model.** When arm $$a$$ is pulled, the card used has not influenced any earlier decision, so given everything seen so far it is a fresh draw from $$\mu_a$$. Precisely, the process of Definition 2.2 satisfies $$\mathbb P(A_t = a \mid H_{t-1}) = \pi_t(a, H_{t-1})$$ and $$\mathbb P(X_t \in \cdot \mid H_{t-1}, A_t) = \mu_{A_t}$$. Hence $$H_n$$ has law $$\mathbb P_\pi$$, and every probability and expectation computed on the reward table is the right one. Exercise 2.5 tests it in the simulation above. Many texts take Definition 2.2 as the definition of the bandit model; from now on we work on it.
 
 **Empirical means.** Write
 
