@@ -834,17 +834,20 @@ function phaseWidget(){
 }
 
 /* =========================================================
-   3b. Branching process in a varying environment, and the random series behind it.
+   3b. Branching process in a varying environment: growth scales and truncated series.
    In generation n each individual has 2 children, except that with probability
    p_n = 4/K_n it has a jackpot of K_n = 20·b^n children, so the mean is m_n = 6 − 2p_n.
-   With M_n = m_0 ⋯ m_{n−1}, Z_n/M_n converges in L¹ iff ∑ (X̂_n − 1)/M_{n+1} < ∞ a.s.,
-   where X̂_n is size-biased: X̂_n = K_n with probability 4/m_n, and 2 otherwise
-   (Iyer, arXiv 2026, Theorem 1.2 and Remark 1.3). Here: iff b < 6.
+   A candidate C_n (2^n or M_n = m_0 ⋯ m_{n−1}) is a growth scale iff, with
+   Y_n = X_n 1{X_n ≤ γC_{n+1}} and M̃_n = E[Y_0] ⋯ E[Y_{n−1}]:
+   ∑ C_n P(X_n > γC_{n+1}) < ∞, C_n ≍ M̃_n, and ∑ E[Ŷ_n − 1]/M̃_{n+1} < ∞
+   (Iyer, arXiv 2026, Theorem 1.6). Here γ = 4. Then
+   2^n is a growth scale iff b > 2, and M_n iff b < 6.
    ========================================================= */
 function bpveWidget(){
-  const G = 30, RUNS = 40, DUR = 2600, L2 = Math.log10(2);
-  let runs = [], spines = [], e = null, anim = 0, shown = G;
+  const G = 30, RUNS = 40, DUR = 2600, GAM = 4, LN10 = Math.LN10, L2 = Math.log10(2);
+  let runs = [], e = null, ts = null, cand = "2", anim = 0, shown = G;
   const sup = n => String(n).split("").map(d => "⁰¹²³⁴⁵⁶⁷⁸⁹"[+d]).join("");
+  const pow10 = l => l===0 ? "1" : l===1 ? "10" : "10"+(l<0?"⁻":"")+sup(Math.abs(l));
   const std = () => { let u=0,v=0; while(!u) u=Math.random(); v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
   const poisson = l => { if (l > 30) return Math.max(0, Math.round(l + Math.sqrt(l)*std()));
     let k=0, p=1, L=Math.exp(-l); for(;;){ p*=Math.random(); if (p<=L) return k; k++; } };
@@ -853,6 +856,25 @@ function bpveWidget(){
     for (let n=0;n<G;n++){ K[n] = Math.round(20*Math.pow(b,n)); p[n] = 4/K[n]; m[n] = 2*(1-p[n]) + K[n]*p[n]; LM.push(LM[n] + Math.log10(m[n])); }
     return {b, K, p, m, LM};
   }
+  const logC = (c, n) => c === "2" ? n*L2 : e.LM[n];            // log10 C_n
+  function truncated(c){ // partial sums of the three series, n = 1..G (index 0 unused)
+    const A = [0], R = [0], B = [0]; let a = 0, lMt = 0, bsum = 0;
+    for (let n=0;n<G;n++){
+      const kept = Math.log10(e.K[n]) <= Math.log10(GAM) + logC(c, n+1);
+      let EY, EYY;   // E[Y_n], E[Y_n²]; note K_n² p_n = 4K_n
+      if (kept){ EY = e.m[n]; EYY = 4*(1-e.p[n]) + 4*e.K[n]; }
+      else { a += Math.pow(10, logC(c, n))*e.p[n]; EY = 2*(1-e.p[n]); EYY = 4*(1-e.p[n]); }
+      lMt += Math.log10(EY); bsum += (EYY/EY - 1)/Math.pow(10, lMt);
+      A.push(a); R.push(logC(c, n+1) - lMt); B.push(bsum);
+    }
+    return {A, R, B};
+  }
+  // Which conditions hold, from the asymptotics (b runs over multiples of 0.5).
+  function conditions(c, b){
+    if (c === "2") return b < 2 ? [true, "→ 0", true] : b === 2 ? ["diverges", true, true] : [true, true, true];
+    return b < 6 ? [true, true, true] : b === 6 ? [true, true, "diverges"] : [true, "→ ∞", true];
+  }
+  const ok = c => conditions(c, e.b).every(x => x === true);
   function one(){
     let Z = 1; const lz = [0];
     for (let n=0;n<G;n++){
@@ -862,74 +884,94 @@ function bpveWidget(){
     }
     return lz;
   }
-  function spine(){ // log10 of the partial sums S_n, n ≥ 1
-    let S = 0; const ls = [NaN];
-    for (let n=0;n<G;n++){
-      const x = Math.random() < e.K[n]*e.p[n]/e.m[n] ? e.K[n] : 2;
-      S += (x-1)/Math.pow(10, e.LM[n+1]); ls.push(Math.log10(S));
-    }
-    return ls;
+  const fast = r => r[G] > (e.LM[G] + G*L2)/2;   // nearer M_n than 2^n at the end
+  function frame(cv, lo, hi, step, label, pB){
+    const {ctx,w,h} = setupCanvas(cv); ctx.clearRect(0,0,w,h);
+    const pL=44, pR=34, pT=8, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (hi-l)/(hi-lo)*(h-pT-pB);
+    ctx.font = `12px ${css("--sans")}`; ctx.strokeStyle=css("--rule"); ctx.fillStyle=css("--muted"); ctx.lineWidth=1;
+    for (let l=Math.ceil(lo/step)*step; l<=hi+1e-9; l+=step){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(l))+.5); ctx.lineTo(X(G),Math.round(Y(l))+.5); ctx.stroke();
+      ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(label(l), pL-8, Y(l)); }
+    if (pB > 20){ ctx.textAlign="center"; ctx.textBaseline="top";
+      for (let n=0;n<=G;n+=5) ctx.fillText(String(n), X(n), h-pB+8);
+      ctx.fillText("generation", (X(0)+X(G))/2, h-pB+24); }
+    return {ctx, X, Y};
   }
-  const fast = r => r[G] > (e.LM[G] + G*L2)/2;
-  function axes(ctx, w, h, lo, hi, X, Y, pL, pB, step){
-    const muted=css("--muted"), rule=css("--rule");
-    ctx.font = `12px ${css("--sans")}`; ctx.strokeStyle=rule; ctx.fillStyle=muted; ctx.lineWidth=1;
-    for (let l=lo;l<=hi;l+=step){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(l))+.5); ctx.lineTo(X(G),Math.round(Y(l))+.5); ctx.stroke();
-      ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(l===0?"1":l===1?"10":"10"+(l<0?"⁻":"")+sup(Math.abs(l)), pL-8, Y(l)); }
-    ctx.textAlign="center"; ctx.textBaseline="top";
-    for (let n=0;n<=G;n+=5) ctx.fillText(String(n), X(n), h-pB+8);
-    ctx.fillText("generation", (X(0)+X(G))/2, h-pB+24);
-  }
+  const decades = (lo, hi) => { const span = hi - lo; return span > 40 ? 10 : span > 16 ? 5 : span > 6 ? 2 : 1; };
   function drawPop(){
-    const {ctx,w,h} = setupCanvas($("bpvePlot")); ctx.clearRect(0,0,w,h);
-    let mx = e.LM[G]; for (const r of runs) for (const v of r) if (v > mx) mx = v;
-    const step = mx > 40 ? 10 : 5, top = Math.ceil(mx/step)*step;
-    const pL=44, pR=34, pT=10, pB=42, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (1-l/top)*(h-pT-pB);
-    axes(ctx, w, h, 0, top, X, Y, pL, pB, step);
-    const muted=css("--muted"), cF=css("--accent"), cS=css("--c1");
+    const other = cand === "2" ? "M" : "2";
+    let lo = 0, hi = 0;
+    const rel = n => logC(other, n) - logC(cand, n);
+    for (let n=0;n<=G;n++){ lo = Math.min(lo, rel(n)); hi = Math.max(hi, rel(n)); }
+    for (const r of runs) for (let n=0;n<=G;n++){ const v = r[n] - logC(cand, n); if (v<lo) lo=v; if (v>hi) hi=v; }
+    const st = decades(lo, hi); lo = Math.floor(lo/st)*st; hi = Math.ceil(hi/st)*st; if (hi === lo) hi = lo + st;
+    const {ctx, X, Y} = frame($("bpvePlot"), lo, hi, st, pow10, 42);
+    const muted = css("--muted");
     ctx.setLineDash([4,4]); ctx.strokeStyle=muted; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(G),Y(G*L2)); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); for (let n=1;n<=G;n++) ctx.lineTo(X(n),Y(e.LM[n])); ctx.stroke();
-    ctx.textAlign="left"; ctx.textBaseline="middle"; ctx.fillText("2ⁿ", X(G)+6, Y(G*L2)); ctx.fillText("Mₙ", X(G)+6, Y(e.LM[G]));
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(G),Y(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); for (let n=1;n<=G;n++) ctx.lineTo(X(n),Y(rel(n))); ctx.stroke();
+    ctx.fillStyle = muted; ctx.textAlign="left"; ctx.textBaseline="middle";
+    ctx.fillText("Cₙ", X(G)+6, Y(0)); ctx.fillText(other === "2" ? "2ⁿ" : "Mₙ", X(G)+6, Y(rel(G)));
     ctx.setLineDash([]); ctx.lineWidth=1.4; ctx.globalAlpha=.75;
-    for (const r of runs){ ctx.strokeStyle = fast(r) ? cF : cS; ctx.beginPath(); ctx.moveTo(X(0),Y(r[0]));
-      for (let n=1;n<=shown;n++) ctx.lineTo(X(n),Y(r[n])); ctx.stroke(); }
+    const cF = css("--accent"), cS = css("--c1");
+    for (const r of runs){ ctx.strokeStyle = fast(r) ? cF : cS; ctx.beginPath(); ctx.moveTo(X(0),Y(r[0]-logC(cand,0)));
+      for (let n=1;n<=shown;n++) ctx.lineTo(X(n),Y(r[n]-logC(cand,n))); ctx.stroke(); }
     ctx.globalAlpha=1;
   }
   function drawSeries(){
-    const {ctx,w,h} = setupCanvas($("bpveSeries")); ctx.clearRect(0,0,w,h);
-    let mx = 1; for (const s of spines) if (s[G] > mx) mx = s[G];
-    const lo = -1, top = Math.ceil(mx);
-    const pL=44, pR=34, pT=10, pB=42, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (top-l)/(top-lo)*(h-pT-pB);
-    axes(ctx, w, h, lo, top, X, Y, pL, pB, 1);
-    ctx.lineWidth=1.4; ctx.globalAlpha=.75; ctx.strokeStyle=css("--c4");
-    for (const s of spines){ ctx.beginPath(); ctx.moveTo(X(1),Y(s[1]));
-      for (let n=2;n<=shown;n++) ctx.lineTo(X(n),Y(s[n])); ctx.stroke(); }
-    ctx.globalAlpha=1;
+    const cond = conditions(cand, e.b), good = css("--c4"), bad = css("--accent");
+    const words = [["converges","diverges"], ["bounded",""], ["converges","diverges"]];
+    cond.forEach((c, i) => { const v = $("bpveV"+(i+1)); v.textContent = c === true ? words[i][0] + " ✓" : c + " ✗"; v.style.color = c === true ? "" : bad; });
+    // series (i) and (iii): partial sums on a linear scale, so divergence shows as growth
+    const nice = x => { const p = Math.pow(10, Math.floor(Math.log10(x))); return [1,2,5,10].map(k => k*p).find(v => v >= x); };
+    [["bpveS1", ts.A, 0], ["bpveS3", ts.B, 2]].forEach(([id, S, i]) => {
+      let mx = 0; for (let n=1;n<=G;n++) mx = Math.max(mx, S[n]);
+      const hi = nice(Math.max(1, mx*1.05));
+      const {ctx, X, Y} = frame($(id), 0, hi, hi/2, l => String(+l.toPrecision(3)), 14);
+      ctx.strokeStyle = cond[i] === true ? good : bad; ctx.lineWidth = 2; ctx.beginPath();
+      ctx.moveTo(X(1), Y(S[1])); for (let n=2;n<=shown;n++) ctx.lineTo(X(n), Y(S[n])); ctx.stroke();
+    });
+    // ratio (ii): C_n / M̃_n on a log scale, at most three gridlines
+    let lo = -1, hi = 1; for (let n=1;n<=G;n++){ lo = Math.min(lo, Math.floor(ts.R[n])); hi = Math.max(hi, Math.ceil(ts.R[n])); }
+    const st = [1,2,5,10,20,50].find(v => v >= (hi-lo)/2); lo = Math.floor(lo/st)*st; hi = Math.ceil(hi/st)*st;
+    const {ctx, X, Y} = frame($("bpveS2"), lo, hi, st, pow10, 14);
+    ctx.strokeStyle = cond[1] === true ? good : bad; ctx.lineWidth = 2; ctx.beginPath();
+    ctx.moveTo(X(1), Y(ts.R[1])); for (let n=2;n<=shown;n++) ctx.lineTo(X(n), Y(ts.R[n])); ctx.stroke();
   }
   const draw = () => { if (!e) return; drawPop(); drawSeries(); };
   function verdict(b){
     const bs = b.toFixed(1);
-    $("bpveVerdict").textContent = b < 6
-      ? `b = ${bs} < 6: a jackpot on the spine adds a term of order (b/6)ⁿ, and these are summable, so the series converges. Hence Zₙ/Mₙ converges in L¹, and its limit is positive with positive probability.`
-      : `b = ${bs} ≥ 6: the spine has a jackpot in about two generations out of three, each adding a term of order (b/6)ⁿ ≥ 1, so the series diverges. Hence Zₙ/Mₙ → 0 almost surely.`;
+    $("bpveVerdict").textContent = b <= 2
+      ? `b = ${bs} ≤ 2: jackpots keep happening even in a population of size 2ⁿ, so Mₙ ≈ 6ⁿ is a growth scale and 2ⁿ is not.`
+      : b < 6
+      ? `2 < b = ${bs} < 6: both 2ⁿ and Mₙ ≈ 6ⁿ are growth scales. Which one a run follows depends on whether it has an early jackpot.`
+      : `b = ${bs} ≥ 6: jackpots are too large and rare for the mean to be a growth scale, so 2ⁿ is a growth scale and Mₙ is not.`;
   }
   function stat(){
-    const f = runs.filter(fast).length;
-    $("bpveStatus").textContent = e.b < 6
-      ? `Of ${RUNS} runs, ${f} grew like Mₙ ≈ 6ⁿ and ${RUNS-f} like 2ⁿ.`
-      : f === 0 ? `No run grew like Mₙ ≈ 6ⁿ.`
-      : `${f} of ${RUNS} runs ${f===1?"is":"are"} still close to Mₙ ≈ 6ⁿ after a jackpot, but ${f===1?"it":"they"} cannot stay there.`;
+    const name = cand === "2" ? "2ⁿ" : "Mₙ";
+    const k = runs.filter(r => cand === "2" ? !fast(r) : fast(r)).length;
+    $("bpveStatus").textContent = ok(cand)
+      ? `Cₙ = ${name} is a growth scale: ${k} of these ${RUNS} runs track it.`
+      : cand === "2"
+      ? `Cₙ = 2ⁿ is not a growth scale: as Zₙ ≥ 2ⁿ, Zₙ/2ⁿ is unbounded almost surely.`
+      : `Cₙ = Mₙ is not a growth scale: Zₙ/Mₙ → 0 almost surely.`;
   }
-  function start(){
-    cancelAnimationFrame(anim);
-    const b = jack(); verdict(b); e = environment(b);
-    runs = Array.from({length:RUNS}, one); spines = Array.from({length:RUNS}, spine); $("bpveStatus").textContent = "";
+  function animate(){
+    cancelAnimationFrame(anim); $("bpveStatus").textContent = "";
     if (reduced){ shown = G; draw(); stat(); return; }
     const t0 = performance.now();
     const tick = now => { const u = Math.min(1,(now-t0)/DUR); shown = Math.max(1, Math.round(u*G)); draw(); if (u<1) anim = requestAnimationFrame(tick); else stat(); };
     anim = requestAnimationFrame(tick);
   }
+  function start(){
+    const b = jack(); verdict(b); e = environment(b); ts = truncated(cand);
+    runs = Array.from({length:RUNS}, one); animate();
+  }
+  $("bpveCand").addEventListener("click", ev => {
+    const btn = ev.target.closest("button"); if (!btn || btn.dataset.c === cand) return;
+    cand = btn.dataset.c;
+    for (const x of $("bpveCand").querySelectorAll("button")) x.setAttribute("aria-pressed", x === btn ? "true" : "false");
+    if (!e) return; ts = truncated(cand); animate();   // same runs, new normalisation
+  });
   const jack = bindSlider("bpveB", 1, verdict, start);
   $("bpveRun").addEventListener("click", start);
   return { start, redraw: draw };

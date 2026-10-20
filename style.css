@@ -44,6 +44,12 @@ h3{font-size:.9em;margin:1.8rem 0 .5rem}
 .hat{position:relative;display:inline-block}
 .hat::before{content:"^";position:absolute;left:50%;top:-.2em;transform:translateX(-50%);font-style:normal;font-size:.8em;line-height:1}
 .m .hat::before{left:62%}
+.tilde{position:relative;display:inline-block}
+.tilde::before{content:"~";position:absolute;left:50%;top:-.42em;transform:translateX(-50%);font-style:normal;font-size:.85em;line-height:1}
+.m .tilde::before{left:58%}
+.ts-lab{display:flex;justify-content:space-between;gap:.8rem;font-family:var(--sans);font-size:.82rem;color:var(--muted);margin:.55rem 0 .1rem}
+.ts-lab b{font-weight:400;color:var(--ink);white-space:nowrap}
+#bpve-demo .algs{margin:0}
 sup,sub{line-height:0}
 section{padding:3rem 0 1rem;border-top:1px solid var(--rule)}
 section.first{border-top:0;padding-top:0}
@@ -107,7 +113,7 @@ canvas{display:block;width:100%}
 .bars .fill{display:block;height:100%;border-radius:2px}
 .bars .num{text-align:right;min-width:7ch}
 .treeCanvas{aspect-ratio:1/1;max-height:520px;margin:0 auto}
-#bpvePlot{height:300px} #bpveSeries{height:300px} #learnCurve{height:300px} #slChart{height:300px} #selfPlot{height:290px}
+#bpvePlot{height:330px} #bpveS1,#bpveS2,#bpveS3{height:76px} #learnCurve{height:300px} #slChart{height:300px} #selfPlot{height:290px}
 #gelChart{height:260px} #gelField{aspect-ratio:2/1;max-height:380px;margin:0 auto}
 #fitChart{height:260px}
 #cmjTree{height:330px} #cmjPlot{height:330px}

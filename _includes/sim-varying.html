@@ -2,21 +2,30 @@
 <div class="controls">
 <div class="slider"><label for="bpveB">Jackpot growth b</label>
 <input type="range" id="bpveB" min="1.5" max="8" step="0.5" value="3"><output id="bpveBOut" for="bpveB">3.0</output></div>
+<div class="algs" id="bpveCand" role="group" aria-label="Candidate growth scale">
+<button type="button" aria-pressed="true" data-c="2" style="--sw:var(--c1)"><span class="m">C<sub>n</sub> = 2<sup>n</sup></span></button>
+<button type="button" aria-pressed="false" data-c="M" style="--sw:var(--accent)"><span class="m">C<sub>n</sub> = M<sub>n</sub> ≈ 6<sup>n</sup></span></button>
+</div>
 <button id="bpveRun" type="button">Run again</button>
 </div>
 <div class="two">
 <div>
-<div class="small-lab">Population size Z<sub>n</sub> (log scale) over 30 generations, 40 independent runs</div>
-<canvas id="bpvePlot" role="img" aria-label="Population size of 40 runs over 30 generations, compared with 2 to the n and the mean"></canvas>
+<div class="small-lab">Z<sub>n</sub>/C<sub>n</sub> (log scale) over 30 generations, 40 independent runs</div>
+<canvas id="bpvePlot" role="img" aria-label="Population size divided by the candidate growth scale, for 40 runs over 30 generations"></canvas>
 </div>
-<div>
-<div class="small-lab">Partial sums of ∑<sub>m</sub> (<span class="hat">X</span><sub>m</sub> − 1)/M<sub>m+1</sub> along 40 independent spines (log scale)</div>
-<canvas id="bpveSeries" role="img" aria-label="Partial sums of the random series along 40 spines over 30 generations"></canvas>
+<div class="ts">
+<div class="small-lab">The three truncated series for C<sub>n</sub>, with X<sub>n</sub> truncated at 4C<sub>n+1</sub></div>
+<div class="ts-lab"><span>Large offspring: ∑ C<sub>n</sub> P(X<sub>n</sub> &gt; 4C<sub>n+1</sub>)</span><b id="bpveV1"></b></div>
+<canvas id="bpveS1" role="img" aria-label="Partial sums of the large-offspring series"></canvas>
+<div class="ts-lab"><span>Truncated means: C<sub>n</sub>/<span class="tilde">M</span><sub>n</sub></span><b id="bpveV2"></b></div>
+<canvas id="bpveS2" role="img" aria-label="Ratio of the candidate scale to the product of truncated means"></canvas>
+<div class="ts-lab"><span>Fluctuations: ∑ E[<span class="hat">Y</span><sub>n</sub> − 1]/<span class="tilde">M</span><sub>n+1</sub></span><b id="bpveV3"></b></div>
+<canvas id="bpveS3" role="img" aria-label="Partial sums of the fluctuation series"></canvas>
 </div>
 </div>
 <p class="status" id="bpveStatus" aria-live="polite"></p>
 <div class="criterion">
-<div class="f">Since <span class="m">M<sub>n</sub> → ∞</span>, <span class="m">Z<sub>n</sub>/M<sub>n</sub></span> converges in L<sup>1</sup> if and only if <span class="m">∑<sub>n</sub> (<span class="hat">X</span><sub>n</sub> − 1)/M<sub>n+1</sub></span> converges almost surely; otherwise <span class="m">Z<sub>n</sub>/M<sub>n</sub> → 0</span> almost surely. With jackpots of <span class="m">20 · b<sup>n</sup></span> children, this means <span class="m">b &lt; 6</span>.</div>
+<div class="f"><span class="m">C<sub>n</sub></span> is a growth scale, meaning that <span class="m">Z<sub>n</sub>/C<sub>n</sub></span> stays bounded away from 0 and ∞ with positive probability, if and only if, for some γ &gt; 0, truncating each <span class="m">X<sub>n</sub></span> at <span class="m">γC<sub>n+1</sub></span> to <span class="m">Y<sub>n</sub></span>: the large-offspring series converges, <span class="m">C<sub>n</sub></span> is comparable to the product <span class="m"><span class="tilde">M</span><sub>n</sub></span> of the truncated means, and the fluctuation series converges.</div>
 <div class="verdict" id="bpveVerdict"></div>
 </div>
 </figure>
