@@ -171,8 +171,6 @@ $$
 
 So $$\hat m_{a,s} + w_\delta(s)$$ is an upper bound on $$m_a$$ that fails with probability at most $$\delta$$, and it tightens as $$s$$ grows. The first term exploits; the second, the exploration term, explores. This is where the sub-Gaussian assumption enters.
 
-We will take $$\delta = 1/n^2$$. The bound for the optimal arm is consulted at up to $$n$$ different sample sizes, so it must fail with probability much smaller than $$1/n$$; the proof of Theorem 2.6 makes this precise.
-
 **Algorithm 2.5 (UCB).** For a $$K$$-armed SBM with horizon $$n$$ and $$\delta(n) \in (0, 1)$$, the policy $$\mathrm{UCB}(\delta(n))$$ is as follows.
 
 1. Play each arm once.
