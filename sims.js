@@ -834,58 +834,103 @@ function phaseWidget(){
 }
 
 /* =========================================================
-   3b. Branching process in a varying environment with two growth rates.
+   3b. Branching process in a varying environment, and the random series behind it.
    In generation n each individual has 2 children, except that with probability
-   p_n = 3^(-n)/5 it has a jackpot of K_n = 20·3^n children. Mean offspring ≈ 6.
+   p_n = 4/K_n it has a jackpot of K_n = 20·b^n children, so the mean is m_n = 6 − 2p_n.
+   With M_n = m_0 ⋯ m_{n−1}, Z_n/M_n converges in L¹ iff ∑ (X̂_n − 1)/M_{n+1} < ∞ a.s.,
+   where X̂_n is size-biased: X̂_n = K_n with probability 4/m_n, and 2 otherwise
+   (Iyer, arXiv 2026, Theorem 1.2 and Remark 1.3). Here: iff b < 6.
    ========================================================= */
 function bpveWidget(){
-  const G = 30, RUNS = 40, DUR = 2600;
-  let runs = [], anim = 0, shown = G;
+  const G = 30, RUNS = 40, DUR = 2600, L2 = Math.log10(2);
+  let runs = [], spines = [], e = null, anim = 0, shown = G;
+  const sup = n => String(n).split("").map(d => "⁰¹²³⁴⁵⁶⁷⁸⁹"[+d]).join("");
   const std = () => { let u=0,v=0; while(!u) u=Math.random(); v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
   const poisson = l => { if (l > 30) return Math.max(0, Math.round(l + Math.sqrt(l)*std()));
     let k=0, p=1, L=Math.exp(-l); for(;;){ p*=Math.random(); if (p<=L) return k; k++; } };
+  function environment(b){
+    const K = [], p = [], m = [], LM = [0];
+    for (let n=0;n<G;n++){ K[n] = Math.round(20*Math.pow(b,n)); p[n] = 4/K[n]; m[n] = 2*(1-p[n]) + K[n]*p[n]; LM.push(LM[n] + Math.log10(m[n])); }
+    return {b, K, p, m, LM};
+  }
   function one(){
     let Z = 1; const lz = [0];
     for (let n=0;n<G;n++){
-      const p = Math.pow(3,-n)/5, K = 20*Math.pow(3,n);
       let J = 0;
-      if (Z < 60){ for (let i=0;i<Z;i++) if (Math.random()<p) J++; } else J = Math.min(Z, poisson(Z*p));
-      Z = 2*(Z-J) + K*J; lz.push(Math.log10(Z));
+      if (Z < 60){ for (let i=0;i<Z;i++) if (Math.random()<e.p[n]) J++; } else J = Math.min(Z, poisson(Z*e.p[n]));
+      Z = 2*(Z-J) + e.K[n]*J; lz.push(Math.log10(Z));
     }
     return lz;
   }
-  const L2 = Math.log10(2), L6 = Math.log10(6), cut = n => n*(L2+L6)/2 + 1.5;
-  const fast = r => r[G] > cut(G);
-  function draw(){
-    const {ctx,w,h} = setupCanvas($("bpvePlot")); ctx.clearRect(0,0,w,h);
-    const top = Math.ceil(G*L6/5)*5 + 1;
-    const pL=44, pR=44, pT=10, pB=42, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (1-l/top)*(h-pT-pB);
-    const muted=css("--muted"), rule=css("--rule"), cF=css("--accent"), cS=css("--c1");
+  function spine(){ // log10 of the partial sums S_n, n ≥ 1
+    let S = 0; const ls = [NaN];
+    for (let n=0;n<G;n++){
+      const x = Math.random() < e.K[n]*e.p[n]/e.m[n] ? e.K[n] : 2;
+      S += (x-1)/Math.pow(10, e.LM[n+1]); ls.push(Math.log10(S));
+    }
+    return ls;
+  }
+  const fast = r => r[G] > (e.LM[G] + G*L2)/2;
+  function axes(ctx, w, h, lo, hi, X, Y, pL, pB, step){
+    const muted=css("--muted"), rule=css("--rule");
     ctx.font = `12px ${css("--sans")}`; ctx.strokeStyle=rule; ctx.fillStyle=muted; ctx.lineWidth=1;
-    for (let l=0;l<=top;l+=5){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(l))+.5); ctx.lineTo(w-pR,Math.round(Y(l))+.5); ctx.stroke();
-      ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(l===0?"1":"10"+String(l).split("").map(d=>"⁰¹²³⁴⁵⁶⁷⁸⁹"[+d]).join(""), pL-8, Y(l)); }
+    for (let l=lo;l<=hi;l+=step){ ctx.beginPath(); ctx.moveTo(pL,Math.round(Y(l))+.5); ctx.lineTo(X(G),Math.round(Y(l))+.5); ctx.stroke();
+      ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillText(l===0?"1":l===1?"10":"10"+(l<0?"⁻":"")+sup(Math.abs(l)), pL-8, Y(l)); }
     ctx.textAlign="center"; ctx.textBaseline="top";
     for (let n=0;n<=G;n+=5) ctx.fillText(String(n), X(n), h-pB+8);
     ctx.fillText("generation", (X(0)+X(G))/2, h-pB+24);
+  }
+  function drawPop(){
+    const {ctx,w,h} = setupCanvas($("bpvePlot")); ctx.clearRect(0,0,w,h);
+    let mx = e.LM[G]; for (const r of runs) for (const v of r) if (v > mx) mx = v;
+    const step = mx > 40 ? 10 : 5, top = Math.ceil(mx/step)*step;
+    const pL=44, pR=34, pT=10, pB=42, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (1-l/top)*(h-pT-pB);
+    axes(ctx, w, h, 0, top, X, Y, pL, pB, step);
+    const muted=css("--muted"), cF=css("--accent"), cS=css("--c1");
     ctx.setLineDash([4,4]); ctx.strokeStyle=muted; ctx.lineWidth=1;
-    for (const [lg,lab] of [[L2,"2ⁿ"],[L6,"6ⁿ"]]){ ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(G),Y(G*lg)); ctx.stroke();
-      ctx.textAlign="left"; ctx.textBaseline="middle"; ctx.fillText(lab, X(G)+6, Y(G*lg)); }
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(G),Y(G*L2)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0)); for (let n=1;n<=G;n++) ctx.lineTo(X(n),Y(e.LM[n])); ctx.stroke();
+    ctx.textAlign="left"; ctx.textBaseline="middle"; ctx.fillText("2ⁿ", X(G)+6, Y(G*L2)); ctx.fillText("Mₙ", X(G)+6, Y(e.LM[G]));
     ctx.setLineDash([]); ctx.lineWidth=1.4; ctx.globalAlpha=.75;
     for (const r of runs){ ctx.strokeStyle = fast(r) ? cF : cS; ctx.beginPath(); ctx.moveTo(X(0),Y(r[0]));
       for (let n=1;n<=shown;n++) ctx.lineTo(X(n),Y(r[n])); ctx.stroke(); }
     ctx.globalAlpha=1;
   }
+  function drawSeries(){
+    const {ctx,w,h} = setupCanvas($("bpveSeries")); ctx.clearRect(0,0,w,h);
+    let mx = 1; for (const s of spines) if (s[G] > mx) mx = s[G];
+    const lo = -1, top = Math.ceil(mx);
+    const pL=44, pR=34, pT=10, pB=42, X = n => pL + n/G*(w-pL-pR), Y = l => pT + (top-l)/(top-lo)*(h-pT-pB);
+    axes(ctx, w, h, lo, top, X, Y, pL, pB, 1);
+    ctx.lineWidth=1.4; ctx.globalAlpha=.75; ctx.strokeStyle=css("--c4");
+    for (const s of spines){ ctx.beginPath(); ctx.moveTo(X(1),Y(s[1]));
+      for (let n=2;n<=shown;n++) ctx.lineTo(X(n),Y(s[n])); ctx.stroke(); }
+    ctx.globalAlpha=1;
+  }
+  const draw = () => { if (!e) return; drawPop(); drawSeries(); };
+  function verdict(b){
+    const bs = b.toFixed(1);
+    $("bpveVerdict").textContent = b < 6
+      ? `b = ${bs} < 6: a jackpot on the spine adds a term of order (b/6)ⁿ, and these are summable, so the series converges. Hence Zₙ/Mₙ converges in L¹, and its limit is positive with positive probability.`
+      : `b = ${bs} ≥ 6: the spine has a jackpot in about two generations out of three, each adding a term of order (b/6)ⁿ ≥ 1, so the series diverges. Hence Zₙ/Mₙ → 0 almost surely.`;
+  }
   function stat(){
     const f = runs.filter(fast).length;
-    $("bpveStatus").textContent = `Of ${RUNS} runs, ${f} grew like 6ⁿ and ${RUNS-f} like 2ⁿ.`;
+    $("bpveStatus").textContent = e.b < 6
+      ? `Of ${RUNS} runs, ${f} grew like Mₙ ≈ 6ⁿ and ${RUNS-f} like 2ⁿ.`
+      : f === 0 ? `No run grew like Mₙ ≈ 6ⁿ.`
+      : `${f} of ${RUNS} runs ${f===1?"is":"are"} still close to Mₙ ≈ 6ⁿ after a jackpot, but ${f===1?"it":"they"} cannot stay there.`;
   }
   function start(){
-    cancelAnimationFrame(anim); runs = Array.from({length:RUNS}, one); $("bpveStatus").textContent = "";
+    cancelAnimationFrame(anim);
+    const b = jack(); verdict(b); e = environment(b);
+    runs = Array.from({length:RUNS}, one); spines = Array.from({length:RUNS}, spine); $("bpveStatus").textContent = "";
     if (reduced){ shown = G; draw(); stat(); return; }
     const t0 = performance.now();
     const tick = now => { const u = Math.min(1,(now-t0)/DUR); shown = Math.max(1, Math.round(u*G)); draw(); if (u<1) anim = requestAnimationFrame(tick); else stat(); };
     anim = requestAnimationFrame(tick);
   }
+  const jack = bindSlider("bpveB", 1, verdict, start);
   $("bpveRun").addEventListener("click", start);
   return { start, redraw: draw };
 }

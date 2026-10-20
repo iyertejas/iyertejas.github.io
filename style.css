@@ -41,6 +41,9 @@ h2{font-size:1.5625em;line-height:1.2;letter-spacing:-.01em;margin:0 0 .7em}
 h3{font-size:.9em;margin:1.8rem 0 .5rem}
 .lede{font-size:1.08em;line-height:1.5;max-width:60ch;margin:0 0 1.8rem}
 .m{font-style:italic;white-space:nowrap}
+.hat{position:relative;display:inline-block}
+.hat::before{content:"^";position:absolute;left:50%;top:-.2em;transform:translateX(-50%);font-style:normal;font-size:.8em;line-height:1}
+.m .hat::before{left:62%}
 sup,sub{line-height:0}
 section{padding:3rem 0 1rem;border-top:1px solid var(--rule)}
 section.first{border-top:0;padding-top:0}
@@ -104,7 +107,7 @@ canvas{display:block;width:100%}
 .bars .fill{display:block;height:100%;border-radius:2px}
 .bars .num{text-align:right;min-width:7ch}
 .treeCanvas{aspect-ratio:1/1;max-height:520px;margin:0 auto}
-#bpvePlot{height:320px} #learnCurve{height:300px} #slChart{height:300px} #selfPlot{height:290px}
+#bpvePlot{height:300px} #bpveSeries{height:300px} #learnCurve{height:300px} #slChart{height:300px} #selfPlot{height:290px}
 #gelChart{height:260px} #gelField{aspect-ratio:2/1;max-height:380px;margin:0 auto}
 #fitChart{height:260px}
 #cmjTree{height:330px} #cmjPlot{height:330px}

@@ -1,8 +1,22 @@
 <figure class="demo" id="bpve-demo">
 <div class="controls">
+<div class="slider"><label for="bpveB">Jackpot growth b</label>
+<input type="range" id="bpveB" min="1.5" max="8" step="0.5" value="3"><output id="bpveBOut" for="bpveB">3.0</output></div>
 <button id="bpveRun" type="button">Run again</button>
 </div>
-<div class="small-lab">Population size (log scale) over 30 generations, 40 independent runs</div>
-<canvas id="bpvePlot" role="img" aria-label="Population size of 40 runs over 30 generations, splitting into two growth rates"></canvas>
+<div class="two">
+<div>
+<div class="small-lab">Population size Z<sub>n</sub> (log scale) over 30 generations, 40 independent runs</div>
+<canvas id="bpvePlot" role="img" aria-label="Population size of 40 runs over 30 generations, compared with 2 to the n and the mean"></canvas>
+</div>
+<div>
+<div class="small-lab">Partial sums of ∑<sub>m</sub> (<span class="hat">X</span><sub>m</sub> − 1)/M<sub>m+1</sub> along 40 independent spines (log scale)</div>
+<canvas id="bpveSeries" role="img" aria-label="Partial sums of the random series along 40 spines over 30 generations"></canvas>
+</div>
+</div>
 <p class="status" id="bpveStatus" aria-live="polite"></p>
+<div class="criterion">
+<div class="f">Since <span class="m">M<sub>n</sub> → ∞</span>, <span class="m">Z<sub>n</sub>/M<sub>n</sub></span> converges in L<sup>1</sup> if and only if <span class="m">∑<sub>n</sub> (<span class="hat">X</span><sub>n</sub> − 1)/M<sub>n+1</sub></span> converges almost surely; otherwise <span class="m">Z<sub>n</sub>/M<sub>n</sub> → 0</span> almost surely. With jackpots of <span class="m">20 · b<sup>n</sup></span> children, this means <span class="m">b &lt; 6</span>.</div>
+<div class="verdict" id="bpveVerdict"></div>
+</div>
 </figure>
