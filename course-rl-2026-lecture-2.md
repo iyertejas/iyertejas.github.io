@@ -213,7 +213,7 @@ $$
 
 Moreover $$R_n \le 8\sqrt{Kn \log n} + 3 \sum_a \Delta_a$$, whatever the gaps ([Exercise 2.6](course-rl-2026-sheet-2.html#exercise-2-6)).
 
-*Proof.* Use the reward table ([Definition 2.2](#definition-2-2)), let arm 1 be optimal, and write $$w(s) = \sqrt{2 \log(1/\delta(n))/s} = \sqrt{4 \log n/s}$$. Suppose $$\Delta_a > 0$$ and fix
+*Proof.* Use the reward table ([Definition 2.2](#definition-2-2)), let arm 1 be optimal, and write $$w(s) = w_{\delta(n)}(s) = \sqrt{4 \log n/s}$$; it is the same for every arm, since all rewards are 1-sub-Gaussian. Suppose $$\Delta_a > 0$$ and fix
 
 $$
 u = \Big\lceil \frac{16 \log n}{\Delta_a^2} \Big\rceil, \qquad \text{so that} \qquad w(u) \le \frac{\Delta_a}{2}.
