@@ -82,7 +82,7 @@ A *branching process in a varying environment* (BPVE) is a generation-by-generat
 
 {% include sim-varying.html %}
 
-In generation n, each individual has 2 children, except that with probability 3<sup>−n</sup>/5 it has a jackpot of 20 · 3<sup>n</sup> children, so the mean number of children is close to 6. If no jackpot happens early, later jackpots stay too rare to matter and the population grows like 2<sup>n</sup>. Once one happens, the population is large enough for jackpots to keep happening, and it grows like 6<sup>n</sup>, as its mean does. Both outcomes have positive probability, so no single deterministic growth scale fits every run.
+In generation n, each individual has 2 children, except that with probability 4/(20 · b<sup>n</sup>) it has a jackpot of 20 · b<sup>n</sup> children, so the mean number of children is close to 6. For b = 3, as initially: if no jackpot happens early, later jackpots stay too rare to matter and the population grows like 2<sup>n</sup>. Once one happens, the population is large enough for jackpots to keep happening, and it grows like 6<sup>n</sup>, as its mean does. Both outcomes have positive probability, so no single deterministic growth scale fits every run. This happens whenever 2 < b < 6. For b ≤ 2, jackpots keep coming even without an early one, so every run eventually leaves 2<sup>n</sup> behind. For b ≥ 6, jackpots are too large and too rare for the mean, and no run keeps up with 6<sup>n</sup>. My criterion <a class="cite" href="publications.html#varying">[arXiv 2026]</a> decides which growth scales occur directly from the offspring laws.
 {: .caption}
 
 In continuous time, the natural exponential normalisation can break down completely through *explosion*: infinitely many births in finite time.
