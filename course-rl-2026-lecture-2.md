@@ -177,13 +177,13 @@ Exploring as little as possible does not work either. The *greedy* policy plays 
 
 **Principle (optimism in the face of uncertainty).** Play the arm whose mean could be largest: the arm with the largest upper confidence bound. Greedy, but realistic.
 
-**Confidence bounds.** Fix an arm $$a$$, a number of samples $$s$$ and $$\delta \in (0, 1)$$, and put $$w_\delta(s) = \sqrt{2 \log(1/\delta)/s}$$. The lower tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) ([Sheet 1, Exercise 4](course-rl-2026-sheet-1.html#exercise-4)) with $$\varepsilon = w_\delta(s)$$ gives
+**Confidence bounds.** Fix an arm $$a$$, a number of samples $$s$$ and $$\delta \in (0, 1)$$, and put $$w^\delta_a(s) = \sqrt{2 \log(1/\delta)/s}$$. The lower tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) ([Sheet 1, Exercise 4](course-rl-2026-sheet-1.html#exercise-4)) with $$\varepsilon = w^\delta_a(s)$$ gives
 
 $$
-\mathbb P\big(\hat m_{a,s} + w_\delta(s) \le m_a\big) \le e^{-s\, w_\delta(s)^2/2} = \delta. \tag{1}
+\mathbb P\big(\hat m_{a,s} + w^\delta_a(s) \le m_a\big) \le e^{-s\, w^\delta_a(s)^2/2} = \delta. \tag{1}
 $$
 
-So $$\hat m_{a,s} + w_\delta(s)$$ is an upper bound on $$m_a$$ that fails with probability at most $$\delta$$, and it tightens as $$s$$ grows. This is where the sub-Gaussian assumption enters.
+So $$\hat m_{a,s} + w^\delta_a(s)$$ is an upper bound on $$m_a$$ that fails with probability at most $$\delta$$, and it tightens as $$s$$ grows. This is where the sub-Gaussian assumption enters.
 
 **Algorithm 2.5 (UCB).** For a $$K$$-armed SBM with horizon $$n$$ and $$\delta(n) \in (0, 1)$$, the policy $$\mathrm{UCB}(\delta(n))$$ is as follows.
 {: #algorithm-2-5}
@@ -195,13 +195,13 @@ $$
 \mathrm{UCB}_a(t-1) = \underbrace{\hat m_a(t-1)}_{\text{exploit}} + \underbrace{\sqrt{\frac{2\log(1/\delta(n))}{N_a(t-1)}}}_{\text{explore}}.
 $$
 
-That is, $$\mathrm{UCB}_a(t-1) = \hat m_{a, N_a(t-1)} + w_{\delta(n)}(N_a(t-1))$$. With $$\delta(n) = 1/n^2$$, the bonus is $$\sqrt{4 \log n / N_a(t-1)}$$: it shrinks as arm $$a$$ is pulled, and grows slowly with the horizon.
+That is, $$\mathrm{UCB}_a(t-1) = \hat m_{a, N_a(t-1)} + w^{\delta(n)}_a(N_a(t-1))$$. With $$\delta(n) = 1/n^2$$, the bonus is $$\sqrt{4 \log n / N_a(t-1)}$$: it shrinks as arm $$a$$ is pulled, and grows slowly with the horizon.
 
 **Try it.** Run $$\mathrm{UCB}(1/n^2)$$ step by step on three arms.
 
 {% include sim-ucb-run.html %}
 
-$$\mathrm{UCB}(1/n^2)$$ with $$n = 1000$$ on three arms with Gaussian rewards $$N(m_a, 1)$$, where $$m_1 = 0$$, $$m_2 = -\Delta$$ and $$m_3 = -2\Delta$$. Step through the first rounds to see how the indices decide which arm is played, then press Play. The bars are $$\hat m_a \pm w(N_a)$$, with $$w(s) = \sqrt{4 \log n / s}$$, and the thick tick is the index. A suboptimal arm keeps being played until its bonus has shrunk to about its gap; after that its index stays below $$m_1$$ and it is hardly played again. The dashed lines in the lower panel are the bounds of [Theorem 2.6](#theorem-2-6), which are loose ([Remark 2.7](#remark-2-7)). Switch the policy to greedy, which drops the bonus, and press New run a few times: when the best arm's first sample is unlucky, it is never played again.
+$$\mathrm{UCB}(1/n^2)$$ with $$n = 1000$$ on three arms with Gaussian rewards $$N(m_a, 1)$$, where $$m_1 = 0$$, $$m_2 = -\Delta$$ and $$m_3 = -2\Delta$$. Step through the first rounds to see how the indices decide which arm is played, then press Play. The bars are $$\hat m_a \pm w_a(N_a)$$, with $$w_a(s) = \sqrt{4 \log n / s}$$, and the thick tick is the index. A suboptimal arm keeps being played until its bonus has shrunk to about its gap; after that its index stays below $$m_1$$ and it is hardly played again. The dashed lines in the lower panel are the bounds of [Theorem 2.6](#theorem-2-6), which are loose ([Remark 2.7](#remark-2-7)). Switch the policy to greedy, which drops the bonus, and press New run a few times: when the best arm's first sample is unlucky, it is never played again.
 {: .caption}
 
 **Theorem 2.6 (UCB).** Given a $$K$$-armed SBM with 1-sub-Gaussian rewards and horizon $$n \ge K$$, $$\mathrm{UCB}(\delta(n))$$ with $$\delta(n) = 1/n^2$$ satisfies, for every arm $$a$$ with $$\Delta_a > 0$$,
@@ -213,28 +213,28 @@ $$
 
 Moreover $$R_n \le 8\sqrt{Kn \log n} + 3 \sum_a \Delta_a$$, whatever the gaps ([Exercise 2.6](course-rl-2026-sheet-2.html#exercise-2-6)).
 
-*Proof.* Use the reward table ([Definition 2.2](#definition-2-2)), let arm 1 be optimal, and write $$w(s) = w_{\delta(n)}(s) = \sqrt{4 \log n/s}$$; it is the same for every arm, since all rewards are 1-sub-Gaussian. Suppose $$\Delta_a > 0$$ and fix
+*Proof.* Use the reward table ([Definition 2.2](#definition-2-2)), let arm 1 be optimal, and write $$w_b(s) = w^{\delta(n)}_b(s) = \sqrt{4 \log n/s}$$ for each arm $$b$$. Suppose $$\Delta_a > 0$$ and fix
 
 $$
-u = \Big\lceil \frac{16 \log n}{\Delta_a^2} \Big\rceil, \qquad \text{so that} \qquad w(u) \le \frac{\Delta_a}{2}.
+u = \Big\lceil \frac{16 \log n}{\Delta_a^2} \Big\rceil, \qquad \text{so that} \qquad w_a(u) \le \frac{\Delta_a}{2}.
 $$
 
 If $$N_a(n) > u$$, then arm $$a$$ is chosen instead of arm 1 at its $$(u + 1)$$-th pull, in some round $$t > K$$, so there is some $$s \in [n]$$ (namely $$s = N_1(t-1)$$) with
 
 $$
-\hat m_{a,u} + w(u) \ge \hat m_{1,s} + w(s).
+\hat m_{a,u} + w_a(u) \ge \hat m_{1,s} + w_1(s).
 $$
 
-Hence either $$\hat m_{a,u} + w(u) \ge m_1$$, or $$\hat m_{1,s} + w(s) \le m_1$$ for some $$s \in [n]$$. Therefore
+Hence either $$\hat m_{a,u} + w_a(u) \ge m_1$$, or $$\hat m_{1,s} + w_1(s) \le m_1$$ for some $$s \in [n]$$. Therefore
 
 $$
-\mathbb P\big(N_a(n) > u\big) \le \mathbb P\big(\exists s \in [n] : \hat m_{1,s} + w(s) \le m_1\big) + \mathbb P\big(\hat m_{a,u} + w(u) \ge m_1\big).
+\mathbb P\big(N_a(n) > u\big) \le \mathbb P\big(\exists s \in [n] : \hat m_{1,s} + w_1(s) \le m_1\big) + \mathbb P\big(\hat m_{a,u} + w_a(u) \ge m_1\big).
 $$
 
-By (1) and a union bound over $$s \in [n]$$, the first probability is at most $$n\delta(n) = 1/n$$; (1) applies because, on the reward table, $$\hat m_{1,s}$$ is an average of $$s$$ independent samples for each fixed $$s$$. For the second, using $$w(u) \le \Delta_a/2$$ and the upper tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) (this is where the rewards being 1-sub-Gaussian is used),
+By (1) and a union bound over $$s \in [n]$$, the first probability is at most $$n\delta(n) = 1/n$$; (1) applies because, on the reward table, $$\hat m_{1,s}$$ is an average of $$s$$ independent samples for each fixed $$s$$. For the second, using $$w_a(u) \le \Delta_a/2$$ and the upper tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) (this is where the rewards being 1-sub-Gaussian is used),
 
 $$
-\mathbb P\big(\hat m_{a,u} + w(u) \ge m_1\big) \le \mathbb P\Big(\hat m_{a,u} - m_a \ge \frac{\Delta_a}{2}\Big) \le e^{-u\Delta_a^2/8} \le \frac1{n^2}.
+\mathbb P\big(\hat m_{a,u} + w_a(u) \ge m_1\big) \le \mathbb P\Big(\hat m_{a,u} - m_a \ge \frac{\Delta_a}{2}\Big) \le e^{-u\Delta_a^2/8} \le \frac1{n^2}.
 $$
 
 Thus, since $$N_a(n) \le n$$,
@@ -251,7 +251,7 @@ The regret bound follows from [Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-
 {: #remark-2-7}
 
 1. **$$\Delta$$ is not used by the algorithm**, only by the analysis, and each arm is explored according to its own gap: $$16 \log n/\Delta_a^2$$ pulls, against $$4 \log n/\Delta_{\min}^2$$ for every arm in ETC ([Section 4](#4-what-is-wrong-with-etc)). This is the gain over ETC.
-2. **The constant 16 is loose.** We were wasteful in $$w(u) \le \Delta_a/2$$ and in $$\delta = 1/n^2$$. A more careful confidence level gives $$\limsup_n R_n/\log n \le \sum_{a : \Delta_a > 0} 2/\Delta_a$$ for Gaussian rewards (stated without proof; see Lattimore–Szepesvári, Chapter 8). Lecture 5 shows $$2/\Delta_a$$ cannot be beaten (Lai–Robbins).
+2. **The constant 16 is loose.** We were wasteful in $$w_a(u) \le \Delta_a/2$$ and in $$\delta = 1/n^2$$. A more careful confidence level gives $$\limsup_n R_n/\log n \le \sum_{a : \Delta_a > 0} 2/\Delta_a$$ for Gaussian rewards (stated without proof; see Lattimore–Szepesvári, Chapter 8). Lecture 5 shows $$2/\Delta_a$$ cannot be beaten (Lai–Robbins).
 3. **$$\delta$$ must shrink with $$n$$.** With a fixed $$\delta$$, the optimal arm is underestimated forever with positive probability, and regret is linear. $$\mathrm{UCB}(1/n^2)$$ needs to know $$n$$. Letting the confidence level depend on the round instead, roughly $$\delta_t = 1/t^2$$, gives a version that does not, with a bound of the same form (Lattimore–Szepesvári, Chapter 8).
 4. **Two kinds of guarantee.** The first bound in [Theorem 2.6](#theorem-2-6) is instance-dependent: fix $$\nu$$, then let $$n$$ grow. The "moreover" bound is worst-case: fix $$n$$, then take the supremum over $$\nu$$. The worst environment for horizon $$n$$ may depend on $$n$$ (here, gaps of order $$\sqrt{K \log n/n}$$), but each environment is an ordinary SBM, fixed for the whole run. The minimax regret over a class $$\mathcal E$$ of environments is $$R_n^*(\mathcal E) = \inf_\pi \sup_{\nu \in \mathcal E} R_n(\pi, \nu)$$; Lecture 4 shows $$R_n^* \ge c\sqrt{Kn}$$ for Gaussian arms, so the worst-case bound is optimal up to $$\sqrt{\log n}$$. [Exercise 2.2(b)](course-rl-2026-sheet-2.html#exercise-2-2) is a first example of choosing the environment after $$n$$.
 
