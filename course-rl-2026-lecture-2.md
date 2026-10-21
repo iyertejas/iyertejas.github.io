@@ -110,7 +110,7 @@ We now get to an explicit policy with sublinear regret.
 {: #algorithm-2-3}
 
 1. In rounds $$1, \dots, K\ell$$, play each arm exactly $$\ell$$ times, in a fixed order.
-2. Let $$\hat A$$ be an arm with the largest empirical mean after round $$K\ell$$, ties broken in any fixed way.
+2. Let $$\hat A \in \operatorname{argmax}_{a \in [K]} \hat m_{a,\ell}$$ be an arm with the largest empirical mean after round $$K\ell$$, ties broken in any fixed way.
 3. In rounds $$K\ell + 1, \dots, n$$, play $$\hat A$$.
 
 **Try it.** Run $$\mathrm{ETC}(\ell)$$ step by step on three arms.
