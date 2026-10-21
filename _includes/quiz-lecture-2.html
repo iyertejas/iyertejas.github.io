@@ -15,7 +15,7 @@
 <div class="q-why" hidden><p>False. The whole table can be drawn before round 1. What matters is that no decision depends on a card before that card is used (<a href="#definition-2-2">Definition 2.2</a>).</p></div>
 </div>
 <div class="q" data-answer="false">
-<p class="q-text"><b>4.</b> Theorem 1.10, applied with \(s = N_a(t)\), gives \(\mathbb P\big(\hat m_a(t) + w^\delta_a(N_a(t)) \le m_a\big) \le \delta\).</p>
+<p class="q-text"><b>4.</b> <a href="course-rl-2026-lecture-1.html#theorem-1-10">Theorem 1.10</a>, applied with \(s = N_a(t)\), gives \(\mathbb P\big(\hat m_a(t) + w^\delta_a(N_a(t)) \le m_a\big) \le \delta\).</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
 <div class="q-why" hidden><p>False: this does not follow. \(N_a(t)\) is random and depends on the rewards, while <a href="course-rl-2026-lecture-1.html#theorem-1-10">Theorem 1.10</a> is about a fixed number of samples. On the reward table, apply it to \(\hat m_{a,s}\) for each fixed \(s\) and take a union bound over \(s \in [n]\): the probability is at most \(n\delta\). This is why \(\delta = 1/n^2\).</p></div>
 </div>

@@ -322,3 +322,9 @@ button:disabled:hover{background:transparent}
 .quiz .q-opts button.right{background:color-mix(in srgb,var(--good) 18%,transparent);border-color:var(--good);color:var(--ink)}
 .quiz .q-opts button.wrong{background:color-mix(in srgb,var(--bad) 16%,transparent);border-color:var(--bad);color:var(--ink)}
 .quiz .q-why p{margin:.6rem 0 0;font-size:.95rem;color:var(--ink);max-width:65ch}
+/* previews of cross-referenced results */
+.ref-pop{position:absolute;z-index:60;background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-top:3px solid var(--accent);border-radius:2px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:.8rem 1rem .6rem;max-height:60vh;overflow:auto;font-size:.95rem;line-height:1.5}
+.ref-pop p,.ref-pop ol,.ref-pop ul{margin:0 0 .6em;max-width:none}
+.ref-pop .katex-display{margin:.3em 0 .7em;overflow-x:auto;overflow-y:hidden}
+.ref-pop .ref-wait{color:var(--muted)}
+.ref-pop .ref-go{font-family:var(--sans);font-size:.85rem;margin:.4rem 0 0;border-top:1px solid var(--rule);padding-top:.45rem}
