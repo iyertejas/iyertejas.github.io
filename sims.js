@@ -1454,7 +1454,8 @@ function compareWidget(){
 // The rewards come from a reward table (Definition 2.2) dealt when the run starts.
 function runWidget(P, mode){
   const K = 3, N = 1000, COL = ["var(--c4)", "var(--c1)", "var(--c5)"], LOGN = Math.log(N);
-  const w = s => Math.sqrt(4*LOGN/s);                                  // UCB width with δ = 1/n²
+  const greedy = () => mode === "ucb" && $(P+"Pol").value === "greedy";
+  const w = s => greedy() ? 0 : Math.sqrt(4*LOGN/s);                  // UCB width with δ = 1/n²; greedy has no bonus
   const D = () => +$(P+"Gap").value, ell = () => mode === "etc" ? +$(P+"L").value : 0;
   let g = null, timer = 0, acc = 0;
   function deal(){
@@ -1501,7 +1502,7 @@ function runWidget(P, mode){
       s += `<line x1="${X(g.m[a])}" x2="${X(g.m[a])}" y1="${y-15}" y2="${y+15}" stroke="var(--muted)" stroke-width="2"/>`;
       if (g.n[a] > 0){
         const mh = mean(a);
-        if (mode === "ucb"){
+        if (mode === "ucb" && !greedy()){
           const a0 = mh - w(g.n[a]), a1 = mh + w(g.n[a]);
           s += `<line x1="${X(cl(a0))}" x2="${X(cl(a1))}" y1="${y}" y2="${y}" stroke="${COL[a]}" stroke-width="10" stroke-opacity=".28" stroke-linecap="butt"/>`;
           if (a1 > hi) s += `<path d="M${X(hi)-2} ${y-7}L${X(hi)+6} ${y}L${X(hi)-2} ${y+7}z" fill="${COL[a]}"/>`;
@@ -1520,23 +1521,24 @@ function runWidget(P, mode){
       return { pts, col:COL[a], w:2.25 };
     });
     const vlines = [];
-    if (mode === "ucb") for (let a=1; a<K; a++){ const b = 3 + 16*LOGN/((a*g.d)**2); if (b < N) lines.push({ pts:[[0,b],[N,b]], col:COL[a], w:1.5, dash:"5 4" }); }
-    else vlines.push({ x:K*g.l, col:"var(--muted)" });
+    if (mode === "ucb" && !greedy()) for (let a=1; a<K; a++){ const b = 3 + 16*LOGN/((a*g.d)**2); if (b < N) lines.push({ pts:[[0,b],[N,b]], col:COL[a], w:1.5, dash:"5 4" }); }
+    if (mode === "etc") vlines.push({ x:K*g.l, col:"var(--muted)" });
     plotL2(P+"Low", { height:260, x:{min:0, max:N, label:"round t"}, y:{min:0, max:N, label:"pulls Nₐ(t)"}, lines, vlines });
   }
   function status(){
     $(P+"Round").textContent = `Round ${g.t} of ${N}`;
     $(P+"Step").disabled = g.t >= N;
     const L = g.last; let s;
-    if (!L) s = mode === "ucb" ? "Press Step. UCB first plays each arm once." : `Press Step. ETC first plays the arms in turn, ${g.l} times each.`;
+    if (!L) s = mode === "ucb" ? `Press Step. ${greedy() ? "Greedy" : "UCB"} first plays each arm once.` : `Press Step. ETC first plays the arms in turn, ${g.l} times each.`;
     else if (mode === "ucb"){
-      s = L.idx ? `Round ${L.t}: the indices are ${L.idx.map((v, a) => `<span style="color:${COL[a]}">${v.toFixed(2)}</span>`).join(", ")}, so A<sub>${L.t}</sub> = ${L.a+1}, which pays ${L.x.toFixed(2)}.`
+      s = L.idx ? `Round ${L.t}: the ${greedy() ? "empirical means" : "indices"} are ${L.idx.map((v, a) => `<span style="color:${COL[a]}">${v.toFixed(2)}</span>`).join(", ")}, so A<sub>${L.t}</sub> = ${L.a+1}, which pays ${L.x.toFixed(2)}.`
                 : `Round ${L.t}: playing each arm once; A<sub>${L.t}</sub> = ${L.a+1}, which pays ${L.x.toFixed(2)}.`;
     } else if (L.t <= K*g.l){
       s = `Round ${L.t}: exploring, ${K*g.l - L.t} rounds left; A<sub>${L.t}</sub> = ${L.a+1}, which pays ${L.x.toFixed(2)}.`;
     } else {
       s = `ETC committed to arm ${g.commit+1} after ${K*g.l} rounds${g.commit === 0 ? ", the best arm" : `, a worse arm: every remaining round costs ${(g.commit*g.d).toFixed(2)}`}.`;
     }
+    if (greedy() && g.t > K && g.n[0] === 1 && g.t >= 50) s += ` Arm 1 has been played once, in round 1: its single sample is below the other arms' averages, and greedy will not try it again unless both of those averages fall below it.`;
     if (g.t >= N){
       const reg = g.n[1]*g.d + g.n[2]*2*g.d;
       s += ` Finished: Σ<sub>a</sub> Δ<sub>a</sub> N<sub>a</sub>(n) = ${reg.toFixed(1)}.`;
@@ -1560,6 +1562,7 @@ function runWidget(P, mode){
     timer = requestAnimationFrame(tick);
   }
   bindSlider(P+"Gap", 2, null, deal);
+  if (mode === "ucb") $(P+"Pol").addEventListener("change", deal);
   if (mode === "etc"){
     const lmin = () => Math.min(333, Math.ceil(4*LOGN/(D()*D())));
     $(P+"L").addEventListener("input", () => { $(P+"LOut").textContent = $(P+"L").value; });
