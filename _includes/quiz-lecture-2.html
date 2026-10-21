@@ -1,6 +1,6 @@
 <div class="quiz" id="check">
 <div class="q" data-answer="true">
-<p class="q-text"><b>1.</b> ETC with \(\ell = \ell_{\min}\) needs to know \(\Delta_{\min}\).</p>
+<p class="q-text"><b>1.</b> <a href="#algorithm-2-3">ETC</a> with \(\ell = \ell_{\min}\) needs to know \(\Delta_{\min}\).</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
 <div class="q-why" hidden><p>True. \(\ell_{\min} = \lceil (4/\Delta_{\min}^2) \log n \rceil\) depends on the smallest gap. Without it, no fixed \(\ell\) does better than order \(n^{2/3}\) (<a href="course-rl-2026-sheet-2.html#exercise-2-2">Exercise 2.2</a>).</p></div>
 </div>
@@ -20,12 +20,12 @@
 <div class="q-why" hidden><p>False: this does not follow. \(N_a(t)\) is random and depends on the rewards, while <a href="course-rl-2026-lecture-1.html#theorem-1-10">Theorem 1.10</a> is about a fixed number of samples. On the reward table, apply it to \(\hat m_{a,s}\) for each fixed \(s\) and take a union bound over \(s \in [n]\): the probability is at most \(n\delta\). This is why \(\delta = 1/n^2\).</p></div>
 </div>
 <div class="q" data-answer="false">
-<p class="q-text"><b>5.</b> UCB needs to know the gaps \(\Delta_a\).</p>
+<p class="q-text"><b>5.</b> <a href="#algorithm-2-5">UCB</a> needs to know the gaps \(\Delta_a\).</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
 <div class="q-why" hidden><p>False. The index uses only \(\hat m_a\), \(N_a\) and \(\delta\); the gaps appear only in the analysis (<a href="#remark-2-7">Remark 2.7</a>).</p></div>
 </div>
 <div class="q" data-answer="false">
-<p class="q-text"><b>6.</b> With \(\delta\) fixed, not depending on \(n\), UCB still has logarithmic regret.</p>
+<p class="q-text"><b>6.</b> With \(\delta\) fixed, not depending on \(n\), <a href="#algorithm-2-5">UCB</a> still has logarithmic regret.</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
 <div class="q-why" hidden><p>False. The best arm's first sample can be so low that its index, whose bonus stays at \(\sqrt{2 \log(1/\delta)}\), sits below \(m_2\) for ever, while the index of arm 2 never drops below it. This has positive probability, so the best arm is never played again and the regret is linear (<a href="#remark-2-7">Remark 2.7</a>).</p></div>
 </div>

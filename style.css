@@ -328,3 +328,6 @@ button:disabled:hover{background:transparent}
 .ref-pop .katex-display{margin:.3em 0 .7em;overflow-x:auto;overflow-y:hidden}
 .ref-pop .ref-wait{color:var(--muted)}
 .ref-pop .ref-go{font-family:var(--sans);font-size:.85rem;margin:.4rem 0 0;border-top:1px solid var(--rule);padding-top:.45rem}
+/* references to results and algorithms in the notes: quieter than ordinary links */
+.content a.ref-link{text-decoration-style:dotted;text-decoration-thickness:1.5px;text-decoration-color:color-mix(in srgb,var(--ink) 55%,transparent)}
+.content a.ref-link:hover,.content a.ref-link:focus-visible{color:var(--accent);text-decoration-style:solid;text-decoration-color:var(--accent)}
