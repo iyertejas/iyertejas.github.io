@@ -59,7 +59,7 @@ def link_refs(text, here, sections):
             seg = re.sub(r"(?<!\[)(?<!, )\bExercise (\d+)(?!\.\d|\d)(\([a-z]\))?",
                          lambda m: f"[{m.group(0)}]({href(sheet_page(1), 'exercise-' + m.group(1))})", seg)
         # Section 4 (same page)
-        seg = re.sub(r"(?<!\[)\bSection (\d+)\b",
+        seg = re.sub(r"(?<!\[)\bSection (\d+)\b(?!\.\d)",
                      lambda m: f"[{m.group(0)}](#{sections[m.group(1)]})" if m.group(1) in sections else m.group(0), seg)
         return seg
     out, last = [], 0
@@ -93,10 +93,55 @@ def process(path):
             lines = b.split("\n")
             b = "\n".join(l if l.startswith("{:") else link_refs(l, here, sections) for l in lines)
         new.append(b)
+    # names are not linked under "Reading": there they name chapters of a book
+    reading = False; named = []
+    for b in new:
+        if b.lstrip().startswith("## "): reading = b.lstrip().startswith("## Reading")
+        named.append(b if reading else link_names(b, here))
+    new = named
     out = front + "\n\n".join(new)
     if out != src:
         open(path, "w", encoding="utf-8").write(out)
         print("updated", path)
+
+# Names of algorithms, linked like numbered references: the first mention in each paragraph only,
+# so that a paragraph about UCB is not covered in links. Add new algorithms here as they are introduced.
+NAMED = [
+    (r"(?<![\w-])UCB(?![\w-])", "lecture-2", "algorithm-2-5"),
+    (r"(?<![\w-])ETC(?![\w-])", "lecture-2", "algorithm-2-3"),
+    (r"(?<![\w-])[Ee]xplore-then-commit(?![\w-])", "lecture-2", "algorithm-2-3"),
+]
+
+def link_names(b, here):
+    s = b.lstrip()
+    if s.startswith(("#", "{%", "<", "$$\n", "{:", "```")) or not s: return b
+    m = LABEL.match(s)
+    head, rest = ("", b)
+    if m:
+        cut = b.index("**", b.index("**") + 2) + 2       # never link inside the bold label
+        head, rest = b[:cut], b[cut:]
+        if label_id(m) in [t for _, _, t in NAMED]:       # the algorithm's own paragraph
+            return b
+    for pat, page, anchor in NAMED:
+        full = f"{COURSE}-{page}"
+        if not os.path.exists(full + ".md"): continue
+        href = f"#{anchor}" if full == here else f"{full}.html#{anchor}"
+        if f"]({href})" in rest: continue                # this paragraph already links it
+        done = False
+        def first_only(seg):
+            nonlocal done
+            if done: return seg
+            def r(mm):
+                nonlocal done
+                if done: return mm.group(0)
+                done = True; return f"[{mm.group(0)}]({href})"
+            return re.sub(pat, r, seg)
+        out, last = [], 0
+        for mm in PROTECT.finditer(rest):
+            out.append(first_only(rest[last:mm.start()])); out.append(mm.group(0)); last = mm.end()
+        out.append(first_only(rest[last:]))
+        rest = "".join(out)
+    return head + rest
 
 NAME = {"definition":"Definition","lemma":"Lemma","theorem":"Theorem","corollary":"Corollary","remark":"Remark",
         "example":"Example","algorithm":"Algorithm","proposition":"Proposition"}

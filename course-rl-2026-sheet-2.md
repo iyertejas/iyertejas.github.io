@@ -51,7 +51,7 @@ Please report any errors or unclear points, in the lecture or by email.
 
 (b) Suppose a rule for choosing $$A_t$$ were allowed to look at the next unused card of each deck, and to switch to another arm when the card it was about to use is 0 and another arm's next card is 1. Why is this not a policy? Show by an example that $$\mathbb P(X_t \in \cdot \mid H_{t-1}, A_t) = \mu_{A_t}$$ fails for it.
 
-**Exercise 2.6 (the worst-case bound).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#theorem-2-6">Theorem 2.6</a></span> Prove $$R_n \le 8\sqrt{Kn \log n} + 3 \sum_a \Delta_a$$ for UCB with $$\delta = 1/n^2$$. (*Hint:* split the arms by whether $$\Delta_a$$ is above or below a threshold, and optimise the threshold.)
+**Exercise 2.6 (the worst-case bound).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#theorem-2-6">Theorem 2.6</a></span> Prove $$R_n \le 8\sqrt{Kn \log n} + 3 \sum_a \Delta_a$$ for [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) with $$\delta = 1/n^2$$. (*Hint:* split the arms by whether $$\Delta_a$$ is above or below a threshold, and optimise the threshold.)
 {: #exercise-2-6}
 
 <nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-sheet-1.html">← Exercise Sheet 1</a><a href="course-rl-2026-lecture-2.html">Lecture 2 notes</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>

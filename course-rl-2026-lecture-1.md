@@ -183,7 +183,7 @@ The width shrinks like $$1/\sqrt s$$ and depends on the error probability $$\del
 
 ## Next lecture
 
-Explore-then-commit: play each arm a fixed number of times, then commit to the arm with the best empirical mean. [Lemma 1.6](#lemma-1-6) and [Theorem 1.10](#theorem-1-10) are exactly what we need to analyse it.
+[Explore-then-commit](course-rl-2026-lecture-2.html#algorithm-2-3): play each arm a fixed number of times, then commit to the arm with the best empirical mean. [Lemma 1.6](#lemma-1-6) and [Theorem 1.10](#theorem-1-10) are exactly what we need to analyse it.
 
 ## Reading
 

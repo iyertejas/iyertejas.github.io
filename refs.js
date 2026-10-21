@@ -54,12 +54,15 @@ function place(a){
   pop.style.left = x + "px";
   pop.style.top = (roomBelow < h + 16 && r.top > h + 16 ? r.top + window.scrollY - h - 8 : below) + "px";
 }
+function label(id){                            // "algorithm-2-5" -> "Algorithm 2.5", "exercise-7" -> "Exercise 7"
+  const [k, ...n] = id.split("-"); return k[0].toUpperCase() + k.slice(1) + " " + n.join(".");
+}
 function hide(){ clearTimeout(showTimer); if (pop){ pop.remove(); pop = null; } owner = null; }
 function show(a, t){
   hide(); owner = a;
   pop = document.createElement("div");
   pop.className = "ref-pop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", a.textContent);
-  pop.innerHTML = `<div class="ref-body"><p class="ref-wait">Loading…</p></div><p class="ref-go"><a href="${t.href}">Go to ${a.textContent.replace(/\(.*\)$/, "").trim()} →</a></p>`;
+  pop.innerHTML = `<div class="ref-body"><p class="ref-wait">Loading…</p></div><p class="ref-go"><a href="${t.href}">Go to ${label(t.id)} →</a></p>`;
   pop.addEventListener("mouseenter", () => clearTimeout(hideTimer));
   pop.addEventListener("mouseleave", () => { hideTimer = setTimeout(hide, 250); });
   document.body.appendChild(pop); place(a);
