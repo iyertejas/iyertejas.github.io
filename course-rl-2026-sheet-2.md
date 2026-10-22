@@ -16,15 +16,15 @@ Notation as in the [Lecture 2 notes](course-rl-2026-lecture-2.html). Exercises m
 Please report any errors or unclear points, in the lecture or by email.
 {: .note}
 
-**Exercise 2.1 (ETC: the log n bound).** Prove [Theorem 2.4(b)](course-rl-2026-lecture-2.html#theorem-2-4). For $$K = 2$$, with $$\ell = \ell_{\min}$$, what is the probability of committing to the wrong arm, and what does such a mistake cost? Minimise $$\Delta\ell + \Delta n\, e^{-\ell\Delta^2/4}$$ over real $$\ell$$ and compare.
+**Exercise 2.1 (ETC: the log n bound).** Prove [Theorem 2.4(b)](course-rl-2026-lecture-2.html#theorem-2-4). For $$K = 2$$, with $$\ell = \ell_{\min}$$, what is the probability of committing to the wrong arm, and what does such a mistake cost? Minimise $$\Delta\ell + \Delta n\, e^{-\ell\Delta^2/(4\sigma^2)}$$ over real $$\ell$$ and compare.
 {: #exercise-2-1}
 
-**Exercise 2.2 (ETC without knowing $$\Delta$$).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#4-what-is-wrong-with-etc">Lecture 2, Section 4</a>; <a href="course-rl-2026-lecture-2.html#remark-2-7">Remark 2.7</a></span> A 2-armed SBM with 1-sub-Gaussian rewards and $$\Delta \in (0, 1]$$ unknown.
+**Exercise 2.2 (ETC without knowing $$\Delta$$).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#4-what-is-wrong-with-etc">Lecture 2, Section 4</a>; <a href="course-rl-2026-lecture-2.html#remark-2-7">Remark 2.7</a></span> A 2-armed SBM with $$\sigma$$-sub-Gaussian rewards and $$\Delta \in (0, \sigma]$$ unknown.
 {: #exercise-2-2}
 
-(a) Show that $$\ell = \lceil n^{2/3} \rceil$$ gives $$R_n \le C n^{2/3}$$ with $$C$$ independent of $$\Delta$$. (*Hint:* maximise $$\Delta e^{-\ell\Delta^2/4}$$ over $$\Delta$$.)
+(a) Show that $$\ell = \lceil n^{2/3} \rceil$$ gives $$R_n \le C\sigma n^{2/3}$$ with $$C$$ independent of $$\Delta$$ and $$\sigma$$. (*Hint:* maximise $$\Delta e^{-\ell\Delta^2/(4\sigma^2)}$$ over $$\Delta$$.)
 
-(b) For Gaussian rewards $$N(m_1, 1)$$, $$N(m_2, 1)$$ and $$n \ge 64$$, show that for every fixed $$\ell$$ the supremum over $$\Delta \in (0, 1]$$ of $$R_n(\mathrm{ETC}(\ell))$$ is at least $$n^{2/3}/10$$. (*Hint:* consider $$\Delta = 1$$ and $$\Delta = \min\{1, \sqrt{2/\ell}\}$$, and use $$\mathbb P(Z > 1) \ge 0.15$$ for a standard normal $$Z$$.)
+(b) For Gaussian rewards $$N(m_1, \sigma^2)$$, $$N(m_2, \sigma^2)$$ and $$n \ge 64$$, show that for every fixed $$\ell$$ the supremum over $$\Delta \in (0, \sigma]$$ of $$R_n(\mathrm{ETC}(\ell))$$ is at least $$\sigma n^{2/3}/10$$. (*Hint:* consider $$\Delta = \sigma$$ and $$\Delta = \sigma\min\{1, \sqrt{2/\ell}\}$$, and use $$\mathbb P(Z > 1) \ge 0.15$$ for a standard normal $$Z$$.)
 
 (c) Where does (b) use that rewards are Gaussian?
 
@@ -35,7 +35,7 @@ Please report any errors or unclear points, in the lecture or by email.
 
 (b) Deduce that there are $$c > 0$$ and $$\Delta_0 > 0$$ such that $$R_n(\mathrm{ETC}(\ell)) \ge c\, n\Delta$$ whenever $$\Delta \le \Delta_0$$ and $$n \ge 4\ell$$.
 
-(c) Compare with [Theorem 2.4(b)](course-rl-2026-lecture-2.html#theorem-2-4). Which part of $$\ell_{\min} = \lceil (4/\Delta^2) \log n \rceil$$ is forced by the fluctuations of the samples, and which part buys the small error probability $$1/n$$?
+(c) Compare with [Theorem 2.4(b)](course-rl-2026-lecture-2.html#theorem-2-4). For Gaussian $$\mu$$, $$\sigma$$ is both the standard deviation and the sub-Gaussian constant. Which part of $$\ell_{\min} = \lceil (4\sigma^2/\Delta^2) \log n \rceil$$ is forced by the fluctuations of the samples, and which part buys the small error probability $$1/n$$?
 
 **Exercise 2.4 (greedy and ε-greedy).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#2-policy-functions-and-the-reward-table">Lecture 2, Section 2</a>; <a href="course-rl-2026-lecture-2.html#4-what-is-wrong-with-etc">Lecture 2, Section 4</a></span> The *greedy* policy plays each arm once and then always plays an arm with the largest empirical mean.
 {: #exercise-2-4}
@@ -51,7 +51,7 @@ Please report any errors or unclear points, in the lecture or by email.
 
 (b) Suppose a rule for choosing $$A_t$$ were allowed to look at the next unused card of each deck, and to switch to another arm when the card it was about to use is 0 and another arm's next card is 1. Why is this not a policy? Show by an example that $$\mathbb P(X_t \in \cdot \mid H_{t-1}, A_t) = \mu_{A_t}$$ fails for it.
 
-**Exercise 2.6 (the worst-case bound).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#theorem-2-6">Theorem 2.6</a></span> Prove $$R_n \le 8\sqrt{Kn \log n} + 3 \sum_a \Delta_a$$ for [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) with $$\delta = 1/n^2$$. (*Hint:* split the arms by whether $$\Delta_a$$ is above or below a threshold, and optimise the threshold.)
+**Exercise 2.6 (the worst-case bound).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#theorem-2-6">Theorem 2.6</a></span> Prove $$R_n \le 8\sigma\sqrt{Kn \log n} + 3 \sum_a \Delta_a$$ for [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) with $$\delta = 1/n^2$$. (*Hint:* split the arms by whether $$\Delta_a$$ is above or below a threshold, and optimise the threshold.)
 {: #exercise-2-6}
 
 <nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-sheet-1.html">← Exercise Sheet 1</a><a href="course-rl-2026-lecture-2.html">Lecture 2 notes</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>

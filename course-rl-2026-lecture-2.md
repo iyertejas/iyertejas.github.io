@@ -21,9 +21,9 @@ Please report any errors or unclear points, in the lecture or by email.
 
 Recall from [Lecture 1](course-rl-2026-lecture-1.html) the $$K$$-armed SBM ([Definition 1.1](course-rl-2026-lecture-1.html#definition-1-1)), policies ([Definition 1.3](course-rl-2026-lecture-1.html#definition-1-3)), the regret decomposition $$R_n(\pi) = \sum_a \Delta_a\, \mathbb E_\pi[N_a(n)]$$ ([Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6)) and the Chernoff bound ([Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10)).
 
-Committing to a bad arm $$a$$ for the rest of the game costs about $$n\Delta_a$$. To keep the expected cost of that mistake of order $$\Delta_a$$, its probability should be about $$1/n$$. By [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10), making $$e^{-s\Delta_a^2/c} \le 1/n$$ takes $$s$$ of order $$(\log n)/\Delta_a^2$$ samples of arm $$a$$, which cost about $$\Delta_a$$ each. So we expect regret of order $$\sum_{a : \Delta_a > 0} (\log n)/\Delta_a$$. This lecture proves it twice: first for [explore-then-commit](#algorithm-2-3), which needs to know the gaps, then for [UCB](#algorithm-2-5), which does not.
+Committing to a bad arm $$a$$ for the rest of the game costs about $$n\Delta_a$$. To keep the expected cost of that mistake of order $$\Delta_a$$, its probability should be about $$1/n$$. By [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10), making $$e^{-s\Delta_a^2/(c\sigma^2)} \le 1/n$$ takes $$s$$ of order $$\sigma^2(\log n)/\Delta_a^2$$ samples of arm $$a$$, which cost about $$\Delta_a$$ each. So we expect regret of order $$\sum_{a : \Delta_a > 0} \sigma^2(\log n)/\Delta_a$$. This lecture proves it twice: first for [explore-then-commit](#algorithm-2-3), which needs to know the gaps, then for [UCB](#algorithm-2-5), which does not.
 
-**Convention.** Throughout, rewards are 1-sub-Gaussian. This loses nothing: dividing $$\sigma$$-sub-Gaussian rewards by $$\sigma$$ makes them 1-sub-Gaussian ([Lemma 1.9(c)](course-rl-2026-lecture-1.html#lemma-1-9)), divides the gaps and the regret by $$\sigma$$, and multiplies the [UCB](#algorithm-2-5) width below by $$\sigma$$.
+**Convention.** Throughout, rewards are $$\sigma$$-sub-Gaussian, for a constant $$\sigma > 0$$ known to the learner. For rewards in $$[0, 1]$$, $$\sigma = \frac12$$ works whatever the distribution ([Lemma 1.9(b)](course-rl-2026-lecture-1.html#lemma-1-9)). A check on every formula below: dividing the rewards by $$\sigma$$ makes them 1-sub-Gaussian ([Lemma 1.9(c)](course-rl-2026-lecture-1.html#lemma-1-9)) and divides the gaps and the regret by $$\sigma$$, so each bound is $$\sigma$$ times a function of the ratios $$\Delta_a/\sigma$$.
 
 ## 2. Policy functions and the reward table
 
@@ -120,22 +120,22 @@ We now get to an explicit policy with sublinear regret.
 $$\mathrm{ETC}(\ell)$$ with $$n = 1000$$ on three arms with Gaussian rewards $$N(m_a, 1)$$, where $$m_1 = 0$$, $$m_2 = -\Delta$$ and $$m_3 = -2\Delta$$; the rewards are read from a reward table dealt at the start of each run. In the first $$K\ell$$ rounds the arms are played in turn; then [ETC](#algorithm-2-3) commits to the arm with the largest empirical mean and plays it to the end. With a small $$\ell$$, run it a few times: sometimes the commitment is wrong, and the pull count of a worse arm keeps climbing until round $$n$$.
 {: .caption}
 
-**Theorem 2.4 (ETC).** Given a $$K$$-armed SBM with 1-sub-Gaussian rewards, [explore-then-commit](#algorithm-2-3) performs as follows.
+**Theorem 2.4 (ETC).** Given a $$K$$-armed SBM with $$\sigma$$-sub-Gaussian rewards, [explore-then-commit](#algorithm-2-3) performs as follows.
 {: #theorem-2-4}
 
 (a) For every $$\ell$$ with $$K\ell \le n$$,
 
 $$
-R_n(\mathrm{ETC}(\ell)) \le \ell \sum_a \Delta_a + n \sum_a \Delta_a\, e^{-\ell\Delta_a^2/4}.
+R_n(\mathrm{ETC}(\ell)) \le \ell \sum_a \Delta_a + n \sum_a \Delta_a\, e^{-\ell\Delta_a^2/(4\sigma^2)}.
 $$
 
-(b) Let $$\Delta_{\min} = \min\{\Delta_a : \Delta_a > 0\}$$. If $$\ell_{\min} = \lceil (4/\Delta_{\min}^2) \log n \rceil$$ satisfies $$K\ell_{\min} \le n$$, then
+(b) Let $$\Delta_{\min} = \min\{\Delta_a : \Delta_a > 0\}$$. If $$\ell_{\min} = \lceil (4\sigma^2/\Delta_{\min}^2) \log n \rceil$$ satisfies $$K\ell_{\min} \le n$$, then
 
 $$
-R_n(\mathrm{ETC}(\ell_{\min})) \le \sum_a \Delta_a \Big(\frac{4 \log n}{\Delta_{\min}^2} + 2\Big).
+R_n(\mathrm{ETC}(\ell_{\min})) \le \sum_a \Delta_a \Big(\frac{4\sigma^2 \log n}{\Delta_{\min}^2} + 2\Big).
 $$
 
-For $$K = 2$$ and $$\Delta = \Delta_2$$, (b) reads $$R_n \le \frac{4}{\Delta} \log n + 2\Delta$$.
+For $$K = 2$$ and $$\Delta = \Delta_2$$, (b) reads $$R_n \le \frac{4\sigma^2}{\Delta} \log n + 2\Delta$$.
 
 *Proof of (a).* Work on the reward table, and assume without loss of generality that arm 1 is optimal, $$m_1 = m^*$$. Each pull of arm $$a$$ costs $$\Delta_a$$. Arm $$a$$ is pulled $$\ell$$ times while exploring, and $$n - K\ell$$ more times if $$\hat A = a$$. The exploration rewards of arm $$b$$ are its first $$\ell$$ cards, so $$\hat A$$ is an arm with the largest $$\hat m_{b,\ell}$$. Committing to $$a$$ requires, in particular, that $$a$$ beats arm 1; the other arms play no role. By [Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6),
 
@@ -152,22 +152,22 @@ $$
 \hat m_{a,\ell} - \hat m_{1,\ell} = \frac1\ell \sum_{i=1}^{\ell} D_i - \Delta_a, \qquad\text{so}\qquad \{\hat m_{a,\ell} \ge \hat m_{1,\ell}\} = \Big\{\frac1\ell \sum_{i=1}^{\ell} D_i \ge \Delta_a\Big\}.
 $$
 
-The $$D_i$$ are independent (all cards are; this is where the reward table is used), have mean 0, and are $$\sqrt2$$-sub-Gaussian by [Lemma 1.9(c)](course-rl-2026-lecture-1.html#lemma-1-9) (this is where the sub-Gaussian assumption is used). [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) with $$s = \ell$$, $$\sigma = \sqrt2$$ and $$\varepsilon = \Delta_a$$ gives $$\mathbb P(\hat m_{a,\ell} \ge \hat m_{1,\ell}) \le e^{-\ell\Delta_a^2/4}$$. $$\square$$
+The $$D_i$$ are independent (all cards are; this is where the reward table is used), have mean 0, and are $$\sqrt2\,\sigma$$-sub-Gaussian by [Lemma 1.9(c)](course-rl-2026-lecture-1.html#lemma-1-9) (this is where the sub-Gaussian assumption is used). [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) with $$s = \ell$$, $$\sqrt2\,\sigma$$ in place of $$\sigma$$ and $$\varepsilon = \Delta_a$$ gives $$\mathbb P(\hat m_{a,\ell} \ge \hat m_{1,\ell}) \le e^{-\ell\Delta_a^2/(4\sigma^2)}$$. $$\square$$
 
-Part (b) follows by taking $$\ell = \ell_{\min}$$ in (a), using $$e^{-\ell_{\min}\Delta_a^2/4} \le n^{-\Delta_a^2/\Delta_{\min}^2} \le 1/n$$ ([Exercise 2.1](course-rl-2026-sheet-2.html#exercise-2-1)).
+Part (b) follows by taking $$\ell = \ell_{\min}$$ in (a), using $$e^{-\ell_{\min}\Delta_a^2/(4\sigma^2)} \le n^{-\Delta_a^2/\Delta_{\min}^2} \le 1/n$$ ([Exercise 2.1](course-rl-2026-sheet-2.html#exercise-2-1)).
 
 **Try it.** Choose the gap, the horizon and the exploration length $$\ell$$ of [ETC](#algorithm-2-3) on two Gaussian arms.
 
 {% include sim-etc.html %}
 
-Two arms with rewards $$N(\Delta, 1)$$ and $$N(0, 1)$$. Here the regret is computed exactly, not simulated: after $$\ell$$ pulls of each arm, $$\hat m_{2,\ell} - \hat m_{1,\ell} \sim N(-\Delta, 2/\ell)$$, so $$R_n(\mathrm{ETC}(\ell)) = \ell\Delta + (n - 2\ell)\Delta\, \mathbb P(Z \ge \Delta\sqrt{\ell/2})$$ for a standard normal $$Z$$. Both axes are logarithmic. Too little exploration risks committing to the worse arm, at a cost of about $$n\Delta$$; too much wastes $$\ell\Delta$$. The choice $$\ell_{\min}$$ of [Theorem 2.4(b)](#theorem-2-4) pushes the error probability below $$1/n$$, which is more exploration than the best $$\ell$$ needs, and both depend on $$\Delta$$.
+Two arms with rewards $$N(\Delta, 1)$$ and $$N(0, 1)$$, so $$\sigma = 1$$. Here the regret is computed exactly, not simulated: after $$\ell$$ pulls of each arm, $$\hat m_{2,\ell} - \hat m_{1,\ell} \sim N(-\Delta, 2/\ell)$$, so $$R_n(\mathrm{ETC}(\ell)) = \ell\Delta + (n - 2\ell)\Delta\, \mathbb P(Z \ge \Delta\sqrt{\ell/2})$$ for a standard normal $$Z$$. Both axes are logarithmic. Too little exploration risks committing to the worse arm, at a cost of about $$n\Delta$$; too much wastes $$\ell\Delta$$. The choice $$\ell_{\min}$$ of [Theorem 2.4(b)](#theorem-2-4) pushes the error probability below $$1/n$$, which is more exploration than the best $$\ell$$ needs, and both depend on $$\Delta$$.
 {: .caption}
 
 ## 4. What is wrong with ETC
 
 To choose $$\ell_{\min}$$ in [Theorem 2.4(b)](#theorem-2-4) we need $$\Delta_{\min}$$, which the learner does not know. And $$\ell_{\min}$$ is set by the smallest gap, so every arm is explored that long, even arms that are clearly bad.
 
-**Remark.** Without $$\Delta$$, $$\ell$$ of order $$n^{2/3}$$ gives regret of order $$n^{2/3}$$, and no fixed $$\ell$$ does better ([Exercise 2.2](course-rl-2026-sheet-2.html#exercise-2-2)). With $$K$$ arms, arm $$a$$ costs about $$(\Delta_a/\Delta_{\min}^2) \cdot 4 \log n$$ in [Theorem 2.4(b)](#theorem-2-4), rather than $$(4/\Delta_a) \log n$$. [UCB](#algorithm-2-5) will fix both. Exploring much less than $$1/\Delta_{\min}^2$$ rounds per arm fails anyway, whatever the rewards ([Exercise 2.3](course-rl-2026-sheet-2.html#exercise-2-3)).
+**Remark.** Without $$\Delta$$, $$\ell$$ of order $$n^{2/3}$$ gives regret of order $$n^{2/3}$$, and no fixed $$\ell$$ does better ([Exercise 2.2](course-rl-2026-sheet-2.html#exercise-2-2)). With $$K$$ arms, arm $$a$$ costs about $$(\Delta_a/\Delta_{\min}^2) \cdot 4\sigma^2 \log n$$ in [Theorem 2.4(b)](#theorem-2-4), rather than $$(4\sigma^2/\Delta_a) \log n$$. [UCB](#algorithm-2-5) will fix both. Exploring much less than $$1/\Delta_{\min}^2$$ rounds per arm fails anyway, whatever the rewards ([Exercise 2.3](course-rl-2026-sheet-2.html#exercise-2-3)).
 
 Exploring as little as possible does not work either. The *greedy* policy plays each arm once and then always plays an arm with the largest empirical mean. With rewards in $$\{0, 1\}$$, if the best arm's first reward is 0 and another arm's is 1, greedy never plays the best arm again, so its regret is linear in $$n$$ ([Exercise 2.4](course-rl-2026-sheet-2.html#exercise-2-4)). Greedy treats an estimate as the truth. The [UCB simulation](#ucbrun-demo) in [Section 5](#5-ucb) can also run greedy.
 
@@ -177,13 +177,13 @@ Exploring as little as possible does not work either. The *greedy* policy plays 
 
 **Principle (optimism in the face of uncertainty).** Play the arm whose mean could be largest: the arm with the largest upper confidence bound. Greedy, but realistic.
 
-**Confidence bounds.** Fix an arm $$a$$, a number of samples $$s$$ and $$\delta \in (0, 1)$$, and put $$w^\delta_a(s) = \sqrt{2 \log(1/\delta)/s}$$. The lower tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) ([Sheet 1, Exercise 4](course-rl-2026-sheet-1.html#exercise-4)) with $$\varepsilon = w^\delta_a(s)$$ gives
+**Confidence bounds.** Fix an arm $$a$$, a number of samples $$s$$ and $$\delta \in (0, 1)$$, and put $$w^\delta_a(s) = \sqrt{2\sigma^2 \log(1/\delta)/s}$$. The lower tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) ([Sheet 1, Exercise 4](course-rl-2026-sheet-1.html#exercise-4)) with $$\varepsilon = w^\delta_a(s)$$ gives
 
 $$
-\mathbb P\big(\hat m_{a,s} + w^\delta_a(s) \le m_a\big) \le e^{-s\, w^\delta_a(s)^2/2} = \delta. \tag{1}
+\mathbb P\big(\hat m_{a,s} + w^\delta_a(s) \le m_a\big) \le e^{-s\, w^\delta_a(s)^2/(2\sigma^2)} = \delta. \tag{1}
 $$
 
-So $$\hat m_{a,s} + w^\delta_a(s)$$ is an upper bound on $$m_a$$ that fails with probability at most $$\delta$$, and it tightens as $$s$$ grows. This is where the sub-Gaussian assumption enters.
+So $$\hat m_{a,s} + w^\delta_a(s)$$ is an upper bound on $$m_a$$ that fails with probability at most $$\delta$$, and it tightens as $$s$$ grows. This is where the sub-Gaussian assumption enters, and why [UCB](#algorithm-2-5) needs to know $$\sigma$$.
 
 **Algorithm 2.5 (UCB).** For a $$K$$-armed SBM with horizon $$n$$ and $$\delta(n) \in (0, 1)$$, the policy $$\mathrm{UCB}(\delta(n))$$ is as follows.
 {: #algorithm-2-5}
@@ -192,31 +192,31 @@ So $$\hat m_{a,s} + w^\delta_a(s)$$ is an upper bound on $$m_a$$ that fails with
 2. In each round $$t > K$$, play $$A_t \in \operatorname{argmax}_{a \in [K]} \mathrm{UCB}_a(t-1)$$, ties broken in any fixed way, where
 
 $$
-\mathrm{UCB}_a(t-1) = \underbrace{\hat m_a(t-1)}_{\text{exploit}} + \underbrace{\sqrt{\frac{2\log(1/\delta(n))}{N_a(t-1)}}}_{\text{explore}}.
+\mathrm{UCB}_a(t-1) = \underbrace{\hat m_a(t-1)}_{\text{exploit}} + \underbrace{\sqrt{\frac{2\sigma^2\log(1/\delta(n))}{N_a(t-1)}}}_{\text{explore}}.
 $$
 
-That is, $$\mathrm{UCB}_a(t-1) = \hat m_{a, N_a(t-1)} + w^{\delta(n)}_a(N_a(t-1))$$. With $$\delta(n) = 1/n^2$$, the bonus is $$\sqrt{4 \log n / N_a(t-1)}$$: it shrinks as arm $$a$$ is pulled, and grows slowly with the horizon.
+That is, $$\mathrm{UCB}_a(t-1) = \hat m_{a, N_a(t-1)} + w^{\delta(n)}_a(N_a(t-1))$$. With $$\delta(n) = 1/n^2$$, the bonus is $$\sqrt{4\sigma^2 \log n / N_a(t-1)}$$: it shrinks as arm $$a$$ is pulled, and grows slowly with the horizon.
 
 **Try it.** Run $$\mathrm{UCB}(1/n^2)$$ step by step on three arms.
 
 {% include sim-ucb-run.html %}
 
-$$\mathrm{UCB}(1/n^2)$$ with $$n = 1000$$ on three arms with Gaussian rewards $$N(m_a, 1)$$, where $$m_1 = 0$$, $$m_2 = -\Delta$$ and $$m_3 = -2\Delta$$. Step through the first rounds to see how the indices decide which arm is played, then press Play. The bars are $$\hat m_a \pm w_a(N_a)$$, with $$w_a(s) = \sqrt{4 \log n / s}$$, and the thick tick is the index. A suboptimal arm keeps being played until its bonus has shrunk to about its gap; after that its index stays below $$m_1$$ and it is hardly played again. The dashed lines in the lower panel are the bounds of [Theorem 2.6](#theorem-2-6), which are loose ([Remark 2.7](#remark-2-7)). Switch the policy to greedy, which drops the bonus, and press New run a few times: when the best arm's first sample is unlucky, it is never played again.
+$$\mathrm{UCB}(1/n^2)$$ with $$n = 1000$$ on three arms with Gaussian rewards $$N(m_a, 1)$$, where $$m_1 = 0$$, $$m_2 = -\Delta$$ and $$m_3 = -2\Delta$$. Step through the first rounds to see how the indices decide which arm is played, then press Play. The bars are $$\hat m_a \pm w_a(N_a)$$, with $$w_a(s) = \sqrt{4\sigma^2 \log n / s}$$ and $$\sigma = 1$$, and the thick tick is the index. A suboptimal arm keeps being played until its bonus has shrunk to about its gap; after that its index stays below $$m_1$$ and it is hardly played again. The dashed lines in the lower panel are the bounds of [Theorem 2.6](#theorem-2-6), which are loose ([Remark 2.7](#remark-2-7)). Switch the policy to greedy, which drops the bonus, and press New run a few times: when the best arm's first sample is unlucky, it is never played again.
 {: .caption}
 
-**Theorem 2.6 (UCB).** Given a $$K$$-armed SBM with 1-sub-Gaussian rewards and horizon $$n \ge K$$, $$\mathrm{UCB}(\delta(n))$$ with $$\delta(n) = 1/n^2$$ satisfies, for every arm $$a$$ with $$\Delta_a > 0$$,
+**Theorem 2.6 (UCB).** Given a $$K$$-armed SBM with $$\sigma$$-sub-Gaussian rewards and horizon $$n \ge K$$, $$\mathrm{UCB}(\delta(n))$$ with $$\delta(n) = 1/n^2$$ satisfies, for every arm $$a$$ with $$\Delta_a > 0$$,
 {: #theorem-2-6}
 
 $$
-\mathbb E[N_a(n)] \le 3 + \frac{16 \log n}{\Delta_a^2}, \qquad\text{hence}\qquad R_n(\mathrm{UCB}) \le 3 \sum_{a=1}^K \Delta_a + \sum_{a : \Delta_a > 0} \frac{16 \log n}{\Delta_a}.
+\mathbb E[N_a(n)] \le 3 + \frac{16\sigma^2 \log n}{\Delta_a^2}, \qquad\text{hence}\qquad R_n(\mathrm{UCB}) \le 3 \sum_{a=1}^K \Delta_a + \sum_{a : \Delta_a > 0} \frac{16\sigma^2 \log n}{\Delta_a}.
 $$
 
-Moreover $$R_n \le 8\sqrt{Kn \log n} + 3 \sum_a \Delta_a$$, whatever the gaps ([Exercise 2.6](course-rl-2026-sheet-2.html#exercise-2-6)).
+Moreover $$R_n \le 8\sigma\sqrt{Kn \log n} + 3 \sum_a \Delta_a$$, whatever the gaps ([Exercise 2.6](course-rl-2026-sheet-2.html#exercise-2-6)).
 
-*Proof.* Use the reward table ([Definition 2.2](#definition-2-2)), let arm 1 be optimal, and write $$w_b(s) = w^{\delta(n)}_b(s) = \sqrt{4 \log n/s}$$ for each arm $$b$$. Suppose $$\Delta_a > 0$$ and fix
+*Proof.* Use the reward table ([Definition 2.2](#definition-2-2)), let arm 1 be optimal, and write $$w_b(s) = w^{\delta(n)}_b(s) = \sqrt{4\sigma^2 \log n/s}$$ for each arm $$b$$. Suppose $$\Delta_a > 0$$ and fix
 
 $$
-u = \Big\lceil \frac{16 \log n}{\Delta_a^2} \Big\rceil, \qquad \text{so that} \qquad w_a(u) \le \frac{\Delta_a}{2}.
+u = \Big\lceil \frac{16\sigma^2 \log n}{\Delta_a^2} \Big\rceil, \qquad \text{so that} \qquad w_a(u) \le \frac{\Delta_a}{2}.
 $$
 
 If $$N_a(n) > u$$, then arm $$a$$ is chosen instead of arm 1 at its $$(u + 1)$$-th pull, in some round $$t > K$$, so there is some $$s \in [n]$$ (namely $$s = N_1(t-1)$$) with
@@ -231,42 +231,42 @@ $$
 \mathbb P\big(N_a(n) > u\big) \le \mathbb P\big(\exists s \in [n] : \hat m_{1,s} + w_1(s) \le m_1\big) + \mathbb P\big(\hat m_{a,u} + w_a(u) \ge m_1\big).
 $$
 
-By (1) and a union bound over $$s \in [n]$$, the first probability is at most $$n\delta(n) = 1/n$$; (1) applies because, on the reward table, $$\hat m_{1,s}$$ is an average of $$s$$ independent samples for each fixed $$s$$. For the second, using $$w_a(u) \le \Delta_a/2$$ and the upper tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) (this is where the rewards being 1-sub-Gaussian is used),
+By (1) and a union bound over $$s \in [n]$$, the first probability is at most $$n\delta(n) = 1/n$$; (1) applies because, on the reward table, $$\hat m_{1,s}$$ is an average of $$s$$ independent samples for each fixed $$s$$. For the second, using $$w_a(u) \le \Delta_a/2$$ and the upper tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) (this is where the rewards being $$\sigma$$-sub-Gaussian is used),
 
 $$
-\mathbb P\big(\hat m_{a,u} + w_a(u) \ge m_1\big) \le \mathbb P\Big(\hat m_{a,u} - m_a \ge \frac{\Delta_a}{2}\Big) \le e^{-u\Delta_a^2/8} \le \frac1{n^2}.
+\mathbb P\big(\hat m_{a,u} + w_a(u) \ge m_1\big) \le \mathbb P\Big(\hat m_{a,u} - m_a \ge \frac{\Delta_a}{2}\Big) \le e^{-u\Delta_a^2/(8\sigma^2)} \le \frac1{n^2}.
 $$
 
 Thus, since $$N_a(n) \le n$$,
 
 $$
-\mathbb E[N_a(n)] \le u + n\, \mathbb P\big(N_a(n) > u\big) \le \frac{16 \log n}{\Delta_a^2} + 1 + n\Big(\frac1n + \frac1{n^2}\Big) \le \frac{16 \log n}{\Delta_a^2} + 3.
+\mathbb E[N_a(n)] \le u + n\, \mathbb P\big(N_a(n) > u\big) \le \frac{16\sigma^2 \log n}{\Delta_a^2} + 1 + n\Big(\frac1n + \frac1{n^2}\Big) \le \frac{16\sigma^2 \log n}{\Delta_a^2} + 3.
 $$
 
 The regret bound follows from [Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6). $$\square$$
 
-**The proof as a test.** The proof splits into the two ways a test can go wrong. The first event is a false rejection of the true best arm: its bound drops below $$m_1$$ at some sample size, probability at most $$1/n$$. The second is a failure to reject arm $$a$$ after $$u$$ samples: its bound is still above $$m_1$$, probability at most $$1/n^2$$. Apart from these, arm $$a$$ is sampled at most $$u \approx 16 \log n/\Delta_a^2$$ times, which is the sample size [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) needs to reject "arm $$a$$ is best" at level $$1/n^2$$. So [UCB](#algorithm-2-5) runs one sequential test per arm, each stopping by itself once its arm is ruled out, without knowing $$\Delta_a$$.
+**The proof as a test.** The proof splits into the two ways a test can go wrong. The first event is a false rejection of the true best arm: its bound drops below $$m_1$$ at some sample size, probability at most $$1/n$$. The second is a failure to reject arm $$a$$ after $$u$$ samples: its bound is still above $$m_1$$, probability at most $$1/n^2$$. Apart from these, arm $$a$$ is sampled at most $$u \approx 16\sigma^2 \log n/\Delta_a^2$$ times, which is the sample size [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) needs to reject "arm $$a$$ is best" at level $$1/n^2$$. So [UCB](#algorithm-2-5) runs one sequential test per arm, each stopping by itself once its arm is ruled out, without knowing $$\Delta_a$$.
 
 **Remark 2.7.**
 {: #remark-2-7}
 
-1. **$$\Delta$$ is not used by the algorithm**, only by the analysis, and each arm is explored according to its own gap: $$16 \log n/\Delta_a^2$$ pulls, against $$4 \log n/\Delta_{\min}^2$$ for every arm in [ETC](#algorithm-2-3) ([Section 4](#4-what-is-wrong-with-etc)). This is the gain over ETC.
-2. **The constant 16 is loose.** We were wasteful in $$w_a(u) \le \Delta_a/2$$ and in $$\delta = 1/n^2$$. A more careful confidence level gives $$\limsup_n R_n/\log n \le \sum_{a : \Delta_a > 0} 2/\Delta_a$$ for Gaussian rewards (stated without proof; see Lattimore–Szepesvári, Chapter 8). Lecture 5 shows $$2/\Delta_a$$ cannot be beaten (Lai–Robbins).
+1. **$$\Delta$$ is not used by the algorithm**, only by the analysis, and each arm is explored according to its own gap: $$16\sigma^2 \log n/\Delta_a^2$$ pulls, against $$4\sigma^2 \log n/\Delta_{\min}^2$$ for every arm in [ETC](#algorithm-2-3) ([Section 4](#4-what-is-wrong-with-etc)). This is the gain over ETC.
+2. **The constant 16 is loose.** We were wasteful in $$w_a(u) \le \Delta_a/2$$ and in $$\delta = 1/n^2$$. A more careful confidence level gives $$\limsup_n R_n/\log n \le \sum_{a : \Delta_a > 0} 2\sigma^2/\Delta_a$$ for Gaussian rewards $$N(m_a, \sigma^2)$$ (stated without proof; see Lattimore–Szepesvári, Chapter 8). Lecture 5 shows $$2\sigma^2/\Delta_a$$ cannot be beaten (Lai–Robbins).
 3. **$$\delta$$ must shrink with $$n$$.** With a fixed $$\delta$$, the optimal arm is underestimated forever with positive probability, and regret is linear. $$\mathrm{UCB}(1/n^2)$$ needs to know $$n$$. Letting the confidence level depend on the round instead, roughly $$\delta_t = 1/t^2$$, gives a version that does not, with a bound of the same form (Lattimore–Szepesvári, Chapter 8).
-4. **Two kinds of guarantee.** The first bound in [Theorem 2.6](#theorem-2-6) is instance-dependent: fix $$\nu$$, then let $$n$$ grow. The "moreover" bound is worst-case: fix $$n$$, then take the supremum over $$\nu$$. The worst environment for horizon $$n$$ may depend on $$n$$ (here, gaps of order $$\sqrt{K \log n/n}$$), but each environment is an ordinary SBM, fixed for the whole run. The minimax regret over a class $$\mathcal E$$ of environments is $$R_n^*(\mathcal E) = \inf_\pi \sup_{\nu \in \mathcal E} R_n(\pi, \nu)$$; Lecture 4 shows $$R_n^* \ge c\sqrt{Kn}$$ for Gaussian arms, so the worst-case bound is optimal up to $$\sqrt{\log n}$$. [Exercise 2.2(b)](course-rl-2026-sheet-2.html#exercise-2-2) is a first example of choosing the environment after $$n$$.
+4. **Two kinds of guarantee.** The first bound in [Theorem 2.6](#theorem-2-6) is instance-dependent: fix $$\nu$$, then let $$n$$ grow. The "moreover" bound is worst-case: fix $$n$$, then take the supremum over $$\nu$$. The worst environment for horizon $$n$$ may depend on $$n$$ (here, gaps of order $$\sigma\sqrt{K \log n/n}$$), but each environment is an ordinary SBM, fixed for the whole run. The minimax regret over a class $$\mathcal E$$ of environments is $$R_n^*(\mathcal E) = \inf_\pi \sup_{\nu \in \mathcal E} R_n(\pi, \nu)$$; Lecture 4 shows $$R_n^* \ge c\,\sigma\sqrt{Kn}$$ for Gaussian arms $$N(m_a, \sigma^2)$$, so the worst-case bound is optimal up to $$\sqrt{\log n}$$. [Exercise 2.2(b)](course-rl-2026-sheet-2.html#exercise-2-2) is a first example of choosing the environment after $$n$$.
 
 **Try it: the confidence level.** Run [UCB](#algorithm-2-5) with $$\delta = n^{-c}$$ for a range of exponents $$c$$.
 
 {% include sim-ucb.html %}
 
-Two arms with rewards $$N(\Delta, 1)$$ and $$N(0, 1)$$, and [UCB](#algorithm-2-5) with $$\delta = n^{-c}$$, so the exploration bonus is $$\sqrt{2c \log n / N_a}$$; $$c = 0$$ is greedy. Every value of $$c$$ is run on the same reward tables ([Definition 2.2](#definition-2-2)), so within a run the points differ only through $$c$$. For small $$c$$ the better arm is sometimes underestimated for good, and the regret is large ([Remark 2.7](#remark-2-7)(3)); for large $$c$$, UCB explores more than it needs to. The choice $$c = 2$$ is what the proof of [Theorem 2.6](#theorem-2-6) needs for every gap at once. In a single environment a smaller $$c$$ often does better, and the bound of [Theorem 2.6](#theorem-2-6) lies far above the actual regret ([Remark 2.7](#remark-2-7)(2)).
+Two arms with rewards $$N(\Delta, 1)$$ and $$N(0, 1)$$, and [UCB](#algorithm-2-5) with $$\delta = n^{-c}$$, so with $$\sigma = 1$$ the exploration bonus is $$\sqrt{2c \log n / N_a}$$; $$c = 0$$ is greedy. Every value of $$c$$ is run on the same reward tables ([Definition 2.2](#definition-2-2)), so within a run the points differ only through $$c$$. For small $$c$$ the better arm is sometimes underestimated for good, and the regret is large ([Remark 2.7](#remark-2-7)(3)); for large $$c$$, UCB explores more than it needs to. The choice $$c = 2$$ is what the proof of [Theorem 2.6](#theorem-2-6) needs for every gap at once. In a single environment a smaller $$c$$ often does better, and the bound of [Theorem 2.6](#theorem-2-6) lies far above the actual regret ([Remark 2.7](#remark-2-7)(2)).
 {: .caption}
 
 **Try it: [ETC](#algorithm-2-3) against [UCB](#algorithm-2-5).** The regret at a fixed horizon, as the gap varies.
 
 {% include sim-etc-ucb.html %}
 
-Regret at horizon $$n$$ against the gap, for two arms with rewards $$N(\Delta, 1)$$ and $$N(0, 1)$$; both axes are logarithmic. The [ETC](#algorithm-2-3) curves are exact and the [UCB](#algorithm-2-5) curve is simulated. For tiny gaps every policy has regret of order $$n\Delta$$, because $$n$$ rounds are not enough to tell the arms apart. ETC with $$\ell = \lceil n^{2/3} \rceil$$ needs no knowledge of $$\Delta$$, but keeps paying about $$n^{2/3}\Delta$$ for exploring when the arms are easy to tell apart. ETC with the best $$\ell$$ for each gap can beat UCB, but only by knowing $$\Delta$$, and the choice $$\ell_{\min}$$ of [Theorem 2.4(b)](#theorem-2-4) can do worse than UCB. UCB adapts to the gap without knowing it; its regret is largest for gaps of order $$\sqrt{K \log n / n}$$ ([Remark 2.7](#remark-2-7)(4)).
+Regret at horizon $$n$$ against the gap, for two arms with rewards $$N(\Delta, 1)$$ and $$N(0, 1)$$; both axes are logarithmic. The [ETC](#algorithm-2-3) curves are exact and the [UCB](#algorithm-2-5) curve is simulated. For tiny gaps every policy has regret of order $$n\Delta$$, because $$n$$ rounds are not enough to tell the arms apart. ETC with $$\ell = \lceil n^{2/3} \rceil$$ needs no knowledge of $$\Delta$$, but keeps paying about $$n^{2/3}\Delta$$ for exploring when the arms are easy to tell apart. ETC with the best $$\ell$$ for each gap can beat UCB, but only by knowing $$\Delta$$, and the choice $$\ell_{\min}$$ of [Theorem 2.4(b)](#theorem-2-4) can do worse than UCB. UCB adapts to the gap without knowing it; its regret is largest for gaps of order $$\sigma\sqrt{K \log n / n}$$ ([Remark 2.7](#remark-2-7)(4)).
 {: .caption}
 
 ## 6. Next lecture
