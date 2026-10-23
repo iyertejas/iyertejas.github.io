@@ -45,7 +45,7 @@ $$
 \frac{b\, e^{\lambda a} - a\, e^{\lambda b}}{b - a} \le e^{\lambda^2 (b - a)^2 / 8}.
 $$
 
-*Hint:* fix $$a$$ and $$b$$, take logarithms, and show that the difference between the two sides is minimised at $$\lambda = 0$$.
+*Hint:* fix $$a$$ and $$b$$, and show that the difference between the two sides is minimised at $$\lambda = 0$$.
 
 (b) Hence prove Hoeffding's lemma: if $$X \in [a, b]$$ almost surely, with mean $$m$$, then $$X$$ is $$\frac{b-a}{2}$$-sub-Gaussian.
 
