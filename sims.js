@@ -1599,7 +1599,7 @@ function evidenceWidget(){
       `<tr><td>average score</td><td></td><td><b>${sg(a)}</b> = KL(<i>P</i> ‖ <i>Q</i>)</td><td><b>${sg(-b)}</b> = −KL(<i>Q</i> ‖ <i>P</i>)</td></tr>`;
     $("evLedgerNote").innerHTML = a < 1e-12
       ? "With <i>P</i> = <i>Q</i> every flip scores 0: no flip carries evidence, and KL(<i>P</i> ‖ <i>Q</i>) = 0."
-      : `Positive scores point to <i>P</i>, negative ones to <i>Q</i>. A flip of coin <i>P</i> scores ${p().toFixed(2)} × (${sg(sH())}) + ${(1 - p()).toFixed(2)} × (${sg(sT())}) = ${a.toFixed(3)} on average: this is KL(<i>P</i> ‖ <i>Q</i>), by Definition 3.1. A flip of coin <i>Q</i> scores −KL(<i>Q</i> ‖ <i>P</i>) = ${sg(-b)} on average.`;
+      : `For a coin, (<i>dP</i>/<i>dQ</i>)(<i>x</i>) is the probability of <i>x</i> under <i>P</i> divided by its probability under <i>Q</i>, so the score of a flip is the log of how much more likely it is under <i>P</i> than under <i>Q</i>. Positive scores point to <i>P</i>, negative ones to <i>Q</i>. A flip of coin <i>P</i> scores ${p().toFixed(2)} × (${sg(sH())}) + ${(1 - p()).toFixed(2)} × (${sg(sT())}) = ${a.toFixed(3)} on average: this is KL(<i>P</i> ‖ <i>Q</i>), by Definition 3.1. A flip of coin <i>Q</i> scores −KL(<i>Q</i> ‖ <i>P</i>) = ${sg(-b)} on average.`;
   }
 
   function newTest(keep){
@@ -1638,7 +1638,7 @@ function evidenceWidget(){
       dots:[{x:N, y:L, col:col(), r:4.5}] });
     legendL2("evWalkLegend", [
       {col:col(), w:2.5, label:`This test, flipping coin <i>${coin()}</i>`},
-      {col:col(), dash:"7 4", label:`Average path: <i>N</i> × ${coin() === "P" ? "" : "(−"}${klName()}${coin() === "P" ? "" : ")"}`},
+      {col:col(), dash:"7 4", label:`Mean of the total score if the test never stopped: E<sub>${coin()}</sub>[Λ<sub><i>N</i></sub>] = ${coin() === "P" ? "" : "−"}<i>N</i> × ${klName()}`},
       {col:"var(--ink)", w:1.2, dash:"2 3", label:`The levels ±log(1/δ) = ±${b.toFixed(2)}: decide <i>P</i> above, <i>Q</i> below`},
       ...(ghosts.length ? [{col:"var(--edge)", w:1, label:"Earlier tests"}] : [])
     ]);

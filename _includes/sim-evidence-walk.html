@@ -16,7 +16,7 @@
 <p class="rt-p" id="evLedgerNote"></p>
 
 <h3>One test, flip by flip</h3>
-<p class="rt-p">Flip the coin and add up the scores. Stop when the total reaches log(1/δ), and decide for <i>P</i>, or −log(1/δ), and decide for <i>Q</i>.</p>
+<p class="rt-p">Flip the chosen coin repeatedly, with results <i>X</i><sub>1</sub>, <i>X</i><sub>2</sub>, …, and write Λ<sub><i>N</i></sub> = log (<i>dP</i>/<i>dQ</i>)(<i>X</i><sub>1</sub>) + ⋯ + log (<i>dP</i>/<i>dQ</i>)(<i>X</i><sub><i>N</i></sub>) for the total score after <i>N</i> flips: the log of how much more likely these <i>N</i> flips are under <i>P</i> than under <i>Q</i>. Fix δ ∈ (0, 1), the probability of naming the wrong coin that we accept. The test flips until Λ<sub><i>N</i></sub> ≥ log(1/δ), then decides for <i>P</i>, or until Λ<sub><i>N</i></sub> ≤ −log(1/δ), then decides for <i>Q</i>.</p>
 <div class="controls rt-buttons">
 <div class="rt-field"><label for="evCoin">Flip coin</label>
 <select id="evCoin"><option value="P" selected>P</option><option value="Q">Q</option></select></div>
