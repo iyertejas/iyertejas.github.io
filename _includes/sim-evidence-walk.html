@@ -1,0 +1,39 @@
+<figure class="demo" id="ev-demo">
+<div class="controls">
+<div class="slider"><label for="evP">P(heads) for coin <i>P</i></label>
+<input type="range" id="evP" min="0.01" max="0.99" step="0.01" value="0.9"><output id="evPOut" for="evP">0.90</output></div>
+<div class="slider"><label for="evQ">P(heads) for coin <i>Q</i></label>
+<input type="range" id="evQ" min="0.01" max="0.99" step="0.01" value="0.99"><output id="evQOut" for="evQ">0.99</output></div>
+</div>
+
+<h3>The score of one flip</h3>
+<div class="rt-scroll">
+<table class="rt-table ev-ledger">
+<thead><tr><th scope="col">flip <i>x</i></th><th scope="col">score log (<i>dP</i>/<i>dQ</i>)(<i>x</i>)</th><th scope="col">probability under <i>P</i></th><th scope="col">probability under <i>Q</i></th></tr></thead>
+<tbody id="evLedger"></tbody>
+</table>
+</div>
+<p class="rt-p" id="evLedgerNote"></p>
+
+<h3>One test, flip by flip</h3>
+<p class="rt-p">Flip the coin and add up the scores. Stop when the total reaches log(1/δ), and decide for <i>P</i>, or −log(1/δ), and decide for <i>Q</i>.</p>
+<div class="controls rt-buttons">
+<div class="rt-field"><label for="evCoin">Flip coin</label>
+<select id="evCoin"><option value="P" selected>P</option><option value="Q">Q</option></select></div>
+<div class="rt-field"><label for="evDelta">δ</label>
+<select id="evDelta"><option value="1">10⁻¹</option><option value="2" selected>10⁻²</option><option value="3">10⁻³</option><option value="4">10⁻⁴</option></select></div>
+<button id="evStep" type="button">Flip</button>
+<button id="evPlay" type="button">Play</button>
+<button id="evNew" type="button">New test</button>
+</div>
+<div class="rt-cards" id="evFlips" aria-label="The most recent flips"></div>
+<svg class="l2-chart" id="evWalk" viewBox="0 0 680 300" role="img" aria-label="Total score against the number of flips, with the levels plus and minus log(1/delta)"></svg>
+<div class="l2-legend" id="evWalkLegend"></div>
+<p class="status" id="evStatus" aria-live="polite"></p>
+
+<h3>Many tests: how many flips does it take?</h3>
+<p class="rt-p">The same test, run 500 times for each δ = 10⁻¹, …, 10⁻⁶ with the coin chosen above.</p>
+<svg class="l2-chart" id="evMany" viewBox="0 0 680 280" role="img" aria-label="Average number of flips against log(1/delta)"></svg>
+<div class="l2-legend" id="evManyLegend"></div>
+<p class="status" id="evManyStatus" aria-live="polite"></p>
+</figure>

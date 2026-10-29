@@ -37,7 +37,7 @@ Please report any errors or unclear points, in the lecture or by email.
 
 (c) Compare with [Theorem 2.4(b)](course-rl-2026-lecture-2.html#theorem-2-4). For Gaussian $$\mu$$, $$\sigma$$ is both the standard deviation and the sub-Gaussian constant. Which part of $$\ell_{\min} = \lceil (4\sigma^2/\Delta^2) \log n \rceil$$ is forced by the fluctuations of the samples, and which part buys the small error probability $$1/n$$?
 
-**Exercise 2.4 (greedy and ε-greedy).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#2-policy-functions-and-the-reward-table">Lecture 2, Section 2</a>; <a href="course-rl-2026-lecture-2.html#4-what-is-wrong-with-etc">Lecture 2, Section 4</a></span> The *greedy* policy plays each arm once and then always plays an arm with the largest empirical mean.
+**Exercise 2.4 (greedy and ε-greedy).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#2-policy-functions-and-the-reward-table">Lecture 2, Section 2</a>; <a href="course-rl-2026-lecture-2.html#4-what-is-wrong-with-etc">Lecture 2, Section 4</a>; <a href="course-rl-2026-lecture-3.html#1-recap">Lecture 3, Section 1</a></span> The *greedy* policy plays each arm once and then always plays an arm with the largest empirical mean.
 {: #exercise-2-4}
 
 (a) Take a 2-armed SBM with rewards in $$\{0, 1\}$$ and $$m_1 > m_2$$, so $$\Delta = m_1 - m_2$$. Show that if arm 1 first pays 0 and arm 2 first pays 1, then arm 1 is never played again. Deduce that $$R_n(\mathrm{greedy}) \ge (1 - m_1)\, m_2\, (n - 1)\, \Delta$$, which is linear in $$n$$. For $$m_1 = 0.6$$ and $$m_2 = 0.5$$, how likely does this make it that greedy abandons the better arm for good?

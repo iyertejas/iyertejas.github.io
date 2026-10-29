@@ -22,6 +22,7 @@ The exercises are not graded, but I recommend working on them with pen and paper
 
 - **Lecture 1** (13 October). [Stochastic bandits and concentration](course-rl-2026-lecture-1.html) <span class="tag">interactive</span>, with [Exercise Sheet 1](course-rl-2026-sheet-1.html).
 - **Lecture 2** (20 October). [Explore-then-commit and UCB](course-rl-2026-lecture-2.html) <span class="tag">interactive</span>, with [Exercise Sheet 2](course-rl-2026-sheet-2.html).
+- **Lecture 3** (27 October). [Relative entropy and lower bounds](course-rl-2026-lecture-3.html) <span class="tag">interactive</span>.
 
 All numbered definitions and results, with one-line statements: [Results so far](course-rl-2026-results.html).
 
@@ -111,4 +112,4 @@ Two arms succeed with probabilities ½ + Δ/2 and ½ − Δ/2; the better arm is
 The course will draw substantially on:
 
 - L. Döring et al., *The Mathematics of Reinforcement Learning*.
-- T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020. Freely available [online](https://tor-lattimore.com/downloads/book/book.pdf). Chapters 4 and 5 cover the first lecture, Chapters 6 and 7 the second.
+- T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020. Freely available [online](https://tor-lattimore.com/downloads/book/book.pdf). Chapters 4 and 5 cover the first lecture, Chapters 6 and 7 the second, Chapters 14 to 16 the third.

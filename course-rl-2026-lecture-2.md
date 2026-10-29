@@ -251,7 +251,7 @@ The regret bound follows from [Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-
 {: #remark-2-7}
 
 1. **$$\Delta$$ is not used by the algorithm**, only by the analysis, and each arm is explored according to its own gap: $$16\sigma^2 \log n/\Delta_a^2$$ pulls, against $$4\sigma^2 \log n/\Delta_{\min}^2$$ for every arm in [ETC](#algorithm-2-3) ([Section 4](#4-what-is-wrong-with-etc)). This is the gain over ETC.
-2. **The constant 16 is loose.** We were wasteful in $$w_a(u) \le \Delta_a/2$$ and in $$\delta = 1/n^2$$. A more careful confidence level gives $$\limsup_n R_n/\log n \le \sum_{a : \Delta_a > 0} 2\sigma^2/\Delta_a$$ for Gaussian rewards $$N(m_a, \sigma^2)$$ (stated without proof; see Lattimore–Szepesvári, Chapter 8). Lecture 5 shows $$2\sigma^2/\Delta_a$$ cannot be beaten (Lai–Robbins).
+2. **The constant 16 is loose.** We were wasteful in $$w_a(u) \le \Delta_a/2$$ and in $$\delta = 1/n^2$$. A more careful confidence level gives $$\limsup_n R_n/\log n \le \sum_{a : \Delta_a > 0} 2\sigma^2/\Delta_a$$ for Gaussian rewards $$N(m_a, \sigma^2)$$ (stated without proof; see Lattimore–Szepesvári, Chapter 8). By the Lai–Robbins theorem, stated in [Lecture 3](course-rl-2026-lecture-3.html) and proved in Lecture 4, $$2\sigma^2/\Delta_a$$ cannot be beaten.
 3. **$$\delta$$ must shrink with $$n$$.** With a fixed $$\delta$$, the optimal arm is underestimated forever with positive probability, and regret is linear. $$\mathrm{UCB}(1/n^2)$$ needs to know $$n$$. Letting the confidence level depend on the round instead, roughly $$\delta_t = 1/t^2$$, gives a version that does not, with a bound of the same form (Lattimore–Szepesvári, Chapter 8).
 4. **Two kinds of guarantee.** The first bound in [Theorem 2.6](#theorem-2-6) is instance-dependent: fix $$\nu$$, then let $$n$$ grow. The "moreover" bound is worst-case: fix $$n$$, then take the supremum over $$\nu$$. The worst environment for horizon $$n$$ may depend on $$n$$ (here, gaps of order $$\sigma\sqrt{K \log n/n}$$), but each environment is an ordinary SBM, fixed for the whole run. The minimax regret over a class $$\mathcal E$$ of environments is $$R_n^*(\mathcal E) = \inf_\pi \sup_{\nu \in \mathcal E} R_n(\pi, \nu)$$; Lecture 4 shows $$R_n^* \ge c\,\sigma\sqrt{Kn}$$ for Gaussian arms $$N(m_a, \sigma^2)$$, so the worst-case bound is optimal up to $$\sqrt{\log n}$$. [Exercise 2.2(b)](course-rl-2026-sheet-2.html#exercise-2-2) is a first example of choosing the environment after $$n$$.
 
@@ -271,7 +271,7 @@ Regret at horizon $$n$$ against the gap, for two arms with rewards $$N(\Delta, 1
 
 ## 6. Next lecture
 
-[UCB](#algorithm-2-5) is deterministic, and explores by computing confidence bounds. Next time we explore by randomising instead: each arm is played with the probability that it is the best, given what has been seen so far.
+[UCB](#algorithm-2-5) pulls each suboptimal arm about $$\sigma^2 \log n/\Delta_a^2$$ times. Next time we ask whether any policy can do better, using relative entropy to measure how hard it is to tell two environments apart.
 
 ## Check yourself
 
@@ -283,4 +283,4 @@ Six true-or-false questions on this lecture. Decide, then click to see the reaso
 
 T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020, freely available [online](https://tor-lattimore.com/downloads/book/book.pdf): Chapter 6 (explore-then-commit), Section 4.6 (the reward table, there called the stack of rewards), Chapter 7 (UCB; [Theorem 2.6](#theorem-2-6) is their Theorem 7.1, the worst-case bound their Theorem 7.2).
 
-<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-1.html">← Lecture 1</a><a href="course-rl-2026-sheet-2.html">Exercise Sheet 2</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
+<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-1.html">← Lecture 1</a><a href="course-rl-2026-sheet-2.html">Exercise Sheet 2</a><a href="course-rl-2026-lecture-3.html">Lecture 3 →</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>

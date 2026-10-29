@@ -1577,6 +1577,136 @@ function runWidget(P, mode){
 }
 const etcRunWidget = () => runWidget("er", "etc"), ucbRunWidget = () => runWidget("ur", "ucb");
 
+// Lecture 3: the log-likelihood ratio of coin flips drifts at rate KL, and a sequential test with error δ
+// needs about log(1/δ)/KL flips. Coin P lands heads with probability p, coin Q with probability q.
+function evidenceWidget(){
+  const KS = [1, 2, 3, 4, 5, 6], RUNS = 500, XMAX_MANY = 14.5;
+  const p = () => +$("evP").value, q = () => +$("evQ").value, coin = () => $("evCoin").value;
+  const level = () => +$("evDelta").value * Math.LN10;
+  const sH = () => Math.log(p()/q()), sT = () => Math.log((1 - p())/(1 - q()));
+  const kl = (a, b) => a*Math.log(a/b) + (1 - a)*Math.log((1 - a)/(1 - b));
+  const drift = () => coin() === "P" ? kl(p(), q()) : -kl(q(), p());      // average score of one flip of the chosen coin
+  const col = () => coin() === "P" ? "var(--c4)" : "var(--c1)";
+  const klName = () => coin() === "P" ? "KL(<i>P</i> ‖ <i>Q</i>)" : "KL(<i>Q</i> ‖ <i>P</i>)";
+  const sg = x => (x >= 0 ? "+" : "−") + Math.abs(x).toFixed(3);
+  let r = rngL2(seedL2()), test = null, ghosts = [], timer = null, many = null, job = 0;
+
+  function ledger(){
+    const a = kl(p(), q()), b = kl(q(), p());
+    $("evLedger").innerHTML =
+      `<tr><td>heads</td><td>${sg(sH())}</td><td>${p().toFixed(2)}</td><td>${q().toFixed(2)}</td></tr>` +
+      `<tr><td>tails</td><td>${sg(sT())}</td><td>${(1 - p()).toFixed(2)}</td><td>${(1 - q()).toFixed(2)}</td></tr>` +
+      `<tr><td>average score</td><td></td><td><b>${sg(a)}</b> = KL(<i>P</i> ‖ <i>Q</i>)</td><td><b>${sg(-b)}</b> = −KL(<i>Q</i> ‖ <i>P</i>)</td></tr>`;
+    $("evLedgerNote").innerHTML = a < 1e-12
+      ? "With <i>P</i> = <i>Q</i> every flip scores 0: no flip carries evidence, and KL(<i>P</i> ‖ <i>Q</i>) = 0."
+      : `Positive scores point to <i>P</i>, negative ones to <i>Q</i>. A flip of coin <i>P</i> scores ${p().toFixed(2)} × (${sg(sH())}) + ${(1 - p()).toFixed(2)} × (${sg(sT())}) = ${a.toFixed(3)} on average: this is KL(<i>P</i> ‖ <i>Q</i>), by Definition 3.1. A flip of coin <i>Q</i> scores −KL(<i>Q</i> ‖ <i>P</i>) = ${sg(-b)} on average.`;
+  }
+
+  function newTest(keep){
+    stop();
+    if (keep && test && test.path.length > 1){ ghosts.unshift(test.path); ghosts = ghosts.slice(0, 8); }
+    test = { path:[0], flips:[], done:null };
+  }
+  function flip(){
+    if (test.done) return;
+    const heads = r() < (coin() === "P" ? p() : q()), s = heads ? sH() : sT();
+    const L = test.path[test.path.length - 1] + s, b = level();
+    test.path.push(L); test.flips.push(heads);
+    if (L >= b) test.done = "P"; else if (L <= -b) test.done = "Q"; else if (test.path.length > 20000) test.done = "cap";
+    if (test.done) stop();
+  }
+  function stop(){ if (timer){ clearInterval(timer); timer = null; } $("evPlay").textContent = "Play"; }
+
+  function drawWalk(){
+    const b = level(), d = drift(), N = test.path.length - 1, L = test.path[N];
+    $("evStep").disabled = !!test.done;
+    const last = test.flips.slice(-24);
+    $("evFlips").innerHTML = last.map((h, i) => `<span class="rt-card turned${h ? "" : " one"}${i === last.length - 1 ? " fresh" : ""}" style="--sw:${col()}"><span>${h ? "H" : "T"}</span></span>`).join("")
+      || `<span class="rt-empty">Press Flip to flip the coin.</span>`;
+    let xmax = Math.max(20, Math.ceil(1.6*b/Math.max(Math.abs(d), 1e-9)), N + 2);
+    for (const g of ghosts) xmax = Math.max(xmax, g.length + 2);
+    xmax = Math.min(xmax, 20000);
+    let hi = 1.3*b, lo = -1.3*b;
+    for (const path of [test.path, ...ghosts]) for (const v of path){ if (v > hi) hi = v; if (v < lo) lo = v; }
+    const path = pts => pts.map((v, n) => [n, v]);
+    plotL2("evWalk", { x:{min:0, max:xmax, label:"N, the number of flips"},
+      y:{min:lo, max:hi, label:`total score Λ<tspan font-size="9" dy="3">N</tspan>`},
+      lines:[...ghosts.map(g => ({pts:path(g), col:"var(--edge)", w:1})),
+        {pts:[[0, b], [xmax, b]], col:"var(--ink)", w:1.2, dash:"2 3"}, {pts:[[0, -b], [xmax, -b]], col:"var(--ink)", w:1.2, dash:"2 3"},
+        {pts:[[0, 0], [xmax, d*xmax]], col:col(), w:1.8, dash:"7 4"},
+        {pts:path(test.path), col:col(), w:2.5}],
+      dots:[{x:N, y:L, col:col(), r:4.5}] });
+    legendL2("evWalkLegend", [
+      {col:col(), w:2.5, label:`This test, flipping coin <i>${coin()}</i>`},
+      {col:col(), dash:"7 4", label:`Average path: <i>N</i> × ${coin() === "P" ? "" : "(−"}${klName()}${coin() === "P" ? "" : ")"}`},
+      {col:"var(--ink)", w:1.2, dash:"2 3", label:`The levels ±log(1/δ) = ±${b.toFixed(2)}: decide <i>P</i> above, <i>Q</i> below`},
+      ...(ghosts.length ? [{col:"var(--edge)", w:1, label:"Earlier tests"}] : [])
+    ]);
+    if (Math.abs(d) < 1e-12){ $("evStatus").textContent = "With P = Q every score is 0 and the test never ends."; return; }
+    let s = `On average the total moves by ${klName()} = ${Math.abs(d).toFixed(3)} per flip, so it should reach the level after about ${b.toFixed(2)} / ${Math.abs(d).toFixed(3)} ≈ <b>${fmtL2(b/Math.abs(d))} flips</b>. `;
+    if (test.done === "P" || test.done === "Q")
+      s += `This test decided for <i>${test.done}</i> after <b>${N} flips</b>${test.done === coin() ? "" : ", the wrong coin, which happens with probability at most δ"}. Press New test for another; earlier tests stay in grey.`;
+    else if (N > 0)
+      s += `After ${N} flips the total is ${sg(L)}, an average of ${sg(L/N)} per flip; by the law of large numbers this average tends to ${coin() === "P" ? "" : "−"}${klName()}.`;
+    $("evStatus").innerHTML = s;
+  }
+
+  function runMany(){
+    const my = ++job, d = drift(), a = Math.abs(d);
+    if (a < 1e-3){ many = null; $("evMany").innerHTML = ""; $("evManyLegend").innerHTML = "";
+      $("evManyStatus").textContent = "The two coins are too similar for the test to finish in reasonable time. Move the two probabilities further apart."; return; }
+    const h = sH(), t = sT(), ph = coin() === "P" ? p() : q(), rr = rngL2(seedL2());
+    $("evManyStatus").textContent = "Simulating…";
+    setTimeout(() => {
+      if (my !== job) return;
+      const pts = KS.map(k => {
+        const b = k*Math.LN10, cap = Math.ceil(60*b/a + 200); let total = 0;
+        for (let i = 0; i < RUNS; i++){
+          let L = 0, n = 0;
+          while (n < cap){ L += rr() < ph ? h : t; n++; if (L >= b || L <= -b) break; }
+          total += n;
+        }
+        return { k, b, avg: total/RUNS };
+      });
+      many = { pts, a, c: col(), name: klName(), coin: coin() };
+      drawMany();
+    }, 20);
+  }
+  function drawMany(){
+    if (!many) return;
+    const { pts, a } = many, ymax = 1.1*Math.max(...pts.map(x => Math.max(x.avg, x.b/a)));
+    const xe = Math.min(XMAX_MANY, ymax*a);
+    plotL2("evMany", { height:280, x:{min:0, max:XMAX_MANY, label:"log(1/δ)"}, y:{min:0, max:ymax, label:"average number of flips"},
+      lines:[{pts:[[0, 0], [xe, xe/a]], col:many.c, w:1.8, dash:"7 4"}],
+      dots:pts.map(x => ({x:x.b, y:x.avg, col:many.c, r:5})) });
+    legendL2("evManyLegend", [
+      {col:many.c, dot:true, label:`Average over ${RUNS} tests flipping coin <i>${many.coin}</i>, for δ = 10⁻¹, …, 10⁻⁶`},
+      {col:many.c, dash:"7 4", label:`log(1/δ) / ${many.name}`}
+    ]);
+    $("evManyStatus").innerHTML = `The points lie on a line of slope 1 / ${many.name} ≈ ${fmtL2(1/a)}, slightly above it because the total overshoots the level on its last flip. `
+      + `Each factor of 10 in δ costs the same number of extra flips, log 10 / ${many.name} ≈ <b>${fmtL2(Math.LN10/a)}</b>. With δ = 1/<i>n</i>, the test needs about (log <i>n</i>) / ${many.name} flips.`;
+  }
+
+  function fresh(){ newTest(false); for (let i = 0; i < 10; i++) flip(); drawWalk(); }
+  function coinsChanged(){ ghosts = []; ledger(); fresh(); runMany(); }
+  bindSlider("evP", 2, null, coinsChanged);
+  bindSlider("evQ", 2, null, coinsChanged);
+  $("evCoin").addEventListener("change", () => { ghosts = []; fresh(); runMany(); });
+  $("evDelta").addEventListener("change", () => { ghosts = []; fresh(); });
+  $("evStep").addEventListener("click", () => { stop(); flip(); drawWalk(); });
+  $("evNew").addEventListener("click", () => { newTest(true); drawWalk(); });
+  $("evPlay").addEventListener("click", () => {
+    if (timer){ stop(); return; }
+    if (test.done) newTest(true);
+    $("evPlay").textContent = "Pause";
+    const tick = () => { flip(); drawWalk(); };
+    tick(); timer = setInterval(tick, reduced ? 400 : 140);
+  });
+  ledger(); newTest(false);
+  let started = false;
+  return { start(){ if (!started){ started = true; fresh(); runMany(); } }, redraw(){ if (started){ drawWalk(); drawMany(); } } };
+}
+
 /* ---------- self-check questions: pick an answer, see the reasoning ---------- */
 function initQuizzes(){
   document.querySelectorAll(".quiz .q").forEach(q => {
@@ -1593,7 +1723,7 @@ initQuizzes();
 /* ---------- boot ---------- */
 const widgets = {};
 const defs = [["phase-demo", phaseWidget], ["self-demo", selfWidget], ["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],
-              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget], ["etcrun-demo", etcRunWidget], ["ucbrun-demo", ucbRunWidget]];
+              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget], ["etcrun-demo", etcRunWidget], ["ucbrun-demo", ucbRunWidget], ["ev-demo", evidenceWidget]];
 function boot(){
   // Build each widget independently, so one failure cannot stop the others.
   for (const [id, mk] of defs) if ($(id)) { try { widgets[id] = mk(); } catch (e) { console.error("simulation " + id + " failed to load", e); } }
