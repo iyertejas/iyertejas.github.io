@@ -193,7 +193,7 @@ $$
 d_a = d_a(\nu, \mathcal M) = \inf\big\{ \mathrm{KL}(\mu_a \,\Vert\, \mu') : \mu' \in \mathcal M,\ \mathrm{mean}(\mu') > m^* \big\} \in [0, \infty], \qquad \inf \emptyset = \infty.
 $$
 
-In words, $$d_a$$ is the least information per pull of arm $$a$$ that separates its true distribution $$\mu_a$$ from a distribution in $$\mathcal M$$ under which arm $$a$$ would be the best arm. In an unstructured class, changing one arm of an environment to another distribution in $$\mathcal M$$ gives another environment in the class.
+Here $$\mathrm{mean}(\mu') = \int x\, \mu'(dx)$$. In words, $$d_a$$ is the least information per pull of arm $$a$$ that separates its true distribution $$\mu_a$$ from a distribution in $$\mathcal M$$ under which arm $$a$$ would be the best arm. In an unstructured class, changing one arm of an environment to another distribution in $$\mathcal M$$ gives another environment in the class.
 
 **Theorem 3.10 (Lai–Robbins, 1985).** Let $$\mathcal E = \mathcal M^K$$ be an unstructured class and $$\pi$$ a policy that is consistent over $$\mathcal E$$. Then for every $$\nu \in \mathcal E$$ and every arm $$a$$ with $$\Delta_a > 0$$,
 {: #theorem-3-10}
