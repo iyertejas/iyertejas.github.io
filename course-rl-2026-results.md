@@ -50,4 +50,4 @@ Every numbered definition, algorithm and result from the lecture notes, in one l
 - [Definition 3.9](course-rl-2026-lecture-3.html#definition-3-9) (unstructured classes). $$\mathcal E = \mathcal M^K$$, and $$d_a = \inf\{\mathrm{KL}(\mu_a \,\Vert\, \mu') : \mu' \in \mathcal M,\ \mathrm{mean}(\mu') > m^*\}$$.
 - [Theorem 3.10](course-rl-2026-lecture-3.html#theorem-3-10) (Lai–Robbins). For consistent policies over $$\mathcal M^K$$, $$\liminf_n \mathbb E_\nu[N_a(n)]/\log n \ge 1/d_a$$, so $$\liminf_n R_n/\log n \ge \sum_{a : \Delta_a > 0} \Delta_a/d_a$$. Proved in Lecture 4.
 - [Corollary 3.11](course-rl-2026-lecture-3.html#corollary-3-11) (Gaussian arms). For $$N(m, \sigma^2)$$ arms, $$d_a = \Delta_a^2/(2\sigma^2)$$, so $$\liminf_n R_n/\log n \ge \sum_{a : \Delta_a > 0} 2\sigma^2/\Delta_a$$.
-- [Remark 3.12](course-rl-2026-lecture-3.html#remark-3-12). The heuristic constant $$2\sigma^2/\Delta_a$$ is sharp; the order in KL matters; unstructured classes matter.
+- [Remark 3.12](course-rl-2026-lecture-3.html#remark-3-12). The constant $$2\sigma^2/\Delta_a$$ is sharp; the order in KL matters; unstructured classes matter.

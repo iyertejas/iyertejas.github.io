@@ -17,43 +17,7 @@ These notes cover the third lecture. The proof of the Lai–Robbins theorem ([Th
 Please report any errors or unclear points, in the lecture or by email.
 {: .note}
 
-## 1. Recap
-
-**Reward table.** [Lecture 2](course-rl-2026-lecture-2.html) gave another construction of the $$K$$-armed SBM ([Definition 2.2](course-rl-2026-lecture-2.html#definition-2-2)). Take the policy functions $$f_t : ([K] \times \mathbb R)^{t-1} \times [0, 1] \to [K]$$ of a policy $$\pi$$ ([Definition 2.1](course-rl-2026-lecture-2.html#definition-2-1)), independent rewards $$(Y_{a,s})_{a \in [K],\, s \in \mathbb N}$$ with $$Y_{a,s} \sim \mu_a$$, and i.i.d. uniforms $$(U_t)_{t \in \mathbb N}$$, independent of the $$Y$$'s. Setting $$A_t = f_t(H_{t-1}, U_t)$$ gives $$\mathbb P(A_t = a \mid H_{t-1}) = \pi_t(a, H_{t-1})$$, and the $$s$$-th pull of arm $$a$$ pays $$Y_{a,s}$$. All the randomness can be sampled before the first round.
-
-We met three policies, all of which work with the empirical means $$\hat m_{a,s}$$ of the first $$s$$ rewards of arm $$a$$.
-
-- **Explore-then-commit** ([Algorithm 2.3](course-rl-2026-lecture-2.html#algorithm-2-3)) plays each arm $$\ell$$ times, then commits to an arm with the largest empirical mean. With $$\ell$$ of order $$\sigma^2(\log n)/\Delta_{\min}^2$$ its regret is of order $$\log n$$ ([Theorem 2.4](course-rl-2026-lecture-2.html#theorem-2-4)), but choosing $$\ell$$ requires knowing the gaps.
-- **Greedy** always plays an arm with the largest empirical mean so far. Unlucky early rewards can make it fixate on a bad arm, so its regret can be linear ([Exercise 2.4](course-rl-2026-sheet-2.html#exercise-2-4)).
-- **UCB** ([Algorithm 2.5](course-rl-2026-lecture-2.html#algorithm-2-5)) plays an arm with the largest index $$\mathrm{UCB}_a(t-1)$$, the empirical mean plus a bonus for the uncertainty due to few samples. For $$t > K$$ we have $$1 \le N_a(t-1) \le t-1$$, so bound (1) of Lecture 2 and a union bound over the possible values of $$N_a(t-1)$$ give
-
-$$
-\mathbb P\big(\mathrm{UCB}_a(t-1) > m_a\big) \ge 1 - (t-1)\,\delta(n).
-$$
-
-So the index is optimistic with high probability, and this is what corrects greedy's mistakes: an arm whose early rewards were unlucky keeps a large index until it is sampled again.
-
-## 2. How much exploration is necessary?
-
-We repeat the heuristic of [Lecture 2, Section 1](course-rl-2026-lecture-2.html#1-how-much-regret-to-expect), now keeping track of the constant, since this lecture is about whether it is sharp. As in Lecture 2, rewards are $$\sigma$$-sub-Gaussian.
-
-Whatever the strategy, the policy ends up playing some arm about $$n$$ times, so it should be wrong about which arm is best with probability at most about $$1/n$$. Suppose arm $$a$$ has been pulled $$s$$ times, and that even the best mean $$m^*$$ is known. The policy mistakes arm $$a$$ for a best arm if $$\hat m_{a,s} \ge m^*$$, and by [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10),
-
-$$
-\mathbb P\big(\hat m_{a,s} \ge m^*\big) = \mathbb P\big(\hat m_{a,s} - m_a \ge \Delta_a\big) \le e^{-s\Delta_a^2/(2\sigma^2)}.
-$$
-
-This is at most $$1/n$$ once $$s \ge 2\sigma^2(\log n)/\Delta_a^2$$. Each of these $$s$$ pulls costs $$\Delta_a$$, so we expect
-
-$$
-R_n \approx \sum_{a:\, \Delta_a > 0} \frac{2\sigma^2 \log n}{\Delta_a}.
-$$
-
-**Remark.** The exponent is $$s\Delta_a^2/(2\sigma^2)$$, not $$s\Delta_a^2/(4\sigma^2)$$ as in the proof of [Theorem 2.4](course-rl-2026-lecture-2.html#theorem-2-4). There, [explore-then-commit](course-rl-2026-lecture-2.html#algorithm-2-3) compares two empirical means, whose difference is $$\sqrt 2\sigma$$-sub-Gaussian; here only arm $$a$$'s mean is estimated.
-
-The heuristic only shows that about $$2\sigma^2(\log n)/\Delta_a^2$$ samples *suffice* to make the error small. A lower bound must show that fewer samples *cannot* work, for any policy. That needs a way to measure how hard it is to tell two reward distributions apart, which is what relative entropy does. For Gaussian rewards the answer will be exactly the heuristic one, constant included ([Corollary 3.11](#corollary-3-11)).
-
-## 3. Relative entropy
+## 1. Relative entropy
 
 **Recall (Radon–Nikodym).** Let $$P$$ and $$Q$$ be $$\sigma$$-finite measures on a measurable space $$(\Omega, \mathcal F)$$. $$P$$ is *absolutely continuous* with respect to $$Q$$, written $$P \ll Q$$, if $$Q(B) = 0$$ implies $$P(B) = 0$$ for every $$B \in \mathcal F$$. By the Radon–Nikodym theorem, if $$P \ll Q$$ there is a measurable function $$dP/dQ : \Omega \to [0, \infty)$$, the *Radon–Nikodym derivative*, with
 
@@ -121,7 +85,7 @@ In (a), the divergence blows up as $$\sigma_P \to 0$$: a very concentrated $$P$$
 A coin is flipped and each flip $$x$$ is scored by $$\log (dP/dQ)(x)$$, the log of how much more likely it is under coin $$P$$ than under coin $$Q$$. The table shows that the average score of a flip of coin $$P$$ is exactly $$\mathrm{KL}(P \,\Vert\, Q)$$. So the total score $$\Lambda_N$$ after $$N$$ flips grows like $$N\, \mathrm{KL}(P \,\Vert\, Q)$$, by the law of large numbers, and reaches $$\log(1/\delta)$$ after about $$\log(1/\delta)/\mathrm{KL}(P \,\Vert\, Q)$$ flips. Flipping coin $$Q$$ instead, the total falls at rate $$\mathrm{KL}(Q \,\Vert\, P)$$, which is usually a different number. The test that stops at $$\pm\log(1/\delta)$$ names the wrong coin with probability at most $$\delta$$: under $$Q$$, $$e^{\Lambda_N}$$ is a nonnegative martingale with mean 1, so it reaches $$1/\delta$$ with probability at most $$\delta$$.
 {: .caption}
 
-## 4. The Bretagnolle–Huber inequality
+## 2. The Bretagnolle–Huber inequality
 
 A lower bound needs the following: if two laws are close in KL, then no event can be likely under one and unlikely under the other.
 
@@ -154,7 +118,7 @@ Combining the three displays, $$P(A) + Q(A^c) \ge \mathbb E_Q[L \wedge 1] \ge \f
 
 **Reading it.** Think of $$A$$ as the event "decide for $$Q$$", so that $$P(A)$$ and $$Q(A^c)$$ are the two errors of a test of $$P$$ against $$Q$$. If both are at most $$\delta$$, then $$\mathrm{KL}(P \,\Vert\, Q) \ge \log(1/(4\delta))$$. So making both errors of order $$1/n$$ needs information of order $$\log n$$; the simulation above shows that a simple test gets by with about that much. Nothing here requires independent data or a fixed sample size: $$A$$ can be any event about the history of a bandit run.
 
-## 5. Likelihoods of bandit histories
+## 3. Likelihoods of bandit histories
 
 Fix a policy $$\pi$$, a horizon $$n$$ and two $$K$$-armed SBMs, with environments $$\nu = (\mu_a)_{a \in [K]}$$ and $$\nu' = (\mu'_a)_{a \in [K]}$$, such that $$\mu_a \ll \mu'_a$$ for every arm $$a$$. Write $$\mathbb P_\nu$$ and $$\mathbb P_{\nu'}$$ for the laws of the history $$H_n \in ([K] \times \mathbb R)^n$$ when $$\pi$$ is run in $$\nu$$ and in $$\nu'$$, and $$\mathbb E_\nu$$, $$\mathbb E_{\nu'}$$ for the expectations.
 
@@ -206,7 +170,7 @@ $$
 
 Compare the regret decomposition ([Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6)): the same argument, with $$\Delta_a$$ replaced by $$\mathrm{KL}(\mu_a \,\Vert\, \mu'_a)$$. Evidence about $$\nu$$ against $$\nu'$$ accumulates only on pulls of arms where the two environments differ, at rate $$\mathrm{KL}(\mu_a \,\Vert\, \mu'_a)$$ per pull. In particular, if $$\nu'$$ changes a single arm $$a$$, then $$\mathrm{KL}(\mathbb P_\nu \,\Vert\, \mathbb P_{\nu'}) = \mathbb E_\nu[N_a(n)]\, \mathrm{KL}(\mu_a \,\Vert\, \mu'_a)$$: a policy that rarely pulls arm $$a$$ cannot notice the change.
 
-## 6. Consistency and the Lai–Robbins theorem
+## 4. Consistency and the Lai–Robbins theorem
 
 For a fixed environment $$\nu$$, can we hope for a lower bound of the form "every policy has $$R_n \ge c \log n$$"? No: the policy that always plays an optimal arm of $$\nu$$ has zero regret in $$\nu$$. A lower bound for a single environment must exclude policies that are good there only by luck. We do this by asking the policy to be reasonable on a whole class of environments.
 
@@ -256,11 +220,11 @@ $$
 **Remark 3.12.**
 {: #remark-3-12}
 
-1. **The heuristic was right.** [Section 2](#2-how-much-exploration-is-necessary) suggested $$2\sigma^2(\log n)/\Delta_a^2$$ pulls of arm $$a$$, and [Corollary 3.11](#corollary-3-11) shows no consistent policy can do better. [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) with a more careful confidence level attains $$\limsup_n R_n/\log n \le \sum_{a : \Delta_a > 0} 2\sigma^2/\Delta_a$$ for Gaussian rewards ([Remark 2.7](course-rl-2026-lecture-2.html#remark-2-7)(2)). So $$2\sigma^2/\Delta_a$$ is exactly the right constant, and the 16 in [Theorem 2.6](course-rl-2026-lecture-2.html#theorem-2-6) is the price of our choices in its proof.
+1. **The constant is sharp.** [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) with a more careful confidence level attains $$\limsup_n R_n/\log n \le \sum_{a : \Delta_a > 0} 2\sigma^2/\Delta_a$$ for Gaussian rewards ([Remark 2.7](course-rl-2026-lecture-2.html#remark-2-7)(2)). So, by [Corollary 3.11](#corollary-3-11), $$2\sigma^2/\Delta_a$$ is exactly the right constant, and the 16 in [Theorem 2.6](course-rl-2026-lecture-2.html#theorem-2-6) is the price of our choices in its proof.
 2. **The order in KL matters.** The true distribution $$\mu_a$$ comes first in $$d_a$$. For Bernoulli arms one can show that $$d_a = \mathrm{kl}(m_a, m^*)$$, where $$\mathrm{kl}(x, y) = \mathrm{KL}(\mathrm{Ber}(x) \,\Vert\, \mathrm{Ber}(y))$$, and this differs from $$\mathrm{kl}(m^*, m_a)$$ in general.
 3. **Unstructured classes matter.** If the arms are coupled, the class is not unstructured, and [Theorem 3.10](#theorem-3-10) need not apply. Conversely, if $$\mathcal M$$ is too rich, $$d_a$$ can be 0, and then no consistent policy has logarithmic regret.
 
-## 7. Next lecture
+## 5. Next lecture
 
 Lecture 4 starts with a short recap and the proof of [Theorem 3.10](#theorem-3-10). The same two tools, the divergence decomposition ([Lemma 3.6](#lemma-3-6)) and Bretagnolle–Huber ([Theorem 3.4](#theorem-3-4)), then give a lower bound at the other scale. For a fixed horizon $$n$$, gaps of order $$\sigma\sqrt{K/n}$$ force regret of order $$\sigma\sqrt{Kn}$$ on every policy.
 
