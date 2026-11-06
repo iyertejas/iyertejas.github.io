@@ -48,16 +48,17 @@ Every numbered definition, algorithm and result from the lecture notes, in one l
 - [Definition 3.7](course-rl-2026-lecture-3.html#definition-3-7) (consistency). $$R_n(\pi, \nu)/n^p \to 0$$ for every $$\nu$$ in the class and every $$p > 0$$.
 - [Example 3.8](course-rl-2026-lecture-3.html#example-3-8). Always playing arm 1 is not consistent; $$\mathrm{UCB}(1/n^2)$$ is.
 - [Definition 3.9](course-rl-2026-lecture-3.html#definition-3-9) (unstructured classes). $$\mathcal E = \mathcal M^K$$, and $$d_a = \inf\{\mathrm{KL}(\mu_a \,\Vert\, \mu') : \mu' \in \mathcal M,\ \mathrm{mean}(\mu') > m^*\}$$.
-- [Theorem 3.10](course-rl-2026-lecture-3.html#theorem-3-10) (Lai–Robbins). For consistent policies over $$\mathcal M^K$$, $$\liminf_n \mathbb E_\nu[N_a(n)]/\log n \ge 1/d_a$$, so $$\liminf_n R_n/\log n \ge \sum_{a : \Delta_a > 0} \Delta_a/d_a$$. Proved in [Lecture 4](course-rl-2026-lecture-4.html).
+- [Theorem 3.10](course-rl-2026-lecture-3.html#theorem-3-10) (Lai–Robbins). For consistent policies over $$\mathcal M^K$$, $$\liminf_n \mathbb E_\nu[N_a(n)]/\log n \ge 1/d_a$$, so $$\liminf_n R_n/\log n \ge \sum_{a : \Delta_a > 0} \Delta_a/d_a$$. Restated and proved as [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1).
 - [Corollary 3.11](course-rl-2026-lecture-3.html#corollary-3-11) (Gaussian arms). For $$N(m, \sigma^2)$$ arms, $$d_a = \Delta_a^2/(2\sigma^2)$$, so $$\liminf_n R_n/\log n \ge \sum_{a : \Delta_a > 0} 2\sigma^2/\Delta_a$$.
 - [Remark 3.12](course-rl-2026-lecture-3.html#remark-3-12). The constant $$2\sigma^2/\Delta_a$$ is sharp; the order in KL matters; unstructured classes matter.
 
 ## Lecture 4: Lower bounds at two scales
 
-- [Definition 4.1](course-rl-2026-lecture-4.html#definition-4-1) (minimax regret). $$R_n^*(\mathcal M^K) = \inf_\pi \sup_{\nu \in \mathcal M^K} R_n(\pi, \nu)$$.
-- [Definition 4.2](course-rl-2026-lecture-4.html#definition-4-2) (cost of raising a mean). $$d^\eta = \inf\{\mathrm{KL}(\mu \,\Vert\, \mu') : \mu, \mu' \in \mathcal M,\ \mathrm{mean}(\mu') > \mathrm{mean}(\mu) + \eta\}$$; $$d_a \ge d^{\Delta_a}$$.
-- [Theorem 4.3](course-rl-2026-lecture-4.html#theorem-4-3) (minimax lower bound). If the means of $$\mathcal M$$ form an interval, $$R_n^*(\mathcal M^K) \ge \sup_{\Delta > 0} \frac{n\Delta}{8} \exp\big(-\frac{n}{K-1} d^{2\Delta}\big)$$.
-- [Corollary 4.4](course-rl-2026-lecture-4.html#corollary-4-4) (quadratic cost). If $$d^{2\Delta} \le C\Delta^2$$ at $$\Delta = \sqrt{(K-1)/(2Cn)}$$, then $$R_n^* \ge \frac{1}{19}\sqrt{(K-1)n/C}$$.
-- [Remark 4.5](course-rl-2026-lecture-4.html#remark-4-5) (Gaussian and Bernoulli arms). $$R_n^* \ge (\sigma/27)\sqrt{(K-1)n}$$ for $$N(m, \sigma^2)$$ arms; $$R_n^* \ge \frac{1}{63}\sqrt{(K-1)n}$$ for Bernoulli arms when $$n \ge \frac34(K-1)$$.
-- [Lemma 4.6](course-rl-2026-lecture-4.html#lemma-4-6) (from pull counts to worst-case regret). If $$\mathbb E_\nu[N_a(n)] \le A + B/\Delta_a^2$$ for every suboptimal arm, then $$R_n \le 2\sqrt{BKn} + A\sum_a \Delta_a$$.
-- [Corollary 4.7](course-rl-2026-lecture-4.html#corollary-4-7) (UCB, worst case). $$R_n \le 8\sigma\sqrt{Kn\log n} + 3\sum_a \Delta_a$$ for $$\sigma$$-sub-Gaussian rewards.
+- [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) (Lai–Robbins). [Theorem 3.10](course-rl-2026-lecture-3.html#theorem-3-10), restated, with its proof.
+- [Definition 4.2](course-rl-2026-lecture-4.html#definition-4-2) (minimax regret). $$R_n^*(\mathcal M^K) = \inf_\pi \sup_{\nu \in \mathcal M^K} R_n(\pi, \nu)$$.
+- [Definition 4.3](course-rl-2026-lecture-4.html#definition-4-3) (cost of raising a mean). $$d^\eta = \inf\{\mathrm{KL}(\mu \,\Vert\, \mu') : \mu, \mu' \in \mathcal M,\ \mathrm{mean}(\mu') > \mathrm{mean}(\mu) + \eta\}$$; $$d_a \ge d^{\Delta_a}$$.
+- [Theorem 4.4](course-rl-2026-lecture-4.html#theorem-4-4) (minimax lower bound). If the means of $$\mathcal M$$ form an interval, $$R_n^*(\mathcal M^K) \ge \sup_{\Delta > 0} \frac{n\Delta}{8} \exp\big(-\frac{n}{K-1} d^{2\Delta}\big)$$.
+- [Corollary 4.5](course-rl-2026-lecture-4.html#corollary-4-5) (quadratic cost). If $$d^{2\Delta} \le C\Delta^2$$ at $$\Delta = \sqrt{(K-1)/(2Cn)}$$, then $$R_n^* \ge \frac{1}{19}\sqrt{(K-1)n/C}$$.
+- [Remark 4.6](course-rl-2026-lecture-4.html#remark-4-6) (Gaussian and Bernoulli arms). $$R_n^* \ge (\sigma/27)\sqrt{(K-1)n}$$ for $$N(m, \sigma^2)$$ arms; $$R_n^* \ge \frac{1}{63}\sqrt{(K-1)n}$$ for Bernoulli arms when $$n \ge \frac34(K-1)$$.
+- [Lemma 4.7](course-rl-2026-lecture-4.html#lemma-4-7) (from pull counts to worst-case regret). If $$\mathbb E_\nu[N_a(n)] \le A + B/\Delta_a^2$$ for every suboptimal arm, then $$R_n \le 2\sqrt{BKn} + A\sum_a \Delta_a$$.
+- [Corollary 4.8](course-rl-2026-lecture-4.html#corollary-4-8) (UCB, worst case). $$R_n \le 8\sigma\sqrt{Kn\log n} + 3\sum_a \Delta_a$$ for $$\sigma$$-sub-Gaussian rewards.

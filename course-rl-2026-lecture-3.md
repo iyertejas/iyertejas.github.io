@@ -12,7 +12,7 @@ sims: true
 [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html) · TU Berlin · Winter 2026/27 · Lecture of 27 October 2026
 {: .lede}
 
-These notes cover the third lecture. The proof of the Lai–Robbins theorem ([Theorem 3.10](#theorem-3-10)) is given at the start of Lecture 4.
+These notes cover the third lecture. The Lai–Robbins theorem ([Theorem 3.10](#theorem-3-10)) is restated and proved at the start of Lecture 4, as [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1).
 
 Please report any errors or unclear points, in the lecture or by email.
 {: .note}
@@ -204,7 +204,7 @@ $$
 
 with the conventions $$1/\infty = 0$$ and $$1/0 = \infty$$.
 
-The proof is at the start of Lecture 4.
+Lecture 4 restates this theorem as [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) and proves it.
 
 Lai and Robbins proved [Theorem 3.10](#theorem-3-10) for parametric families; the form above, for general unstructured classes, is due to Burnetas and Katehakis (1996).
 
@@ -215,7 +215,7 @@ $$
 \liminf_{n\to\infty} \frac{\mathbb E_\nu[N_a(n)]}{\log n} \ge \frac{2\sigma^2}{\Delta_a^2} \quad\text{for every arm } a \text{ with } \Delta_a > 0, \qquad \liminf_{n\to\infty} \frac{R_n(\pi,\nu)}{\log n} \ge \sum_{a:\,\Delta_a>0} \frac{2\sigma^2}{\Delta_a}.
 $$
 
-*Proof, given [Theorem 3.10](#theorem-3-10).* By [Example 3.3(b)](#example-3-3), $$\mathrm{KL}\big(N(m_a, \sigma^2) \,\Vert\, N(m', \sigma^2)\big) = (m' - m_a)^2/(2\sigma^2)$$. Its infimum over $$m' > m^*$$ is $$(m^* - m_a)^2/(2\sigma^2) = \Delta_a^2/(2\sigma^2)$$, approached as $$m' \downarrow m^*$$ but not attained. $$\square$$
+*Proof, given [Theorem 3.10](#theorem-3-10) (proved as [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1)).* By [Example 3.3(b)](#example-3-3), $$\mathrm{KL}\big(N(m_a, \sigma^2) \,\Vert\, N(m', \sigma^2)\big) = (m' - m_a)^2/(2\sigma^2)$$. Its infimum over $$m' > m^*$$ is $$(m^* - m_a)^2/(2\sigma^2) = \Delta_a^2/(2\sigma^2)$$, approached as $$m' \downarrow m^*$$ but not attained. $$\square$$
 
 **Remark 3.12.**
 {: #remark-3-12}
@@ -226,7 +226,7 @@ $$
 
 ## 5. Next lecture
 
-Lecture 4 starts with a short recap and the proof of [Theorem 3.10](#theorem-3-10). The same two tools, the divergence decomposition ([Lemma 3.6](#lemma-3-6)) and Bretagnolle–Huber ([Theorem 3.4](#theorem-3-4)), then give a lower bound at the other scale. For a fixed horizon $$n$$, gaps of order $$\sigma\sqrt{K/n}$$ force regret of order $$\sigma\sqrt{Kn}$$ on every policy.
+Lecture 4 starts with a short recap, then restates [Theorem 3.10](#theorem-3-10) as [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) and proves it. The same two tools, the divergence decomposition ([Lemma 3.6](#lemma-3-6)) and Bretagnolle–Huber ([Theorem 3.4](#theorem-3-4)), then give a lower bound at the other scale. For a fixed horizon $$n$$, gaps of order $$\sigma\sqrt{K/n}$$ force regret of order $$\sigma\sqrt{Kn}$$ on every policy.
 
 ## Reading
 
