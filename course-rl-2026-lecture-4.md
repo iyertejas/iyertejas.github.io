@@ -5,6 +5,7 @@ description: "Notes for Lecture 4 of Advanced Probabilistic Methods Related to R
 nav: "teaching"
 body_class: "course notes"
 math: true
+sims: true
 ---
 # Lecture 4: Lower bounds at two scales
 
