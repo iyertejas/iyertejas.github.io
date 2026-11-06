@@ -1,8 +1,8 @@
 <div class="quiz" id="check">
 <div class="q" data-answer="false">
-<p class="q-text"><b>1.</b> <a href="#theorem-4-1">Lai–Robbins</a> implies that the minimax regret \(R_n^*\) grows like \(\log n\).</p>
+<p class="q-text"><b>1.</b> <a href="#theorem-4-1">Theorem 4.1</a> applies to every policy, for example to the policy that always plays arm 1.</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
-<div class="q-why" hidden><p>False. Lai–Robbins is about a fixed environment as \(n \to \infty\), and for Gaussian arms its constant \(\sum_a 2\sigma^2/\Delta_a\) blows up as the gaps shrink. For a fixed horizon, gaps of order \(\sqrt{K/n}\) give \(R_n^* \ge (\sigma/27)\sqrt{(K-1)n}\) for Gaussian arms (<a href="#remark-4-6">Remark 4.6</a>(1)).</p></div>
+<div class="q-why" hidden><p>False. It applies only to policies that are consistent over \(\mathcal M^K\), and always playing arm 1 is not (<a href="course-rl-2026-lecture-3.html#example-3-8">Example 3.8</a>). In an environment where arm 1 is the unique optimal arm, that policy has \(\mathbb E_\nu[N_a(n)] = 0\) for every \(a \ne 1\), so the bound of <a href="#theorem-4-1">Theorem 4.1</a> fails there whenever \(d_a &lt; \infty\). The proof uses consistency in \(\nu'\), the environment in which arm \(a\) is made optimal.</p></div>
 </div>
 <div class="q" data-answer="false">
 <p class="q-text"><b>2.</b> In the proof of <a href="#theorem-4-4">Theorem 4.4</a>, the arm whose law is changed can be fixed in advance, say arm 2.</p>
@@ -12,17 +12,17 @@
 <div class="q" data-answer="true">
 <p class="q-text"><b>3.</b> In the proof of <a href="#theorem-4-4">Theorem 4.4</a>, the two environments depend on the horizon \(n\).</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
-<div class="q-why" hidden><p>True. \(\Delta\) is chosen depending on \(n\). For each \(n\), \(\nu\) and \(\nu'\) are still ordinary SBMs, fixed for the whole run.</p></div>
+<div class="q-why" hidden><p>True. The changed arm \(a'\) is chosen using \(\mathbb E_\nu[N_{a'}(n)]\), so \(\nu'\) depends on \(n\) (and on \(\pi\)). The \(\Delta\) that makes the bound large, as in <a href="#corollary-4-5">Corollary 4.5</a>, depends on \(n\) too. For each \(n\), \(\nu\) and \(\nu'\) are still ordinary SBMs, fixed for the whole run.</p></div>
 </div>
 <div class="q" data-answer="true">
-<p class="q-text"><b>4.</b> \(d_a \ge d^{\Delta_a}\) for every arm \(a\) with \(\Delta_a > 0\).</p>
+<p class="q-text"><b>4.</b> \(d_a \ge d^{\Delta_a}\) for every arm \(a\) with \(\Delta_a &gt; 0\).</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
-<div class="q-why" hidden><p>True. \(d_a\) is the same infimum as \(d^{\Delta_a}\) (<a href="#definition-4-3">Definition 4.3</a>), with \(\mu = \mu_a\) fixed instead of free. It can be several times larger (<a href="course-rl-2026-sheet-4.html#exercise-4-1">Exercise 4.1</a>).</p></div>
+<div class="q-why" hidden><p>True. \(d_a\) is the same infimum as \(d^{\Delta_a}\) (<a href="#definition-4-3">Definition 4.3</a>), with \(\mu = \mu_a\) fixed instead of free. It can be several times larger (<a href="course-rl-2026-sheet-4.html#exercise-4-1">Exercise 4.1</a>(c)).</p></div>
 </div>
 <div class="q" data-answer="false">
-<p class="q-text"><b>5.</b> \(\mathrm{UCB}(1/n^2)\) has worst-case regret of order \(\sqrt{Kn}\).</p>
+<p class="q-text"><b>5.</b> In the proof of <a href="#theorem-4-4">Theorem 4.4</a>, the assumption that the means of \(\mathcal M\) form an interval is needed so that \(\nu' \in \mathcal M^K\).</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
-<div class="q-why" hidden><p>False. <a href="#corollary-4-8">Corollary 4.8</a> gives \(8\sigma\sqrt{Kn\log n} + 3\sum_a \Delta_a\). The extra \(\sqrt{\log n}\) comes from \(\delta = 1/n^2\); MOSS removes it.</p></div>
+<div class="q-why" hidden><p>False. \(\nu'\) is in \(\mathcal M^K\) because \(\mu' \in \mathcal M\). The assumption is used to find \(\mu_1 \in \mathcal M\) with mean exactly \(\mathrm{mean}(\mu_0) + \Delta\). Then every arm \(a \ge 2\) has gap \(\Delta\) in \(\nu\), and every arm other than \(a'\) has gap more than \(\Delta\) in \(\nu'\).</p></div>
 </div>
 <div class="q" data-answer="false">
 <p class="q-text"><b>6.</b> To use <a href="#lemma-4-7">Lemma 4.7</a>, the policy must know the threshold \(\eta\).</p>
@@ -32,6 +32,6 @@
 <div class="q" data-answer="false">
 <p class="q-text"><b>7.</b> If the means of \(\mathcal M\) form an interval, then \(R_n^*(\mathcal M^K)\) grows at least like \(\sqrt n\).</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
-<div class="q-why" hidden><p>False. <a href="#theorem-4-4">Theorem 4.4</a> also needs \(d^{2\Delta} &lt; \infty\). For \(\mathcal M = \{\mathrm{Uniform}[m, m+1] : m \in [0,1]\}\), every \(d^\eta\) is infinite, and some policy has regret at most \(5(K-1)\) for every \(n\) (<a href="course-rl-2026-sheet-4.html#exercise-4-5">Exercise 4.5</a>).</p></div>
+<div class="q-why" hidden><p>False. <a href="#theorem-4-4">Theorem 4.4</a> also needs \(d^{2\Delta} &lt; \infty\). For the uniform class \(\{\mathrm{Uniform}[m, m+1] : m \in [0,1]\}\), every \(d^\eta\) is infinite, and some policy has regret at most \(5(K-1)\) for every \(n\) (<a href="course-rl-2026-sheet-4.html#exercise-4-3">Exercise 4.3</a>).</p></div>
 </div>
 </div>

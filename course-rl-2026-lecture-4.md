@@ -11,30 +11,22 @@ math: true
 [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html) · TU Berlin · Winter 2026/27 · Lecture of 3 November 2026
 {: .lede}
 
-These notes cover the fourth lecture. After a recap of Lecture 3, [Section 2](#2-the-large-deviation-scale-the-lairobbins-theorem) states and proves the Lai–Robbins theorem: in a fixed environment, every consistent policy must pull a suboptimal arm about $$\log n/d_a$$ times. [Section 3](#3-the-central-limit-scale-the-minimax-lower-bound) runs the same argument at the other scale. The horizon is fixed, and the environments are chosen so close that no policy can tell them apart, which forces regret of order $$\sqrt{Kn}$$. [Section 4](#4-from-pull-counts-to-worst-case-bounds) shows that [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) attains this order up to a factor $$\sqrt{\log n}$$.
+These notes cover the fourth lecture. [Section 1](#1-the-lairobbins-theorem) states and proves the Lai–Robbins theorem: in a fixed environment, every consistent policy must pull each suboptimal arm at least about $$\log n/d_a$$ times. [Section 2](#2-the-minimax-lower-bound) runs the same argument at the other scale. The horizon is fixed, and the environments are chosen so close that no policy can tell them apart, which forces regret of order $$\sqrt{Kn}$$. [Section 3](#3-from-pull-counts-to-worst-case-bounds) shows that [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) attains this order up to a factor $$\sqrt{\log n}$$.
 
 Please report any errors or unclear points, in the lecture or by email.
 {: .note}
 
-## 1. Recap
+## 1. The Lai–Robbins theorem
 
-Throughout, $$\mathcal M$$ is a class of probability measures on $$\mathbb R$$ with finite means, and $$\mathrm{mean}(\mu) = \int x\, \mu(dx)$$. For a $$K$$-armed SBM with environment $$\nu = (\mu_1, \dots, \mu_K)$$, $$m_a = \mathrm{mean}(\mu_a)$$ is the mean of arm $$a$$, $$m^* = \max_a m_a$$ and $$\Delta_a = m^* - m_a$$. When a policy $$\pi$$ is run in $$\nu$$ up to the horizon $$n$$, $$\mathbb P_\nu$$ and $$\mathbb E_\nu$$ denote the law of the history $$H_n$$ and its expectation, and $$N_a(n)$$ is the number of pulls of arm $$a$$. From Lecture 3 we need:
+Recall from Lecture 3 that for an unstructured class $$\mathcal M^K$$ ([Definition 3.9](course-rl-2026-lecture-3.html#definition-3-9)), an environment $$\nu = (\mu_1, \dots, \mu_K) \in \mathcal M^K$$ with largest mean $$m^*$$, and an arm $$a$$,
 
-1. **Relative entropy** ([Definition 3.1](course-rl-2026-lecture-3.html#definition-3-1)). For probability measures $$P$$ and $$Q$$, $$\mathrm{KL}(P \,\Vert\, Q) = \mathbb E_P[\log (dP/dQ)]$$ if $$P \ll Q$$, and $$+\infty$$ otherwise. In particular, $$\mathrm{KL}(P \,\Vert\, Q) < \infty$$ implies $$P \ll Q$$.
-2. **Bretagnolle–Huber** ([Theorem 3.4](course-rl-2026-lecture-3.html#theorem-3-4)). For every event $$A$$, $$P(A) + Q(A^c) \ge \frac12 \exp(-\mathrm{KL}(P \,\Vert\, Q))$$.
-3. **Divergence decomposition** ([Lemma 3.6](course-rl-2026-lecture-3.html#lemma-3-6)). If $$\nu = (\mu_a)_a$$ and $$\nu' = (\mu'_a)_a$$ satisfy $$\mu_a \ll \mu'_a$$ for every arm $$a$$, and the same policy is run in both, then $$\mathrm{KL}(\mathbb P_\nu \,\Vert\, \mathbb P_{\nu'}) = \sum_{a=1}^K \mathbb E_\nu[N_a(n)]\, \mathrm{KL}(\mu_a \,\Vert\, \mu'_a)$$.
-4. **Consistency** ([Definition 3.7](course-rl-2026-lecture-3.html#definition-3-7)). $$\pi$$ is consistent over a class $$\mathcal E$$ of environments if $$R_n(\pi, \nu)/n^p \to 0$$ for every $$\nu \in \mathcal E$$ and every $$p > 0$$.
-5. **Unstructured classes** ([Definition 3.9](course-rl-2026-lecture-3.html#definition-3-9)). $$\mathcal M^K$$ is the class of environments $$(\mu_1, \dots, \mu_K)$$ with every $$\mu_b \in \mathcal M$$. For $$\nu \in \mathcal M^K$$ and an arm $$a$$,
+$$
+d_a = d_a(\nu, \mathcal M) = \inf\big\{ \mathrm{KL}(\mu_a \,\Vert\, \mu') : \mu' \in \mathcal M,\ \mathrm{mean}(\mu') > m^* \big\} \in [0, \infty], \qquad \inf\emptyset = \infty,
+$$
 
-   $$
-   d_a = d_a(\nu, \mathcal M) = \inf\big\{ \mathrm{KL}(\mu_a \,\Vert\, \mu') : \mu' \in \mathcal M,\ \mathrm{mean}(\mu') > m^* \big\} \in [0, \infty], \qquad \inf\emptyset = \infty,
-   $$
+the least information per pull of arm $$a$$ that separates $$\mu_a$$ from a distribution in $$\mathcal M$$ under which arm $$a$$ would be the best arm.
 
-   the least information per pull of arm $$a$$ that separates $$\mu_a$$ from a distribution in $$\mathcal M$$ under which arm $$a$$ would be the best arm.
-
-## 2. The large-deviation scale: the Lai–Robbins theorem
-
-**Theorem 4.1 (Lai–Robbins, 1985).** Let $$\mathcal M^K$$ be an unstructured class and $$\pi$$ a policy that is consistent over $$\mathcal M^K$$. Then for every $$\nu \in \mathcal M^K$$ and every arm $$a$$ with $$\Delta_a > 0$$,
+**Theorem 4.1 (Lai–Robbins, 1985).** Let $$\mathcal M^K$$ be an unstructured class and $$\pi$$ a policy that is consistent ([Definition 3.7](course-rl-2026-lecture-3.html#definition-3-7)) over $$\mathcal M^K$$. Then for every $$\nu \in \mathcal M^K$$ and every arm $$a$$ with $$\Delta_a > 0$$,
 {: #theorem-4-1}
 
 $$
@@ -73,11 +65,9 @@ $$
 
 Dividing by $$(d_a + \varepsilon)\log n$$ gives $$\liminf_n \mathbb E_\nu[N_a(n)]/\log n \ge (1-p)/(d_a+\varepsilon)$$. Let $$p \downarrow 0$$ and $$\varepsilon \downarrow 0$$; if $$d_a = 0$$, the right-hand side tends to $$\infty$$. $$\square$$
 
-**Where the assumptions are used.** The unstructured class: $$\nu' \in \mathcal M^K$$. Consistency, in particular in $$\nu'$$: the policy must do well in an environment that it can barely distinguish from $$\nu$$, and that is what forces $$\mathbb E_\nu[N_a(n)]$$ to be large. The same policy in both environments: [Lemma 3.6](course-rl-2026-lecture-3.html#lemma-3-6). Nothing else is used: no concentration, and both environments are fixed, independent of $$n$$.
+## 2. The minimax lower bound
 
-## 3. The central-limit scale: the minimax lower bound
-
-In [Section 2](#2-the-large-deviation-scale-the-lairobbins-theorem) we fixed an environment $$\nu$$ and asked how small the regret of a policy can be, asymptotically in $$n$$. Now we fix $$n$$ and ask for the worst regret over all environments, so the gaps $$\Delta_a$$ may depend on $$n$$. Before, we were at the large-deviation scale; now we are at the central-limit scale. Each environment is still an ordinary SBM, fixed for the whole run ([Remark 2.7](course-rl-2026-lecture-2.html#remark-2-7)(4)).
+In [Section 1](#1-the-lairobbins-theorem) we fixed an environment $$\nu$$ and asked how small the regret of a policy can be, asymptotically in $$n$$. Now we fix $$n$$ and ask for the worst regret over all environments, so the gaps $$\Delta_a$$ may depend on $$n$$. Each environment is still an ordinary SBM, fixed for the whole run ([Remark 2.7](course-rl-2026-lecture-2.html#remark-2-7)(4)).
 
 **Definition 4.2 (minimax regret).** For a class $$\mathcal M^K$$ of $$K$$-armed SBM environments and a horizon $$n$$, the *minimax regret* is
 {: #definition-4-2}
@@ -95,7 +85,7 @@ $$
 d^\eta = d^\eta(\mathcal M) = \inf\big\{\mathrm{KL}(\mu \,\Vert\, \mu') : \mu, \mu' \in \mathcal M,\ \mathrm{mean}(\mu') > \mathrm{mean}(\mu) + \eta\big\} \in [0, \infty], \qquad \inf\emptyset = \infty.
 $$
 
-So $$d^\eta$$ is the least information per sample that separates two distributions in $$\mathcal M$$ whose means differ by more than $$\eta$$. It depends only on the class, and it is nondecreasing in $$\eta$$. For $$\nu \in \mathcal M^K$$, the constant $$d_a$$ of [Section 1](#1-recap) is the same infimum with $$\mu = \mu_a$$ fixed, since $$\mathrm{mean}(\mu') > m^*$$ means $$\mathrm{mean}(\mu') > \mathrm{mean}(\mu_a) + \Delta_a$$; in particular $$d_a \ge d^{\Delta_a}$$. For example, for $$\mathcal M = \{N(m, \sigma^2) : m \in \mathbb R\}$$, [Example 3.3(b)](course-rl-2026-lecture-3.html#example-3-3) gives $$d^\eta = \eta^2/(2\sigma^2)$$.
+So $$d^\eta$$ is the least information per sample that separates two distributions in $$\mathcal M$$ whose means differ by more than $$\eta$$. It depends only on the class, and it is nondecreasing in $$\eta$$. For $$\nu \in \mathcal M^K$$, the constant $$d_a$$ of [Section 1](#1-the-lairobbins-theorem) is the same infimum with $$\mu = \mu_a$$ fixed, since $$\mathrm{mean}(\mu') > m^*$$ means $$\mathrm{mean}(\mu') > \mathrm{mean}(\mu_a) + \Delta_a$$; in particular $$d_a \ge d^{\Delta_a}$$. For example, for $$\mathcal M = \{N(m, \sigma^2) : m \in \mathbb R\}$$, [Example 3.3(b)](course-rl-2026-lecture-3.html#example-3-3) gives $$d^\eta = \eta^2/(2\sigma^2)$$.
 
 **Theorem 4.4 (minimax lower bound).** Let $$\mathcal M$$ be a class of probability measures on $$\mathbb R$$ with finite means such that $$\{\mathrm{mean}(\mu) : \mu \in \mathcal M\}$$ is an interval, and let $$K \ge 2$$ and $$n \in \mathbb N$$. Then, with the convention $$e^{-\infty} = 0$$,
 {: #theorem-4-4}
@@ -128,9 +118,10 @@ $$
 R_n(\pi,\nu) + R_n(\pi,\nu') \ge \frac{n\Delta}{2}\Big(\mathbb P_\nu\big(N_{a'}(n) > \tfrac n2\big) + \mathbb P_{\nu'}\big(N_{a'}(n) \le \tfrac n2\big)\Big) \ge \frac{n\Delta}{4} \exp\Big(-\frac{n}{K-1}\,\big(d^{2\Delta} + \varepsilon\big)\Big).
 $$
 
-So one of the two regrets is at least $$\frac{n\Delta}{8}\exp\big(-\frac{n}{K-1}(d^{2\Delta}+\varepsilon)\big)$$, and hence so is $$\sup_{\nu'' \in \mathcal M^K} R_n(\pi, \nu'')$$. Let $$\varepsilon \downarrow 0$$ and take the supremum over $$\Delta > 0$$. Since $$\pi$$ was arbitrary, the bound holds for the infimum over $$\pi$$. $$\square$$
+The larger of two numbers is at least half their sum, so one of the two regrets is at least $$\frac{n\Delta}{8}\exp\big(-\frac{n}{K-1}(d^{2\Delta}+\varepsilon)\big)$$, and hence so is $$\sup_{\nu'' \in \mathcal M^K} R_n(\pi, \nu'')$$. Let $$\varepsilon \downarrow 0$$ and take the supremum over $$\Delta > 0$$. Since $$\pi$$ was arbitrary, the bound holds for the infimum over $$\pi$$. $$\square$$
 
-**Comparison with [Section 2](#2-the-large-deviation-scale-the-lairobbins-theorem).** The two proofs are the same argument: change one arm, so that the KL cost is the pulls of that arm ([Lemma 3.6](course-rl-2026-lecture-3.html#lemma-3-6)), and apply Bretagnolle–Huber to the event that this arm is pulled more than $$n/2$$ times. In Lai–Robbins, consistency forces the policy to separate the two environments, which pushes the information $$\mathbb E_\nu[N_a(n)]\,\mathrm{KL}$$ up to about $$\log n$$. Here we choose $$\Delta$$ so that the information stays of order one, and conclude that the policy cannot separate them. The changed arm is one with a small expected pull count, because a policy that pulls a fixed arm often would notice when it changes. The choice depends on $$\pi$$, which a worst-case statement allows.
+*Correction to the lecture.* On the board, the proof ended with the bound $$\frac{n\Delta}{4}\exp\big(-\frac{n}{K-1}d^{2\Delta}\big)$$ on the sum $$R_n(\pi,\nu) + R_n(\pi,\nu')$$. The last step, passing from the sum to the larger of the two regrets, costs a further factor $$\frac12$$, so the constant in [Theorem 4.4](#theorem-4-4) is $$\frac18$$, not $$\frac14$$.
+{: .note}
 
 **Corollary 4.5 (quadratic cost).** Suppose that the means of $$\mathcal M$$ form an interval. Let $$C > 0$$ and $$n \in \mathbb N$$, and put $$\Delta = \sqrt{(K-1)/(2Cn)}$$. If $$d^{2\Delta} \le C\Delta^2$$, then
 {: #corollary-4-5}
@@ -151,9 +142,9 @@ $$
 {: #remark-4-6}
 
 1. **Gaussian arms.** For $$\mathcal M = \{N(m,\sigma^2) : m \in \mathbb R\}$$, $$d^{2\Delta} = 2\Delta^2/\sigma^2$$ for every $$\Delta$$, so $$C = 2/\sigma^2$$ and, for every $$n$$, $$R_n^*(\mathcal M^K) \ge \frac{\sigma}{19\sqrt2}\sqrt{(K-1)\,n} \ge \frac{\sigma}{27}\sqrt{(K-1)\,n}$$. The same bound holds for the class of all $$K$$-armed SBMs with $$\sigma$$-sub-Gaussian rewards, since it contains these Gaussian environments.
-2. **Bernoulli arms.** For $$\mathcal M = \{\mathrm{Ber}(x) : x \in [0,1]\}$$, we have $$d^{2\Delta} \le 2\Delta \log\frac{1+2\Delta}{1-2\Delta}$$ for $$\Delta < \frac12$$ by [Exercise 4.1](course-rl-2026-sheet-4.html#exercise-4-1), and $$d^{2\Delta} = \infty$$ for $$\Delta \ge \frac12$$. Since $$\log\frac{1+x}{1-x} \le \frac{2x}{1-x^2} \le \frac{8x}{3}$$ for $$x \in [0, \frac12]$$, this gives $$d^{2\Delta} \le \frac{32}{3}\Delta^2$$ for $$\Delta \le \frac14$$. With $$C = \frac{32}{3}$$, the $$\Delta$$ of [Corollary 4.5](#corollary-4-5) is at most $$\frac14$$ exactly when $$n \ge \frac34(K-1)$$, and then $$R_n^*(\mathcal M^K) \ge \frac{1}{19}\sqrt{3(K-1)n/32} \ge \frac{1}{63}\sqrt{(K-1)\,n}$$. The same bound holds for the class of all SBMs with rewards in $$[0,1]$$.
+2. **Bernoulli arms.** For $$\mathcal M = \{\mathrm{Ber}(x) : x \in [0,1]\}$$, we have $$d^{2\Delta} \le 2\Delta \log\frac{1+2\Delta}{1-2\Delta}$$ for $$\Delta < \frac12$$ by [Exercise 4.1(b)](course-rl-2026-sheet-4.html#exercise-4-1), and $$d^{2\Delta} = \infty$$ for $$\Delta \ge \frac12$$. Since $$\log\frac{1+x}{1-x} \le \frac{2x}{1-x^2} \le \frac{8x}{3}$$ for $$x \in [0, \frac12]$$, this gives $$d^{2\Delta} \le \frac{32}{3}\Delta^2$$ for $$\Delta \le \frac14$$. With $$C = \frac{32}{3}$$, the $$\Delta$$ of [Corollary 4.5](#corollary-4-5) is at most $$\frac14$$ exactly when $$n \ge \frac34(K-1)$$, and then $$R_n^*(\mathcal M^K) \ge \frac{1}{19}\sqrt{3(K-1)n/32} \ge \frac{1}{63}\sqrt{(K-1)\,n}$$. The same bound holds for the class of all SBMs with rewards in $$[0,1]$$.
 
-## 4. From pull counts to worst-case bounds
+## 3. From pull counts to worst-case bounds
 
 [Theorem 2.6](course-rl-2026-lecture-2.html#theorem-2-6) bounds the pull counts of [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) in a fixed environment, and that bound blows up as the gaps shrink. But arms with tiny gaps are cheap however often they are pulled, and this turns any such bound into a worst-case bound.
 
@@ -191,14 +182,14 @@ With [Remark 4.6](#remark-4-6)(1), $$\sqrt{Kn}$$ is the right order of the worst
 
 **The two scales, side by side.**
 
-| | large-deviation scale ([Section 2](#2-the-large-deviation-scale-the-lairobbins-theorem)) | central-limit scale ([Section 3](#3-the-central-limit-scale-the-minimax-lower-bound)) |
+|  | large-deviation scale ([Section 1](#1-the-lairobbins-theorem)) | central-limit scale ([Section 2](#2-the-minimax-lower-bound)) |
 | --- | --- | --- |
 | regime | $$\Delta$$ fixed, $$n \to \infty$$ | $$n$$ fixed, $$\Delta \approx \sqrt{K/n}$$ |
-| information $$N \cdot \mathrm{KL}$$ | about $$\log n$$ | of order one |
-| what forces it | consistency | the choice of $$\Delta$$ |
+| information $$N \cdot \mathrm{KL}$$ | about $$\log n$$ | at most about $$\frac12$$, with $$\Delta$$ as in [Corollary 4.5](#corollary-4-5) |
+| what forces it | consistency | the choice of $$\Delta$$ in [Corollary 4.5](#corollary-4-5) |
 | bandit consequence | $$\log n/d_a$$ pulls of each suboptimal arm | regret of order $$\sqrt{Kn}$$ |
 
-## 5. Next lecture
+## 4. Next lecture
 
 The lower bound $$\log n/d_a$$ of [Theorem 4.1](#theorem-4-1) depends on the whole law of each arm, not only on its mean. Lecture 5 constructs a policy that attains it for every environment with rewards in $$[0, 1]$$, by testing with bets.
 
