@@ -192,7 +192,7 @@ With [Remark 4.6](#remark-4-6)(1), $$\sqrt{Kn}$$ is the right order of the worst
 
 ## 4. Next lecture
 
-The lower bound $$\log n/d_a$$ of [Theorem 4.1](#theorem-4-1) depends on the whole law of each arm, not only on its mean. Lecture 5 constructs a policy that attains it for every environment with rewards in $$[0, 1]$$, by testing with bets.
+The lower bound $$\log n/d_a$$ of [Theorem 4.1](#theorem-4-1) depends on the whole law of each arm, not only on its mean. Lecture 5 constructs a policy that attains it for every environment whose rewards lie in a known bounded interval, say $$[0, 1]$$, by testing with bets.
 
 ## Check yourself
 
