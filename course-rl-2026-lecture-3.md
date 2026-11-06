@@ -232,4 +232,4 @@ Lecture 4 starts with a short recap and the proof of [Theorem 3.10](#theorem-3-1
 
 T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020, freely available [online](https://tor-lattimore.com/downloads/book/book.pdf): Chapter 14 (relative entropy; [Theorem 3.4](#theorem-3-4) is their Theorem 14.2), Chapter 15 ([Lemma 3.6](#lemma-3-6) is their Lemma 15.1) and Chapter 16 ([Theorem 3.10](#theorem-3-10)). T. M. Cover and J. A. Thomas, *Elements of Information Theory*, Chapter 2, for relative entropy.
 
-<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-2.html">← Lecture 2</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
+<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-2.html">← Lecture 2</a><a href="course-rl-2026-lecture-4.html">Lecture 4 →</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
