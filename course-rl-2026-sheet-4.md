@@ -47,4 +47,4 @@ Please report any errors or unclear points, in the lecture or by email.
 
 (d) Conclude that the policy $$\pi$$ of (c) satisfies $$R_n(\pi,\nu) \le 5(K-1)$$ for every $$\nu \in \mathcal M^K$$ and every $$n$$. Why does this not contradict [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1)?
 
-<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-4.html">Lecture 4 notes</a><a href="course-rl-2026-sheet-5.html">Exercise Sheet 5 →</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
+<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-4.html">Lecture 4 notes</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
