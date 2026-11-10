@@ -1,0 +1,30 @@
+<figure class="demo" id="short-demo">
+<div class="controls">
+<div class="rt-field"><label for="ssLaw">Prices</label>
+<select id="ssLaw"><option value="const">X ≡ p</option><option value="ber" selected>X ~ Ber(p)</option><option value="unif">X uniform on [p − h, p + h]</option></select></div>
+<div class="slider"><label for="ssP">Mean p</label>
+<input type="range" id="ssP" min="0.05" max="0.95" step="0.05" value="0.5"><output id="ssPOut" for="ssP">0.50</output></div>
+<div class="slider"><label for="ssM">Price m</label>
+<input type="range" id="ssM" min="0" max="0.9" step="0.05" value="0.6"><output id="ssMOut" for="ssM">0.60</output></div>
+<div class="slider"><label for="ssU">Stake λ/Λ<sub>m</sub></label>
+<input type="range" id="ssU" min="0" max="1" step="0.01" value="0.4"><output id="ssUOut" for="ssU">0.40</output></div>
+<button id="ssKelly" type="button">Kelly stake λ*</button>
+<div class="rt-field"><label for="ssDelta">Rich means wealth ≥</label>
+<select id="ssDelta"><option value="10">10</option><option value="20" selected>20</option><option value="100">100</option></select></div>
+</div>
+<div class="controls rt-buttons">
+<button id="ssStep" type="button">Step</button>
+<button id="ssPlay" type="button">Play</button>
+<button id="ssNew" type="button">New run</button>
+<button id="ssMany" type="button">100 runs</button>
+<div class="rt-field"><label for="ssSpeed">Speed</label>
+<select id="ssSpeed"><option value="slow">slow</option><option value="medium" selected>medium</option><option value="fast">fast</option></select></div>
+<span class="rt-round" id="ssRound"></span>
+</div>
+<svg class="l2-chart" id="ssPic" viewBox="0 0 680 230" role="img" aria-label="One round of short selling: the price starts at m and ends at X"></svg>
+<p class="status" id="ssStatus" aria-live="polite"></p>
+<svg class="l2-chart" id="ssWealth" viewBox="0 0 680 260" role="img" aria-label="The logarithm of the short seller's wealth over the rounds"></svg>
+<div class="l2-legend" id="ssWealthKey"></div>
+<svg class="l2-chart" id="ssPhi" viewBox="0 0 680 220" role="img" aria-label="The growth rate φ of the wealth as a function of the stake λ"></svg>
+<div class="l2-legend" id="ssPhiKey"></div>
+</figure>

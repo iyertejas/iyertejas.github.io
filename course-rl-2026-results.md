@@ -70,6 +70,3 @@ Every numbered definition, algorithm and result from the lecture notes, in one l
 - [Remark 5.3](course-rl-2026-lecture-5.html#remark-5-3). For rewards in $$[0, 1]$$ and $$m^* < 1$$, $$d_a = K_{\inf}(\mu_a, m^*)$$.
 - [Lemma 5.4](course-rl-2026-lecture-5.html#lemma-5-4) (Kelly criterion). $$K_{\inf}(\mu, m) = \max_{\lambda \in [0, \Lambda_m]} \varphi_{\mu,m}(\lambda)$$.
 - [Lemma 5.5](course-rl-2026-lecture-5.html#lemma-5-5) (Ville's inequality). For a nonnegative supermartingale with $$\mathbb E[M_0] = 1$$, $$\mathbb P(\exists\, n : M_n \ge x) \le 1/x$$.
-- [Lemma 5.6](course-rl-2026-lecture-5.html#lemma-5-6) (mixture of bets). $$\Lambda_m^{-1}\int_0^{\Lambda_m} W_s(\lambda, m)\, d\lambda \ge B_s(m)/(s + 1)$$, where $$B_s(m) = \max_\lambda W_s(\lambda, m)$$.
-- [Corollary 5.7](course-rl-2026-lecture-5.html#corollary-5-7) (anytime confidence bound). If $$\mathrm{mean}(\mu) \ge m$$, then $$\mathbb P(\exists\, s : B_s(m) \ge (s + 1)x) \le 1/x$$.
-- [Algorithm 5.8](course-rl-2026-lecture-5.html#algorithm-5-8) (K_inf index policy). Play an arm maximising $$U_a = \sup\{m : B^{(a)}_{N_a}(m) \le (N_a + 1)n\}$$.

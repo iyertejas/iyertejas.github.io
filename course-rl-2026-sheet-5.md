@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Exercise Sheet 5"
-description: "Exercise Sheet 5 for Advanced Probabilistic Methods Related to Reinforcement Learning (TU Berlin, Winter 2026/27): the Lai–Robbins constant on [0, 1], deterministic and Bernoulli arms, why the bets must be mixed, anytime Hoeffding bounds, and the Chernoff exponent as a relative entropy."
+description: "Exercise Sheet 5 for Advanced Probabilistic Methods Related to Reinforcement Learning (TU Berlin, Winter 2026/27): the Lai–Robbins constant on [0, 1], deterministic and Bernoulli arms, anytime Hoeffding bounds, and the Chernoff exponent as a relative entropy."
 nav: "teaching"
 body_class: "course notes"
 math: true
@@ -33,17 +33,8 @@ Notation as in the [Lecture 5 notes](course-rl-2026-lecture-5.html). Exercises m
 
 (c) Using $$X = \int_0^1 \mathbf 1\{X > u\}\, du$$ for $$X \in [0, 1]$$ and Pinsker's inequality, show that $$\vert\mathrm{mean}(\mu) - \mathrm{mean}(\nu)\vert \le \sqrt{\mathrm{KL}(\mu \,\Vert\, \nu)/2}$$ for $$\mu, \nu \in \mathcal M_{[0,1]}$$. Deduce that $$K_{\inf}(\mu, m) \ge 2(m - \mathrm{mean}(\mu))^2$$ whenever $$\mathrm{mean}(\mu) \le m$$, and compare the number of pulls asked for by [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) with the bound $$3 + 16\sigma^2\log n/\Delta_a^2$$ of [Theorem 2.6](course-rl-2026-lecture-2.html#theorem-2-6) for [UCB](course-rl-2026-lecture-2.html#algorithm-2-5), with $$\sigma = \frac12$$.
 
-**Exercise 5.3 (why mix?).**
+**Exercise 5.3 (anytime Hoeffding).** Let $$X_1, X_2, \dots$$ be i.i.d. and $$\sigma$$-sub-Gaussian with mean $$m$$, and let $$S_s = (X_1 - m) + \dots + (X_s - m)$$.
 {: #exercise-5-3}
-
-(a) Let $$\mu = \mathrm{Ber}(m)$$ with $$m \in (0, 1)$$, and let $$B_1(m)$$ be the best wealth in hindsight after one price drawn from $$\mu$$. Show that $$\mathbb E[B_1(m)] = 1 + m$$. So $$(B_s(m))_{s \ge 0}$$ is not a supermartingale.
-
-(b) Find the error in the following argument: "For each $$\lambda$$, $$(W_s(\lambda, m))_{s \ge 0}$$ is a nonnegative martingale with $$W_0(\lambda, m) = 1$$, so by [Lemma 5.5](course-rl-2026-lecture-5.html#lemma-5-5), $$\mathbb P(B_s(m) \ge x \text{ for some } s) \le 1/x$$."
-
-(c) Compute both sides of [Lemma 5.6](course-rl-2026-lecture-5.html#lemma-5-6) when $$x_1 = \dots = x_s = 0$$, and show that the factor $$1/(s + 1)$$ cannot be replaced by a constant independent of $$s$$.
-
-**Exercise 5.4 (anytime Hoeffding).** Let $$X_1, X_2, \dots$$ be i.i.d. and $$\sigma$$-sub-Gaussian with mean $$m$$, and let $$S_s = (X_1 - m) + \dots + (X_s - m)$$.
-{: #exercise-5-4}
 
 (a) Show that for each $$\lambda \in \mathbb R$$, $$\exp(\lambda S_s - s\lambda^2\sigma^2/2)$$ is a nonnegative supermartingale equal to $$1$$ at $$s = 0$$.
 
@@ -61,8 +52,8 @@ $$
 
 (d) Compare with [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) and a union bound over $$s \in [n]$$, as used for [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) in Lecture 2. Which is smaller when $$s$$ is much smaller than $$n$$?
 
-**Exercise 5.5 (the Chernoff exponent is a relative entropy).** Let $$\mu$$ be a probability measure on $$\mathbb R$$ with $$L(\lambda) = \log \mathbb E_\mu[e^{\lambda X}]$$ finite for all $$\lambda \in \mathbb R$$, and for $$\lambda \in \mathbb R$$ let $$\mu_\lambda(dx) = e^{\lambda x - L(\lambda)}\, \mu(dx)$$, the exponential tilt of $$\mu$$.
-{: #exercise-5-5}
+**Exercise 5.4 (the Chernoff exponent is a relative entropy).** Let $$\mu$$ be a probability measure on $$\mathbb R$$ with $$L(\lambda) = \log \mathbb E_\mu[e^{\lambda X}]$$ finite for all $$\lambda \in \mathbb R$$, and for $$\lambda \in \mathbb R$$ let $$\mu_\lambda(dx) = e^{\lambda x - L(\lambda)}\, \mu(dx)$$, the exponential tilt of $$\mu$$.
+{: #exercise-5-4}
 
 (a) Show that $$\lambda\, \mathrm{mean}(\nu) - \mathrm{KL}(\nu \,\Vert\, \mu) \le L(\lambda)$$ for every probability measure $$\nu$$ on $$\mathbb R$$ with finite mean and $$\mathrm{KL}(\nu \,\Vert\, \mu) < \infty$$, with equality for $$\nu = \mu_\lambda$$. (Hint: $$\mathrm{KL}(\nu \,\Vert\, \mu_\lambda) \ge 0$$, [Lemma 3.2](course-rl-2026-lecture-3.html#lemma-3-2).)
 

@@ -1720,10 +1720,176 @@ function initQuizzes(){
 }
 initQuizzes();
 
+// Lecture 5: selling a stock short at the price m. Each round the price moves from m to X; the wealth is
+// multiplied by 1 + λ(m − X). Its log grows at rate φ(λ) = E log(1 + λ(m − X)), largest at the Kelly stake λ*.
+function shortWidget(){
+  const S = 200, P = "ss", NGRID = 400;
+  const law = () => $(P+"Law").value, p = () => +$(P+"P").value, m = () => +$(P+"M").value;
+  const Lam = () => 1/(1 - m()), lam = () => +$(P+"U").value * Lam(), thr = () => Math.log(+$(P+"Delta").value);
+  const h = () => Math.min(p(), 1 - p());
+  const lawName = () => law() === "const" ? `X ≡ ${p().toFixed(2)}` : law() === "ber" ? `X ~ Ber(${p().toFixed(2)})` : `X uniform on [${(p()-h()).toFixed(2)}, ${(p()+h()).toFixed(2)}]`;
+  const lg = v => v > 0 ? Math.log(v) : -Infinity;
+  function phi(l){
+    const M = m(), q = p();
+    if (law() === "const") return lg(1 + l*(M - q));
+    if (law() === "ber") return (q > 0 ? q*lg(1 + l*(M - 1)) : 0) + (q < 1 ? (1 - q)*lg(1 + l*M) : 0);
+    const a = q - h(), w = 2*h(); let s = 0;
+    for (let i=0; i<NGRID; i++) s += lg(1 + l*(M - (a + w*(i + .5)/NGRID)));
+    return s/NGRID;
+  }
+  function kelly(){                                                  // φ is concave: grid search, then golden section
+    const L = Lam(), G = law() === "unif" ? 200 : 2000; let b = 0, bv = phi(0);
+    for (let i=1; i<=G; i++){ const v = phi(L*i/G); if (v > bv){ bv = v; b = i; } }
+    let lo = L*Math.max(0, b-1)/G, hi = L*Math.min(G, b+1)/G;
+    for (let k=0; k<40; k++){ const x1 = hi - .618*(hi-lo), x2 = lo + .618*(hi-lo); if (phi(x1) < phi(x2)) lo = x1; else hi = x2; }
+    const x = (lo + hi)/2, v = phi(x);
+    return v >= bv ? { l:x, v } : { l:L*b/G, v:bv };
+  }
+  let r = rngL2(seedL2()), g = null, ghosts = [], K = null, timer = 0, acc = 0, manyMsg = "";
+  const draw1 = () => law() === "const" ? p() : law() === "ber" ? (r() < p() ? 1 : 0) : p() - h() + 2*h()*r();
+  function bridge(x0, x1){                                           // a wiggly path from (0, x0) to (1, x1), kept in [0, 1]
+    const n = 40, pts = []; let b = 0; const z = [0];
+    for (let i=1; i<=n; i++){ b += (r() - .5)*0.09; z.push(b); }
+    for (let i=0; i<=n; i++){ const t = i/n, y = x0 + (x1 - x0)*t + (z[i] - t*z[n]); pts.push([t, Math.min(1, Math.max(0, y))]); }
+    return pts;
+  }
+  function deal(keepGhosts){
+    stop();
+    if (!keepGhosts){ ghosts = []; manyMsg = ""; }
+    K = kelly();
+    g = { s:0, logW:[0], last:null, path:null, old:[] };
+    draw();
+  }
+  function step(){
+    if (g.s >= S || g.logW[g.s] === -Infinity) return false;
+    const x = draw1(), f = 1 + lam()*(m() - x);
+    if (g.path) g.old = [g.path, ...g.old].slice(0, 4);
+    g.path = bridge(m(), x);
+    g.s++; g.logW.push(g.logW[g.s-1] + lg(f)); g.last = { x, f };
+    return g.s < S && g.logW[g.s] > -Infinity;
+  }
+  function many(){
+    stop();
+    const L = lam(), M = m(), T = thr(); let hit = 0; ghosts = [];
+    for (let k=0; k<100; k++){
+      let w = 0, crossed = false; const pts = [[0, 0]];
+      for (let s=1; s<=S; s++){ w += lg(1 + L*(M - draw1())); pts.push([s, w]); if (w >= T) crossed = true; if (w === -Infinity) break; }
+      if (crossed) hit++; ghosts.push(pts);
+    }
+    const d = 1/+$(P+"Delta").value, fair = p() >= m() - 1e-9;
+    manyMsg = `${hit} of 100 runs got rich (wealth ≥ ${$(P+"Delta").value}) within ${S} rounds. ` + (fair
+      ? `Here mean = ${p().toFixed(2)} ≥ m = ${m().toFixed(2)}, so the wealth is a nonnegative supermartingale, and by Ville's inequality the chance of ever getting rich is at most δ = ${d}.`
+      : `Here mean = ${p().toFixed(2)} < m = ${m().toFixed(2)}: the short sale pays on average, ` + (phi(L) > 0 ? `and the wealth grows at rate φ(λ) = ${phi(L).toFixed(3)}.` : `but at this stake φ(λ) = ${isFinite(phi(L)) ? phi(L).toFixed(3) : "−∞"} ≤ 0, so the wealth does not grow: the stake is too large.`));
+    deal(true);
+  }
+  function drawPic(){
+    const el = $(P+"Pic"), W = Math.max(320, Math.min(680, Math.round(el.getBoundingClientRect().width) || 680)), H = 230;
+    el.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const narrow = W < 520, L0 = 46, R0 = narrow ? 14 : 250, T0 = 16, B0 = 34, pw = W - L0 - R0, ph = H - T0 - B0;
+    const X = t => L0 + t*pw, Y = v => T0 + (1 - v)*ph, M = m();
+    const txt = (x, y, t, o = {}) => `<text x="${x}" y="${y}" text-anchor="${o.a || "start"}" font-family="var(--sans)" font-size="${o.fs || 12}" fill="${o.col || "var(--muted)"}" font-weight="${o.b ? 700 : 400}">${t}</text>`;
+    let s = `<line x1="${L0}" y1="${T0}" x2="${L0}" y2="${T0+ph}" stroke="var(--muted)"/><line x1="${L0}" y1="${T0+ph}" x2="${L0+pw}" y2="${T0+ph}" stroke="var(--muted)"/>`;
+    for (const v of [0, .5, 1]) s += txt(L0-6, Y(v)+4, v, { a:"end" });
+    s += txt(L0 + pw/2, H - 8, "one unit of time", { a:"middle" }) + txt(4, 11, "stock price");
+    s += `<line x1="${L0}" x2="${L0+pw}" y1="${Y(M)}" y2="${Y(M)}" stroke="var(--c4)" stroke-dasharray="6 5" stroke-width="1.5"/>` + txt(L0+pw+4, Y(M)+4, "m", { col:"var(--c4)", b:1 });
+    for (const q of g.old) s += `<polyline points="${q.map(c => `${X(c[0]).toFixed(1)},${Y(c[1]).toFixed(1)}`).join(" ")}" fill="none" stroke="var(--line)" stroke-width="1"/>`;
+    if (g.path){
+      const x = g.last.x, gain = M - x, col = gain > 0 ? "var(--good)" : gain < 0 ? "var(--bad)" : "var(--muted)";
+      s += `<polyline points="${g.path.map(c => `${X(c[0]).toFixed(1)},${Y(c[1]).toFixed(1)}`).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/>`;
+      s += `<line x1="${L0}" x2="${L0+pw}" y1="${Y(x)}" y2="${Y(x)}" stroke="var(--muted)" stroke-dasharray="3 4"/>` + txt(L0+pw+4, Y(x)+(Math.abs(Y(x)-Y(M)) < 14 ? 16 : 4), `X<tspan baseline-shift="sub" font-size="9">${g.s}</tspan>`, { col:"var(--ink)", b:1 });
+      s += `<line x1="${X(1)-8}" x2="${X(1)-8}" y1="${Y(M)}" y2="${Y(x)}" stroke="${col}" stroke-width="5" stroke-opacity=".6"/>`;
+      s += `<circle cx="${X(0)}" cy="${Y(M)}" r="4.5" fill="var(--c4)"/><circle cx="${X(1)}" cy="${Y(x)}" r="4.5" fill="var(--ink)"/>`;
+      if (!narrow){
+        const x0 = L0 + pw + 34; let y = T0 + 14;
+        const line = (t, o) => { s += txt(x0, y, t, o); y += 19; };
+        line(`Round ${g.s}`, { col:"var(--ink)", b:1, fs:13 });
+        line(`sold λ = ${lam().toFixed(3)} shares per unit`);
+        line(`of wealth at m = ${M.toFixed(2)}, bought back`);
+        line(`at X<tspan baseline-shift="sub" font-size="9">${g.s}</tspan> = ${x.toFixed(3)}: profit λ(m − X<tspan baseline-shift="sub" font-size="9">${g.s}</tspan>)`);
+        line(`= ${(lam()*gain >= 0 ? "+" : "−")}${Math.abs(lam()*gain).toFixed(3)} per unit of wealth`, { col, b:1 });
+        line(`wealth × ${g.last.f.toFixed(3)}`, { col:"var(--ink)" });
+        line(`wealth now ${fmtW(g.logW[g.s])}`, { col:"var(--ink)", b:1 });
+      }
+    } else s += txt(L0 + pw/2, Y(M) - 10, "Press Step: the price starts at m and moves to X", { a:"middle" });
+    el.innerHTML = s;
+  }
+  const fmtW = lw => lw === -Infinity ? "0 (bankrupt)" : lw > 9 ? Math.exp(lw).toExponential(2).replace("e+", " × 10^") : Math.exp(lw).toPrecision(3);
+  function drawWealth(){
+    const f = phi(lam()), T = thr(), cap = Math.max(T + 1, 60);
+    const cur = g.logW.map((v, i) => [i, v]);
+    const vals = [...cur, ...ghosts.flat()].map(q => q[1]).filter(isFinite);
+    if (isFinite(f)) vals.push(S*f); if (K.v > 1e-9) vals.push(S*K.v);
+    const lo = Math.max(Math.min(-2, ...vals), -15), hi = Math.min(Math.max(T + 1, ...vals), cap);
+    const upto = q => { const i = q.findIndex(c => c[1] > hi); return i < 0 ? q : q.slice(0, i); };   // stop a path where it leaves the chart
+    const ray = r => [[0, 0], r*S > hi ? [hi/r, hi] : r*S < lo ? [lo/r, lo] : [S, r*S]];
+    const lines = ghosts.map(q => ({ pts:upto(q), col:"var(--line)", w:1 }));
+    if (isFinite(f)) lines.push({ pts:ray(f), col:"var(--muted)", w:1.5, dash:"6 5" });
+    if (K.v > 1e-9) lines.push({ pts:ray(K.v), col:"var(--c3)", w:1.5, dash:"2 4" });
+    lines.push({ pts:[[0, T],[S, T]], col:"var(--c0)", w:1.5, dash:"8 4" });
+    lines.push({ pts:upto(cur), col:"var(--accent)", w:2.5 });
+    plotL2(P+"Wealth", { height:260, x:{min:0, max:S, label:"round s"}, y:{min:lo, max:hi, label:"log wealth, log Wₛ(λ, m)"}, lines });
+    legendL2(P+"WealthKey", [
+      { col:"var(--accent)", w:2.5, label:"this run" },
+      ...(ghosts.length ? [{ col:"var(--line)", w:1, label:"100 runs" }] : []),
+      { col:"var(--muted)", w:1.5, dash:"6 5", label:`s φ(λ): the law of large numbers`, note:isFinite(f) ? `φ(λ) = ${f.toFixed(3)}` : "φ(λ) = −∞" },
+      ...(K.v > 1e-9 ? [{ col:"var(--c3)", w:1.5, dash:"2 4", label:"s K<sub>inf</sub>(μ, m): the best rate (Lemma 5.4)", note:`K<sub>inf</sub> = ${K.v.toFixed(3)}` }] : []),
+      { col:"var(--c0)", w:1.5, dash:"8 4", label:`rich: wealth ${$(P+"Delta").value} = 1/δ`, note:"Ville: if mean ≥ m, P(ever rich) ≤ δ" }]);
+  }
+  function drawPhi(){
+    const L = Lam(), pts = [];
+    for (let i=0; i<=300; i++){ const l = L*i/300; pts.push([l, phi(l)]); }
+    const fin = pts.map(q => q[1]).filter(isFinite);
+    const top = Math.max(...fin, 0), span = Math.max(top, .05);
+    const lo = Math.max(Math.min(...fin), -2*span), hi = top + .15*span;
+    const lines = [{ pts:[[0,0],[L,0]], col:"var(--rule)", w:1 }, { pts, col:"var(--ink)", w:2 }];
+    const dots = [{ x:K.l, y:K.v, col:"var(--c3)", r:6 }];
+    if (isFinite(phi(lam()))) dots.push({ x:lam(), y:phi(lam()), col:"var(--accent)", r:5 });
+    plotL2(P+"Phi", { height:220, x:{min:0, max:L, label:`stake λ, from 0 to Λₘ = ${L.toFixed(2)}`}, y:{min:lo, max:hi, label:"growth rate φ(λ) = E log(1 + λ(m − X))"}, lines, dots, vlines:[{ x:lam(), col:"var(--accent)", dash:"4 4" }] });
+    legendL2(P+"PhiKey", [
+      { dot:true, col:"var(--c3)", label:"Kelly stake λ* and φ(λ*) = K<sub>inf</sub>(μ, m)", note:`λ* = ${K.l.toFixed(3)}${Math.abs(K.l - L) < 1e-6*L ? " = Λₘ: all in" : ""}, K<sub>inf</sub> = ${K.v.toFixed(3)}` },
+      { dot:true, col:"var(--accent)", label:"your stake λ" }]);
+  }
+  function status(){
+    $(P+"Round").textContent = `Round ${g.s} of ${S}`;
+    const dead = g.logW[g.s] === -Infinity;
+    $(P+"Step").disabled = g.s >= S || dead;
+    let s = `Prices ${lawName()}, short at m = ${m().toFixed(2)} with stake λ = ${lam().toFixed(3)} (Λₘ = ${Lam().toFixed(2)}). `;
+    if (dead) s += `Bankrupt: a price of 1 with the stake all in, λ = Λₘ, wipes out the wealth.`;
+    else if (g.s && g.logW[g.s] >= thr()) s += `Rich: the wealth passed ${$(P+"Delta").value}, which is evidence at level δ = ${1/+$(P+"Delta").value} that the mean is below m.`;
+    else if (!g.s && !manyMsg) s += p() >= m() - 1e-9 ? `The mean is at least m: the short sale does not pay on average.` : `The mean is below m: the short sale pays on average, if the stake is not too large.`;
+    $(P+"Status").innerHTML = s + (manyMsg ? " " + manyMsg : "");
+  }
+  function draw(){ drawPic(); drawWealth(); drawPhi(); status(); }
+  const RATE = { slow:2, medium:15, fast:150 };
+  function stop(){ cancelAnimationFrame(timer); timer = 0; $(P+"Play").textContent = "Play"; }
+  function play(){
+    if (timer){ stop(); return; }
+    if (g.s >= S || g.logW[g.s] === -Infinity) deal(true);
+    $(P+"Play").textContent = "Pause"; acc = 0; let prev = performance.now();
+    const tick = now => {
+      acc += (now - prev)/1000*RATE[$(P+"Speed").value]; prev = now;
+      let more = true; while (acc >= 1 && more){ more = step(); acc -= 1; }
+      draw();
+      if (more) timer = requestAnimationFrame(tick); else stop();
+    };
+    timer = requestAnimationFrame(tick);
+  }
+  const reset = () => deal(false);
+  bindSlider(P+"P", 2, null, reset); bindSlider(P+"M", 2, null, reset); bindSlider(P+"U", 2, null, reset);
+  $(P+"Law").addEventListener("change", reset); $(P+"Delta").addEventListener("change", () => { manyMsg = ""; ghosts = []; draw(); });
+  $(P+"Kelly").addEventListener("click", () => { const k = kelly(); $(P+"U").value = (k.l/Lam()).toFixed(2); $(P+"UOut").textContent = (+$(P+"U").value).toFixed(2); reset(); });
+  $(P+"Step").addEventListener("click", () => { stop(); step(); draw(); });
+  $(P+"Play").addEventListener("click", play);
+  $(P+"New").addEventListener("click", reset);
+  $(P+"Many").addEventListener("click", many);
+  deal(false);
+  return { start(){}, redraw(){ if (g) draw(); } };
+}
+
 /* ---------- boot ---------- */
 const widgets = {};
 const defs = [["phase-demo", phaseWidget], ["self-demo", selfWidget], ["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],
-              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget], ["etcrun-demo", etcRunWidget], ["ucbrun-demo", ucbRunWidget], ["ev-demo", evidenceWidget]];
+              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget], ["etcrun-demo", etcRunWidget], ["ucbrun-demo", ucbRunWidget], ["ev-demo", evidenceWidget], ["short-demo", shortWidget]];
 function boot(){
   // Build each widget independently, so one failure cannot stop the others.
   for (const [id, mk] of defs) if ($(id)) { try { widgets[id] = mk(); } catch (e) { console.error("simulation " + id + " failed to load", e); } }

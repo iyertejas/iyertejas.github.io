@@ -1,8 +1,8 @@
 <div class="quiz" id="check">
-<div class="q" data-answer="false">
-<p class="q-text"><b>1.</b> For each fixed \(\lambda\), \((W_s(\lambda, m))_{s \ge 0}\) is a nonnegative supermartingale when the prices have mean at least \(m\), so by Ville's inequality \(\mathbb P(B_s(m) \ge x \text{ for some } s) \le 1/x\).</p>
+<div class="q" data-answer="true">
+<p class="q-text"><b>1.</b> For each fixed \(\lambda \in [0, \Lambda_m]\), if the prices are i.i.d. with mean at least \(m\), then \(\mathbb P(W_s(\lambda, m) \ge x \text{ for some } s) \le 1/x\) for every \(x &gt; 0\).</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
-<div class="q-why" hidden><p>False. \(B_s(m)\) uses the stake that is best for the prices already seen, and it is not a supermartingale: already \(\mathbb E[B_1(m)] &gt; 1\) (<a href="course-rl-2026-sheet-5.html#exercise-5-3">Exercise 5.3</a>). Averaging over the stakes (<a href="#lemma-5-6">Lemma 5.6</a>) repairs this at the price of a factor \(s + 1\) (<a href="#corollary-5-7">Corollary 5.7</a>).</p></div>
+<div class="q-why" hidden><p>True. \((W_s(\lambda, m))_{s \ge 0}\) starts at \(1\), is nonnegative since \(\lambda \le \Lambda_m\), and each factor has mean \(1 + \lambda(m - \mathrm{mean}(\mu)) \le 1\), so it is a nonnegative supermartingale, and <a href="#lemma-5-5">Lemma 5.5</a> applies. For the best stake in hindsight, chosen after seeing the prices, this fails; Lecture 6 deals with it.</p></div>
 </div>
 <div class="q" data-answer="false">
 <p class="q-text"><b>2.</b> For rewards in \([0, 1]\), the best stake in <a href="#lemma-5-4">Lemma 5.4</a> is always to go all in, \(\lambda^* = \Lambda_m\).</p>
@@ -15,18 +15,18 @@
 <div class="q-why" hidden><p>False. Here \(d_a = K_{\inf}(\delta_p, m^*) = \log((1 - p)/(1 - m^*))\) (<a href="#remark-5-3">Remark 5.3</a> and <a href="course-rl-2026-sheet-5.html#exercise-5-2">Exercise 5.2</a>), which is of order \(\Delta\), so the lower bound is of order \(\log n/\Delta\).</p></div>
 </div>
 <div class="q" data-answer="false">
-<p class="q-text"><b>4.</b> The K_inf index needs to know the variance of the rewards, or at least a bound on it.</p>
+<p class="q-text"><b>4.</b> Ville's inequality bounds \(\mathbb P(M_n \ge x)\) by \(1/x\) for each fixed \(n\), but says nothing about all \(n\) at once.</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
-<div class="q-why" hidden><p>False. It needs only that the rewards lie in \([0, 1]\). Since \(B_s(m) = \exp(s K_{\inf}(\hat\mu_s, m))\), it adapts to the whole empirical distribution of each arm, and so to its variance.</p></div>
+<div class="q-why" hidden><p>False. For one fixed \(n\) the bound is Markov's inequality. Ville's inequality bounds the probability that \(M_n \ge x\) for some \(n\), that is, for all \(n\) simultaneously, by the same \(1/x\).</p></div>
 </div>
 <div class="q" data-answer="false">
 <p class="q-text"><b>5.</b> Knowing that the arms are Bernoulli gives a smaller Lai–Robbins constant than knowing only that the rewards lie in \([0, 1]\).</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
-<div class="q-why" hidden><p>False. For Bernoulli arms both constants equal \(\mathrm{kl}(m_a, m^*)\) (<a href="course-rl-2026-sheet-5.html#exercise-5-2">Exercise 5.2</a>(b)): the closest alternative on \([0, 1]\) is itself Bernoulli, as in the table of Section 3.</p></div>
+<div class="q-why" hidden><p>False. For Bernoulli arms both constants equal \(\mathrm{kl}(m_a, m^*)\) (<a href="course-rl-2026-sheet-5.html#exercise-5-2">Exercise 5.2</a>(b)): the closest alternative on \([0, 1]\) is itself Bernoulli, as in the table of <a href="#3-the-kelly-criterion">Section 3</a>.</p></div>
 </div>
-<div class="q" data-answer="true">
-<p class="q-text"><b>6.</b> <a href="#corollary-5-7">Corollary 5.7</a> holds for all sample sizes simultaneously.</p>
+<div class="q" data-answer="false">
+<p class="q-text"><b>6.</b> If the prices have mean below \(m\), the short seller's wealth grows for every stake \(\lambda \in (0, \Lambda_m]\).</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
-<div class="q-why" hidden><p>True. This is Ville's inequality. So the random number of pulls of an arm costs nothing, and the price of the bound is the factor \(s + 1\) from <a href="#lemma-5-6">Lemma 5.6</a>, not a union bound over \(s \le n\).</p></div>
+<div class="q-why" hidden><p>False. Its logarithm grows at rate \(\varphi(\lambda)\), which is positive for small \(\lambda\) but can be negative: for \(\mathrm{Ber}(0.5)\) and \(m = 0.6\), \(\varphi(1) \approx -0.02\), and \(\varphi(\Lambda_m) = -\infty\). Try it in the simulation of <a href="#2-short-selling">Section 2</a>.</p></div>
 </div>
 </div>
