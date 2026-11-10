@@ -203,7 +203,7 @@ def tag_used_in(path, used):
 def add_wrap(m, add):
     class M:  # adapter: group(1) text, group(2) id, group(3) the IAL line
         def __init__(s, m): s.m = m
-        def group(s, i): return {1: s.m.group(1), 2: s.m.group(3), 3: s.m.group(2)}[i]
+        def group(s, i): return {0: s.m.group(0), 1: s.m.group(1), 2: s.m.group(3), 3: s.m.group(2)}[i]
     return add(M(m))
 
 def nav(path):

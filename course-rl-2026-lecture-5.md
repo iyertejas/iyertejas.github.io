@@ -28,7 +28,7 @@ $$
 
 The algorithms so far find the means. [Explore-then-commit](course-rl-2026-lecture-2.html#algorithm-2-3) uses the empirical mean to estimate each mean, and [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) uses the empirical mean to build an upper confidence bound for it. The following example shows that the empirical mean alone is not enough.
 
-**Example.** Rewards are known only to lie in $$[0, 1]$$. Arm 1 pays $$0.6$$ every time and arm 2 pays $$0.5$$ every time, so $$\Delta_2 = 0.1$$. Rewards in $$[0, 1]$$ are $$\frac12$$-sub-Gaussian ([Lemma 1.9(b)](course-rl-2026-lecture-1.html#lemma-1-9)), so [Theorem 2.6](course-rl-2026-lecture-2.html#theorem-2-6) bounds the number of pulls of arm 2 by [UCB](course-rl-2026-lecture-2.html#algorithm-2-5)$$(1/n^2)$$ by $$3 + 16 \cdot \frac14 \log n/0.01 = 3 + 400 \log n$$. Its confidence width sees only the number of pulls and the range, so it cannot do much better. The lower bound is far smaller: $$d_2 = \log 1.25 \approx 0.22$$ ([Remark 5.3](#remark-5-3) and Exercise 5.2), so [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) asks for only about $$4.5 \log n$$ pulls. A policy that attains the lower bound must use that arm 2 has never paid anything but $$0.5$$: the whole empirical distribution, not only its mean.
+**Example.** Rewards are known only to lie in $$[0, 1]$$. Arm 1 pays $$0.6$$ every time and arm 2 pays $$0.5$$ every time, so $$\Delta_2 = 0.1$$. Rewards in $$[0, 1]$$ are $$\frac12$$-sub-Gaussian ([Lemma 1.9(b)](course-rl-2026-lecture-1.html#lemma-1-9)), so [Theorem 2.6](course-rl-2026-lecture-2.html#theorem-2-6) bounds the number of pulls of arm 2 by [UCB](course-rl-2026-lecture-2.html#algorithm-2-5)$$(1/n^2)$$ by $$3 + 16 \cdot \frac14 \log n/0.01 = 3 + 400 \log n$$. Its confidence width sees only the number of pulls and the range, so it cannot do much better. The lower bound is far smaller: $$d_2 = \log 1.25 \approx 0.22$$ ([Remark 5.3](#remark-5-3) and [Lemma 5.4](#lemma-5-4)), so [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) asks for only about $$4.5 \log n$$ pulls. A policy that attains the lower bound must use that arm 2 has never paid anything but $$0.5$$: the whole empirical distribution, not only its mean.
 
 So we ask: is there another way to find an upper bound for the mean?
 
@@ -83,7 +83,7 @@ $$
 d_a(\nu, \mathcal M_{[0,1]}) = K_{\inf}(\mu_a, m^*)
 $$
 
-(Exercise 5.1). The constraint $$\mathrm{mean}(\nu) \ge m^*$$ in $$K_{\inf}$$ is weaker than $$\mathrm{mean}(\mu') > m^*$$ in $$d_a$$, which gives one inequality; the other mixes an almost optimal $$\nu$$ with a small atom at $$1$$. So the target is a policy with $$\limsup_n \mathbb E_\nu[N_a(n)]/\log n \le 1/K_{\inf}(\mu_a, m^*)$$.
+([Exercise 5.1](course-rl-2026-sheet-5.html#exercise-5-1)). The constraint $$\mathrm{mean}(\nu) \ge m^*$$ in $$K_{\inf}$$ is weaker than $$\mathrm{mean}(\mu') > m^*$$ in $$d_a$$, which gives one inequality; the other mixes an almost optimal $$\nu$$ with a small atom at $$1$$. So the target is a policy with $$\limsup_n \mathbb E_\nu[N_a(n)]/\log n \le 1/K_{\inf}(\mu_a, m^*)$$.
 
 **Boundedness is what makes this possible.** For the class of all distributions on $$\mathbb R$$ with finite mean, an alternative can raise its mean by moving a tiny mass far to the right, at almost no cost in KL. Then $$d_a = 0$$, and by [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) every consistent policy pulls every suboptimal arm more than $$C \log n$$ times for every $$C$$, asymptotically. In the language of the game: if prices could be arbitrarily large, no positive stake would be safe. Only the upper bound on the rewards matters here.
 
@@ -198,4 +198,4 @@ J. Honda and A. Takemura, An asymptotically optimal bandit algorithm for bounded
 
 On betting: J. L. Kelly, A new interpretation of information rate, *Bell System Technical Journal* 35 (1956), 917–926. J. Ville, *Étude critique de la notion de collectif*, Gauthier-Villars, 1939, for [Lemma 5.5](#lemma-5-5). I. Waudby-Smith and A. Ramdas, Estimating means of bounded random variables by betting, *Journal of the Royal Statistical Society B* 86 (2024), 1–27, for confidence bounds by betting.
 
-<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-4.html">← Lecture 4</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
+<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-4.html">← Lecture 4</a><a href="course-rl-2026-sheet-5.html">Exercise Sheet 5</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
