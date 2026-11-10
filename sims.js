@@ -1723,7 +1723,7 @@ initQuizzes();
 // Lecture 5: selling a stock short at the price m. Each round the price moves from m to X; the wealth is
 // multiplied by 1 + λ(m − X). Its log grows at rate φ(λ) = E log(1 + λ(m − X)), largest at the Kelly stake λ*.
 function shortWidget(){
-  const S = 1000, P = "ss", NGRID = 400, NE = 300;                  // NE: stakes λ = Λₘ·j/NE at which φ̂ₛ is tracked
+  const S = 1000, P = "ss", NGRID = 400;
   const law = () => $(P+"Law").value, p = () => +$(P+"P").value, m = () => +$(P+"M").value;
   const Lam = () => 1/(1 - m()), lam = () => +$(P+"U").value * Lam(), thr = () => Math.log(+$(P+"Delta").value);
   const h = () => Math.min(p(), 1 - p());
@@ -1757,7 +1757,7 @@ function shortWidget(){
     stop();
     if (!keepGhosts){ ghosts = []; manyMsg = ""; }
     K = kelly();
-    g = { s:0, logW:[0], last:null, path:null, old:[], emp:new Float64Array(NE + 1) };   // emp[j] = Σᵢ log(1 + λⱼ(m − Xᵢ))
+    g = { s:0, logW:[0], last:null, path:null, old:[] };
     draw();
   }
   function step(){
@@ -1766,7 +1766,6 @@ function shortWidget(){
     if (g.path) g.old = [g.path, ...g.old].slice(0, 4);
     g.path = bridge(m(), x);
     g.s++; g.logW.push(g.logW[g.s-1] + lg(f)); g.last = { x, f };
-    const L = Lam(), M = m(); for (let j=0; j<=NE; j++) g.emp[j] += lg(1 + L*j/NE*(M - x));
     return g.s < S && g.logW[g.s] > -Infinity;
   }
   function many(){
@@ -1840,23 +1839,15 @@ function shortWidget(){
     const L = Lam(), pts = [];
     for (let i=0; i<=300; i++){ const l = L*i/300; pts.push([l, phi(l)]); }
     const fin = pts.map(q => q[1]).filter(isFinite);
-    const top0 = Math.max(...fin, 0), span = Math.max(top0, .05);
-    const emp = g.s ? Array.from(g.emp, (v, j) => [L*j/NE, v/g.s]) : null;   // φ̂ₛ(λ), the growth rate of this run's prices
-    let eb = 0; if (emp) emp.forEach((q, j) => { if (q[1] > emp[eb][1]) eb = j; });
-    const top = emp ? Math.max(top0, Math.min(emp[eb][1], top0 + 2*span)) : top0;
+    const top = Math.max(...fin, 0), span = Math.max(top, .05);
     const lo = Math.max(Math.min(...fin), -2*span), hi = top + .15*span;
     const lines = [{ pts:[[0,0],[L,0]], col:"var(--rule)", w:1 }, { pts, col:"var(--ink)", w:2 }];
-    if (emp) lines.push({ pts:emp, col:"var(--accent)", w:1.5, dash:"5 3" });
     const dots = [{ x:K.l, y:K.v, col:"var(--c3)", r:6 }];
-    if (emp) dots.push({ x:emp[eb][0], y:emp[eb][1], col:"var(--accent)", r:5, hollow:true });
     if (isFinite(phi(lam()))) dots.push({ x:lam(), y:phi(lam()), col:"var(--accent)", r:5 });
     plotL2(P+"Phi", { height:220, x:{min:0, max:L, label:`stake λ, from 0 to Λₘ = ${L.toFixed(2)}`}, y:{min:lo, max:hi, label:"growth rate φ(λ) = E log(1 + λ(m − X))"}, lines, dots, vlines:[{ x:lam(), col:"var(--accent)", dash:"4 4" }] });
     legendL2(P+"PhiKey", [
       { dot:true, col:"var(--c3)", label:"Kelly stake λ* and φ(λ*) = K<sub>inf</sub>(μ, m)", note:`λ* = ${K.l.toFixed(3)}${Math.abs(K.l - L) < 1e-6*L ? " = Λₘ: all in" : ""}, K<sub>inf</sub> = ${K.v.toFixed(3)}` },
-      { dot:true, col:"var(--accent)", label:"your stake λ" },
-      { col:"var(--accent)", w:1.5, dash:"5 3", label:"φ̂ₛ(λ) = (1/s) log Wₛ(λ, m): the growth rate of this run's prices so far" },
-      { dot:true, hollow:true, col:"var(--accent)", label:"its maximum K<sub>inf</sub>(μ̂ₛ, m), with μ̂ₛ the empirical distribution of the prices",
-        note:g.s ? `after ${g.s} rounds: ${Math.max(0, ...g.emp.filter(isFinite).map(v => v/g.s)).toFixed(3)} at λ ≈ ${(L*eb/NE).toFixed(3)}` : "press Step or Play" }]);
+      { dot:true, col:"var(--accent)", label:"your stake λ" }]);
   }
   function status(){
     $(P+"Round").textContent = `Round ${g.s} of ${S}`;
@@ -1886,11 +1877,13 @@ function shortWidget(){
   const reset = () => deal(false);
   bindSlider(P+"P", 2, null, reset); bindSlider(P+"M", 2, null, reset); bindSlider(P+"U", 2, null, reset);
   $(P+"Law").addEventListener("change", reset); $(P+"Delta").addEventListener("change", () => { manyMsg = ""; ghosts = []; draw(); });
-  $(P+"Kelly").addEventListener("click", () => { const k = kelly(); $(P+"U").value = (k.l/Lam()).toFixed(2); $(P+"UOut").textContent = (+$(P+"U").value).toFixed(2); reset(); });
+  const toKelly = () => { const k = kelly(); $(P+"U").value = (k.l/Lam()).toFixed(2); $(P+"UOut").textContent = (+$(P+"U").value).toFixed(2); };
+  $(P+"Kelly").addEventListener("click", () => { toKelly(); reset(); });
   $(P+"Step").addEventListener("click", () => { stop(); step(); draw(); });
   $(P+"Play").addEventListener("click", play);
   $(P+"New").addEventListener("click", reset);
   $(P+"Many").addEventListener("click", many);
+  toKelly();                                                          // start at the Kelly stake
   deal(false);
   return { start(){}, redraw(){ if (g) draw(); } };
 }
