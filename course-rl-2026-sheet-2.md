@@ -19,7 +19,7 @@ Please report any errors or unclear points, in the lecture or by email.
 **Exercise 2.1 (ETC: the log n bound).** Prove [Theorem 2.4(b)](course-rl-2026-lecture-2.html#theorem-2-4). For $$K = 2$$, with $$\ell = \ell_{\min}$$, what is the probability of committing to the wrong arm, and what does such a mistake cost? Minimise $$\Delta\ell + \Delta n\, e^{-\ell\Delta^2/(4\sigma^2)}$$ over real $$\ell$$ and compare.
 {: #exercise-2-1}
 
-**Exercise 2.2 (ETC without knowing $$\Delta$$).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#4-what-is-wrong-with-etc">Lecture 2, Section 4</a>; <a href="course-rl-2026-lecture-2.html#remark-2-7">Remark 2.7</a></span> A 2-armed SBM with $$\sigma$$-sub-Gaussian rewards and $$\Delta \in (0, \sigma]$$ unknown.
+**Exercise 2.2 (ETC without knowing $$\Delta$$).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#4-what-is-wrong-with-etc">Lecture 2, Section 4</a></span> A 2-armed SBM with $$\sigma$$-sub-Gaussian rewards and $$\Delta \in (0, \sigma]$$ unknown.
 {: #exercise-2-2}
 
 (a) Show that $$\ell = \lceil n^{2/3} \rceil$$ gives $$R_n \le C\sigma n^{2/3}$$ with $$C$$ independent of $$\Delta$$ and $$\sigma$$. (*Hint:* maximise $$\Delta e^{-\ell\Delta^2/(4\sigma^2)}$$ over $$\Delta$$.)

@@ -36,8 +36,6 @@ $$
 
 with the conventions $$1/\infty = 0$$ and $$1/0 = \infty$$.
 
-This is [Theorem 3.10](course-rl-2026-lecture-3.html#theorem-3-10), stated in Lecture 3.
-
 *Proof.* The bound on the regret follows from the bound on $$\mathbb E_\nu[N_a(n)]$$ by [Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6). Fix $$\nu \in \mathcal M^K$$ and an arm $$a$$ with $$\Delta_a > 0$$. If $$d_a = \infty$$ there is nothing to prove. Otherwise fix $$\varepsilon > 0$$ and choose $$\mu_a' \in \mathcal M$$ with $$\mathrm{mean}(\mu_a') > m^*$$ and $$\mathrm{KL}(\mu_a \,\Vert\, \mu_a') < d_a + \varepsilon$$.
 
 Let $$\nu'$$ be the environment obtained from $$\nu$$ by replacing $$\mu_a$$ by $$\mu_a'$$. Then $$\nu' \in \mathcal M^K$$, since the class is unstructured: this is where that assumption is used. Both environments are run with the same policy $$\pi$$. They differ only in arm $$a$$, and $$\mu_a \ll \mu_a'$$ since $$\mathrm{KL}(\mu_a \,\Vert\, \mu_a') < \infty$$, so by [Lemma 3.6](course-rl-2026-lecture-3.html#lemma-3-6)
@@ -68,7 +66,7 @@ Dividing by $$(d_a + \varepsilon)\log n$$ gives $$\liminf_n \mathbb E_\nu[N_a(n)
 
 ## 2. The minimax lower bound
 
-In [Section 1](#1-the-lairobbins-theorem) we fixed an environment $$\nu$$ and asked how small the regret of a policy can be, asymptotically in $$n$$. Now we fix $$n$$ and ask for the worst regret over all environments, so the gaps $$\Delta_a$$ may depend on $$n$$. Each environment is still an ordinary SBM, fixed for the whole run ([Remark 2.7](course-rl-2026-lecture-2.html#remark-2-7)(4)).
+In [Section 1](#1-the-lairobbins-theorem) we fixed an environment $$\nu$$ and asked how small the regret of a policy can be, asymptotically in $$n$$. Now we fix $$n$$ and ask for the worst regret over all environments, so the gaps $$\Delta_a$$ may depend on $$n$$.
 
 **Definition 4.2 (minimax regret).** For a class $$\mathcal M^K$$ of $$K$$-armed SBM environments and a horizon $$n$$, the *minimax regret* is
 {: #definition-4-2}
@@ -77,7 +75,7 @@ $$
 R_n^*(\mathcal M^K) = \inf_\pi \sup_{\nu \in \mathcal M^K} R_n(\pi, \nu).
 $$
 
-The supremum is taken after $$n$$ and $$\pi$$ are fixed, so the worst environment may depend on both. A larger class can only make $$R_n^*$$ larger.
+The supremum is taken after $$n$$ and $$\pi$$ are fixed, so the worst environment may depend on both.
 
 **Definition 4.3 (cost of raising a mean).** For a class $$\mathcal M$$ of probability measures on $$\mathbb R$$ with finite means and $$\eta > 0$$, let
 {: #definition-4-3}
@@ -86,7 +84,7 @@ $$
 d^\eta = d^\eta(\mathcal M) = \inf\big\{\mathrm{KL}(\mu \,\Vert\, \mu') : \mu, \mu' \in \mathcal M,\ \mathrm{mean}(\mu') > \mathrm{mean}(\mu) + \eta\big\} \in [0, \infty], \qquad \inf\emptyset = \infty.
 $$
 
-So $$d^\eta$$ is the least information per sample that separates two distributions in $$\mathcal M$$ whose means differ by more than $$\eta$$. It depends only on the class, and it is nondecreasing in $$\eta$$. For $$\nu \in \mathcal M^K$$, the constant $$d_a$$ of [Section 1](#1-the-lairobbins-theorem) is the same infimum with $$\mu = \mu_a$$ fixed, since $$\mathrm{mean}(\mu') > m^*$$ means $$\mathrm{mean}(\mu') > \mathrm{mean}(\mu_a) + \Delta_a$$; in particular $$d_a \ge d^{\Delta_a}$$. For example, for $$\mathcal M = \{N(m, \sigma^2) : m \in \mathbb R\}$$, [Example 3.3(b)](course-rl-2026-lecture-3.html#example-3-3) gives $$d^\eta = \eta^2/(2\sigma^2)$$.
+So $$d^\eta$$ is the least information per sample that separates two distributions in $$\mathcal M$$ whose means differ by more than $$\eta$$. It depends only on the class, and it is nondecreasing in $$\eta$$. For $$\nu \in \mathcal M^K$$, the constant $$d_a$$ of [Section 1](#1-the-lairobbins-theorem) is the same infimum with $$\mu = \mu_a$$ fixed, since $$\mathrm{mean}(\mu') > m^*$$ means $$\mathrm{mean}(\mu') > \mathrm{mean}(\mu_a) + \Delta_a$$; in particular $$d_a \ge d^{\Delta_a}$$. For example, for $$\mathcal M = \{N(m, \sigma^2) : m \in \mathbb R\}$$, [Example 3.3](course-rl-2026-lecture-3.html#example-3-3) gives $$d^\eta = \eta^2/(2\sigma^2)$$.
 
 **Theorem 4.4 (minimax lower bound).** Let $$\mathcal M$$ be a class of probability measures on $$\mathbb R$$ with finite means such that $$\{\mathrm{mean}(\mu) : \mu \in \mathcal M\}$$ is an interval, and let $$K \ge 2$$ and $$n \in \mathbb N$$. Then, with the convention $$e^{-\infty} = 0$$,
 {: #theorem-4-4}
@@ -120,9 +118,6 @@ R_n(\pi,\nu) + R_n(\pi,\nu') \ge \frac{n\Delta}{2}\Big(\mathbb P_\nu\big(N_{a'}(
 $$
 
 The larger of two numbers is at least half their sum, so one of the two regrets is at least $$\frac{n\Delta}{8}\exp\big(-\frac{n}{K-1}(d^{2\Delta}+\varepsilon)\big)$$, and hence so is $$\sup_{\nu'' \in \mathcal M^K} R_n(\pi, \nu'')$$. Let $$\varepsilon \downarrow 0$$ and take the supremum over $$\Delta > 0$$. Since $$\pi$$ was arbitrary, the bound holds for the infimum over $$\pi$$. $$\square$$
-
-*Correction to the lecture.* On the board, the proof ended with the bound $$\frac{n\Delta}{4}\exp\big(-\frac{n}{K-1}d^{2\Delta}\big)$$ on the sum $$R_n(\pi,\nu) + R_n(\pi,\nu')$$. The last step, passing from the sum to the larger of the two regrets, costs a further factor $$\frac12$$, so the constant in [Theorem 4.4](#theorem-4-4) is $$\frac18$$, not $$\frac14$$.
-{: .note}
 
 **Corollary 4.5 (quadratic cost).** Suppose that the means of $$\mathcal M$$ form an interval. Let $$C > 0$$ and $$n \in \mathbb N$$, and put $$\Delta = \sqrt{(K-1)/(2Cn)}$$. If $$d^{2\Delta} \le C\Delta^2$$, then
 {: #corollary-4-5}
@@ -179,7 +174,7 @@ $$
 
 *Proof.* [Theorem 2.6](course-rl-2026-lecture-2.html#theorem-2-6) gives the assumption of [Lemma 4.7](#lemma-4-7) with $$A = 3$$ and $$B = 16\sigma^2\log n$$, and $$2\sqrt{16\sigma^2 Kn\log n} = 8\sigma\sqrt{Kn\log n}$$. $$\square$$
 
-With [Remark 4.6](#remark-4-6)(1), $$\sqrt{Kn}$$ is the right order of the worst-case regret for $$\sigma$$-sub-Gaussian rewards, up to a factor $$\sqrt{\log n}$$. That factor comes from $$\delta = 1/n^2$$ in the confidence width. A modification of [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) called MOSS removes it and attains order $$\sqrt{Kn}$$ (Lattimore–Szepesvári, Chapter 9), so [Theorem 4.4](#theorem-4-4) is sharp up to constants. [Lemma 4.7](#lemma-4-7) applies to any policy with a pull-count bound of this form, so later policies get a worst-case bound for free.
+With [Remark 4.6](#remark-4-6)(1), $$\sqrt{Kn}$$ is the right order of the worst-case regret for $$\sigma$$-sub-Gaussian rewards, up to a factor $$\sqrt{\log n}$$. A modification of [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) called MOSS removes that factor (Lattimore–Szepesvári, Chapter 9).
 
 **The two scales, side by side.**
 

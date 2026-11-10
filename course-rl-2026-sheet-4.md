@@ -23,7 +23,7 @@ Please report any errors or unclear points, in the lecture or by email.
 
 (b) Deduce that $$2\eta^2 \le d^\eta \le \eta\log\frac{1+\eta}{1-\eta}$$ for $$\eta \in (0,1)$$, and show that $$d^\eta = \infty$$ for $$\eta \ge 1$$. (*Hint:* for the upper bound, take $$p = (1-\eta)/2$$ and let $$q \downarrow (1+\eta)/2$$.)
 
-(c) Let $$\nu = (\mathrm{Ber}(0.95), \mathrm{Ber}(0.9))$$, so that $$\Delta_2 = 0.05$$. Compute the constant $$d_2$$ of [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) numerically ([Remark 3.12](course-rl-2026-lecture-3.html#remark-3-12)(2) gives $$d_2 = \mathrm{kl}(0.9, 0.95)$$), and compare it with the bounds on $$d^{\Delta_2}$$ from (b).
+(c) Let $$\nu = (\mathrm{Ber}(0.95), \mathrm{Ber}(0.9))$$, so that $$\Delta_2 = 0.05$$. Compute the constant $$d_2$$ of [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) numerically ([Remark 3.12](course-rl-2026-lecture-3.html#remark-3-12)(1) gives $$d_2 = \mathrm{kl}(0.9, 0.95)$$), and compare it with the bounds on $$d^{\Delta_2}$$ from (b).
 
 (d) [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) for this $$\nu$$ involves $$d_2$$, which depends on where the means lie in $$[0,1]$$, while [Theorem 4.4](course-rl-2026-lecture-4.html#theorem-4-4) involves only $$d^{2\Delta}$$, an infimum over all pairs of means. Explain in a sentence why a worst-case bound cannot see that arms with means close to 1 are easier to tell apart.
 

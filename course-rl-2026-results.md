@@ -41,7 +41,7 @@ Every numbered definition, algorithm and result from the lecture notes, in one l
 
 - [Definition 3.1](course-rl-2026-lecture-3.html#definition-3-1) (Kullback–Leibler divergence). $$\mathrm{KL}(P \,\Vert\, Q) = \mathbb E_P[\log (dP/dQ)]$$ if $$P \ll Q$$, and $$+\infty$$ otherwise.
 - [Lemma 3.2](course-rl-2026-lecture-3.html#lemma-3-2) (Gibbs' inequality). $$\mathrm{KL}(P \,\Vert\, Q) \ge 0$$, with equality if and only if $$P = Q$$.
-- [Example 3.3](course-rl-2026-lecture-3.html#example-3-3) (Gaussian measures). $$\mathrm{KL}(N(m, \sigma^2) \,\Vert\, N(m', \sigma^2)) = (m - m')^2/(2\sigma^2)$$; a formula for $$N(0, \sigma_P^2)$$ against $$N(0, \sigma_Q^2)$$.
+- [Example 3.3](course-rl-2026-lecture-3.html#example-3-3) (Gaussian measures). $$\mathrm{KL}(N(m, \sigma^2) \,\Vert\, N(m', \sigma^2)) = (m - m')^2/(2\sigma^2)$$.
 - [Theorem 3.4](course-rl-2026-lecture-3.html#theorem-3-4) (Bretagnolle–Huber). $$P(A) + Q(A^c) \ge \frac12 e^{-\mathrm{KL}(P \,\Vert\, Q)}$$ for every event $$A$$.
 - [Lemma 3.5](course-rl-2026-lecture-3.html#lemma-3-5) (likelihood ratio of histories). $$d\mathbb P_\nu/d\mathbb P_{\nu'}(h_n) = \prod_t (d\mu_{a_t}/d\mu'_{a_t})(x_t)$$: the policy does not appear.
 - [Lemma 3.6](course-rl-2026-lecture-3.html#lemma-3-6) (divergence decomposition). $$\mathrm{KL}(\mathbb P_\nu \,\Vert\, \mathbb P_{\nu'}) = \sum_a \mathbb E_\nu[N_a(n)]\, \mathrm{KL}(\mu_a \,\Vert\, \mu'_a)$$.
@@ -50,7 +50,7 @@ Every numbered definition, algorithm and result from the lecture notes, in one l
 - [Definition 3.9](course-rl-2026-lecture-3.html#definition-3-9) (unstructured classes). $$\mathcal E = \mathcal M^K$$, and $$d_a = \inf\{\mathrm{KL}(\mu_a \,\Vert\, \mu') : \mu' \in \mathcal M,\ \mathrm{mean}(\mu') > m^*\}$$.
 - [Theorem 3.10](course-rl-2026-lecture-3.html#theorem-3-10) (Lai–Robbins). For consistent policies over $$\mathcal M^K$$, $$\liminf_n \mathbb E_\nu[N_a(n)]/\log n \ge 1/d_a$$, so $$\liminf_n R_n/\log n \ge \sum_{a : \Delta_a > 0} \Delta_a/d_a$$. Restated and proved as [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1).
 - [Corollary 3.11](course-rl-2026-lecture-3.html#corollary-3-11) (Gaussian arms). For $$N(m, \sigma^2)$$ arms, $$d_a = \Delta_a^2/(2\sigma^2)$$, so $$\liminf_n R_n/\log n \ge \sum_{a : \Delta_a > 0} 2\sigma^2/\Delta_a$$.
-- [Remark 3.12](course-rl-2026-lecture-3.html#remark-3-12). The constant $$2\sigma^2/\Delta_a$$ is sharp; the order in KL matters; unstructured classes matter.
+- [Remark 3.12](course-rl-2026-lecture-3.html#remark-3-12). The order in KL matters; unstructured classes matter.
 
 ## Lecture 4: Lower bounds at two scales
 

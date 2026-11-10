@@ -42,7 +42,7 @@ $$
 
 In words: given the past and the arm pulled, the reward is a fresh draw from that arm's distribution. Rewards are not assumed independent of the past in any other sense. The learner's choices depend on earlier rewards, and that is what makes the problem interesting.
 
-**Remark 1.2 (stationarity).** In this model the distributions $$\mu_a$$ do not change over time. One can also allow the reward distribution of arm $$a$$ in round $$t$$ to be $$\mu_{a,t}$$, with a mean $$m_{a,t}$$ that changes with $$t$$: the video platform's users change their tastes. Such *non-stationary* bandits are harder, and in the first part of the course we stay with the stationary model.
+**Remark 1.2 (stationarity).** In this model the distributions $$\mu_a$$ do not change over time. *Non-stationary* bandits, where they do, are not covered in the first part of the course.
 {: #remark-1-2}
 
 **Definition 1.3 (policy).** A *policy* $$\pi$$ tells the learner how to choose $$A_t$$ on the basis of the history $$H_{t-1}$$, possibly using extra randomness. (Formally, $$\pi = (\pi_t)_{t \ge 1}$$ is a sequence of probability kernels from $$([K] \times \mathbb R)^{t-1}$$ to $$[K]$$: for each possible history $$h = (a_1, x_1, \dots, a_{t-1}, x_{t-1})$$, $$\pi_t(\cdot, h)$$ is a probability measure on $$[K]$$, and for each arm $$a$$, $$h \mapsto \pi_t(a, h)$$ is measurable. The learner draws $$A_t$$ from $$\pi_t(\cdot, H_{t-1})$$; that is, $$\mathbb P(A_t = a \mid H_{t-1}) = \pi_t(a, H_{t-1})$$.)
@@ -68,7 +68,7 @@ $$
 R_n(\pi) = n\,m^* - \mathbb E_\pi\Big[\sum_{t=1}^n X_t\Big].
 $$
 
-It compares $$\pi$$ with an oracle that knows the means and always plays a best arm. Regret also depends on the environment $$\nu$$, which is fixed for the whole run: it does not change from round to round. When we compare different environments we write $$R_n(\pi, \nu)$$. Some results fix $$\nu$$ and let $$n$$ grow; others fix the horizon $$n$$ first and then ask for the worst environment, which may depend on $$n$$. In both cases the environment stays fixed during the run. The *pull counts* are
+It compares $$\pi$$ with an oracle that knows the means and always plays a best arm. When we compare different environments we write $$R_n(\pi, \nu)$$. The *pull counts* are
 
 $$
 N_a(t) = \sum_{s=1}^{t} \mathbf 1\{A_s = a\}, \qquad a \in [K].

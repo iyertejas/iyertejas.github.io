@@ -12,7 +12,7 @@ sims: true
 [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html) · TU Berlin · Winter 2026/27 · Lecture of 10 November 2026
 {: .lede}
 
-These notes cover the fifth lecture. The Lai–Robbins theorem says how often a consistent policy must pull a suboptimal arm. This lecture and the next build a policy for rewards in $$[0, 1]$$ that attains this bound. Like [UCB](course-rl-2026-lecture-2.html#algorithm-2-5), it will play the arm with the largest upper confidence bound for the mean, but the bound comes from betting rather than from the empirical mean. [Section 2](#2-short-selling) introduces the bet: selling a stock short at the price $$m$$. [Section 3](#3-the-kelly-criterion) proves the Kelly criterion: the best growth rate of the short seller's wealth is exactly the constant of the Lai–Robbins theorem. [Section 4](#4-villes-inequality) proves Ville's inequality, which says that a short seller who should not win rarely gets rich, at any time. Lecture 6 turns this into the policy and proves that it is asymptotically optimal.
+These notes cover the fifth lecture. For rewards in $$[0, 1]$$, the Lai–Robbins constant is the best growth rate of a short seller's wealth ([Lemma 5.4](#lemma-5-4)), and a short seller who should not win rarely gets rich, at any time ([Lemma 5.5](#lemma-5-5)). Lecture 6 turns these into an asymptotically optimal policy.
 
 Please report any errors or unclear points, in the lecture or by email.
 
@@ -28,7 +28,7 @@ $$
 
 The algorithms so far find the means. [Explore-then-commit](course-rl-2026-lecture-2.html#algorithm-2-3) uses the empirical mean to estimate each mean, and [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) uses the empirical mean to build an upper confidence bound for it. The following example shows that the empirical mean alone is not enough.
 
-**Example.** Rewards are known only to lie in $$[0, 1]$$. Arm 1 pays $$0.6$$ every time and arm 2 pays $$0.5$$ every time, so $$\Delta_2 = 0.1$$. Rewards in $$[0, 1]$$ are $$\frac12$$-sub-Gaussian ([Lemma 1.9(b)](course-rl-2026-lecture-1.html#lemma-1-9)), so [Theorem 2.6](course-rl-2026-lecture-2.html#theorem-2-6) bounds the number of pulls of arm 2 by [UCB](course-rl-2026-lecture-2.html#algorithm-2-5)$$(1/n^2)$$ by $$3 + 16 \cdot \frac14 \log n/0.01 = 3 + 400 \log n$$. Its confidence width sees only the number of pulls and the range, so it cannot do much better. The lower bound is far smaller: $$d_2 = \log 1.25 \approx 0.22$$ ([Remark 5.3](#remark-5-3) and [Lemma 5.4](#lemma-5-4)), so [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) asks for only about $$4.5 \log n$$ pulls. A policy that attains the lower bound must use that arm 2 has never paid anything but $$0.5$$: the whole empirical distribution, not only its mean.
+**Example.** Rewards are known only to lie in $$[0, 1]$$. Arm 1 pays $$0.6$$ every time and arm 2 pays $$0.5$$ every time, so $$\Delta_2 = 0.1$$. Rewards in $$[0, 1]$$ are $$\frac12$$-sub-Gaussian ([Lemma 1.9(b)](course-rl-2026-lecture-1.html#lemma-1-9)), so [Theorem 2.6](course-rl-2026-lecture-2.html#theorem-2-6) bounds the number of pulls of arm 2 by [UCB](course-rl-2026-lecture-2.html#algorithm-2-5)$$(1/n^2)$$ by $$3 + 16 \cdot \frac14 \log n/0.01 = 3 + 400 \log n$$. The lower bound is far smaller: $$d_2 = \log 1.25 \approx 0.22$$ ([Remark 5.3](#remark-5-3) and [Lemma 5.4](#lemma-5-4)), so [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) asks for only about $$4.5 \log n$$ pulls. A policy that attains the lower bound must use that arm 2 has never paid anything but $$0.5$$: the whole empirical distribution, not only its mean.
 
 So we ask: is there another way to find an upper bound for the mean?
 
@@ -47,15 +47,15 @@ and $$W_0(\lambda, m) = 1$$.
 
 Since $$x_i \le 1$$, each factor is at least $$1 - \lambda(1 - m) \ge 0$$, so $$\lambda \le \Lambda_m$$ guarantees $$W_s(\lambda, m) \ge 0$$. The stake $$\Lambda_m$$ is the largest for which a price of $$1$$ cannot make our wealth negative. At $$\lambda = \Lambda_m$$ we are all in, and a single price $$x_i = 1$$ wipes us out.
 
-**Why wealth is evidence.** Suppose the prices are i.i.d. with law $$\mu$$. If $$\mathrm{mean}(\mu) \ge m$$, then $$\mathbb E_\mu[1 + \lambda(m - X)] = 1 + \lambda(m - \mathrm{mean}(\mu)) \le 1$$: the short sale does not pay on average, and $$(W_s(\lambda, m))_{s \ge 0}$$ is a nonnegative supermartingale. [Section 4](#4-villes-inequality) shows that such a process rarely becomes large, at any time. So if we nevertheless get rich, that is evidence that the mean is below $$m$$, just as winning steadily at a casino that is supposed to be fair is evidence that the game is not what we were told. Short selling is a good strategy only if $$m$$ is *not* an upper bound for the mean. Two variations of the game fail. *Bankruptcy protection*, that is, allowing $$\lambda > \Lambda_m$$ and replacing the factor by its positive part, makes the short sale pay even when the mean is $$m$$: for $$m = \frac12$$, prices $$\mathrm{Ber}(\frac12)$$ and $$\lambda = 4$$, the expected factor is $$\frac12(3 + 0) = \frac32$$. A *long position*, $$\lambda < 0$$, pays when the prices are large, which is what the hypothesis $$\mathrm{mean}(\mu) \ge m$$ predicts.
+**Why wealth is evidence.** Suppose the prices are i.i.d. with law $$\mu$$. If $$\mathrm{mean}(\mu) \ge m$$, then $$\mathbb E_\mu[1 + \lambda(m - X)] = 1 + \lambda(m - \mathrm{mean}(\mu)) \le 1$$: the short sale does not pay on average, and $$(W_s(\lambda, m))_{s \ge 0}$$ is a nonnegative supermartingale. [Section 4](#4-villes-inequality) shows that such a process rarely becomes large, at any time. So if we nevertheless get rich, that is evidence that the mean is below $$m$$.
 
-**Why the log.** If instead $$\mathrm{mean}(\mu) < m$$, the short sale pays on average. But wealth compounds multiplicatively, so what matters is its growth rate. We may write
+**Why the log.** If instead $$\mathrm{mean}(\mu) < m$$, the short sale pays on average. But wealth compounds multiplicatively, so what matters is its growth rate. By the strong law of large numbers,
 
 $$
-W_s(\lambda, m) = \exp\Big( s \cdot \frac1s \sum_{i=1}^s \log\big(1 + \lambda(m - X_i)\big) \Big) \approx \exp\Big( s\, \mathbb E_\mu\big[\log\big(1 + \lambda(m - X)\big)\big] \Big)
+\frac1s \log W_s(\lambda, m) = \frac1s \sum_{i=1}^s \log\big(1 + \lambda(m - X_i)\big) \to \mathbb E_\mu\big[\log\big(1 + \lambda(m - X)\big)\big] \quad \text{almost surely}
 $$
 
-by the law of large numbers. The average factor is misleading: a bet that doubles or halves the wealth with probability $$\frac12$$ each has average factor $$\frac54$$, but $$\frac12 \log 2 - \frac12 \log 2 = 0$$, and the wealth does not grow. This is also why staking too much hurts: one price close to $$1$$ can undo many good rounds.
+(also when the limit is $$-\infty$$, since the logarithms are bounded above). So the wealth grows or shrinks exponentially, at this rate. The average factor is misleading: a bet that doubles or halves the wealth with probability $$\frac12$$ each has average factor $$\frac54$$, but $$\frac12 \log 2 - \frac12 \log 2 = 0$$, and the wealth does not grow.
 
 **Definition 5.2.** We write $$\mathcal M_{[0,1]}$$ for the set of probability measures on $$[0, 1]$$. For $$\mu \in \mathcal M_{[0,1]}$$ and $$m \in [0, 1)$$, set
 {: #definition-5-2}
@@ -153,11 +153,11 @@ of the truth against the closest alternative, and its logarithm grows at rate $$
 | best growth rate $$K_{\inf}$$ | $$\log 1.25 \approx 0.223$$ | $$\frac12\log 1.25 + \frac12\log\frac56 \approx 0.020$$ |
 | closest alternative $$\nu^*$$ | $$0.8\,\delta_{0.5} + 0.2\,\delta_1$$ | $$\mathrm{Ber}(0.6)$$ |
 
-For the deterministic arm, $$A(\Lambda_m) = 1/1.25 = 0.8 \le 1$$, so $$\lambda^* = \Lambda_m$$. For the Bernoulli arm, $$\varphi'(\lambda) = 0$$ gives $$0.3(1 - 0.4\lambda) = 0.2(1 + 0.6\lambda)$$, that is, $$\lambda^* = \frac{5}{12}$$, and indeed $$A(\frac{5}{12}) = \frac12 \cdot \frac{1}{1.25} + \frac12 \cdot \frac{1}{5/6} = 1$$. The two arms have the same mean, but against the noisy one we must bet cautiously, and evidence builds up about eleven times more slowly. Against the deterministic one we can go all in, because its price never reaches $$1$$. This is why $$d_a$$ depends on the whole law $$\mu_a$$, not only on its mean.
+For the deterministic arm, $$A(\Lambda_m) = 1/1.25 = 0.8 \le 1$$, so $$\lambda^* = \Lambda_m$$. For the Bernoulli arm, $$\varphi'(\lambda) = 0$$ gives $$0.3(1 - 0.4\lambda) = 0.2(1 + 0.6\lambda)$$, that is, $$\lambda^* = \frac{5}{12}$$, and indeed $$A(\frac{5}{12}) = \frac12 \cdot \frac{1}{1.25} + \frac12 \cdot \frac{1}{5/6} = 1$$. The two arms have the same mean, but evidence against the noisy one builds up about eleven times more slowly: $$d_a$$ depends on the whole law $$\mu_a$$, not only on its mean.
 
 ## 4. Ville's inequality
 
-To use these bets in a bandit, we must control the wealth at every sample size at once, because the number of pulls of an arm is random. In Lecture 2, a union bound over the sample sizes $$s \in [n]$$ is what forced $$\delta = 1/n^2$$ in [UCB](course-rl-2026-lecture-2.html#algorithm-2-5). For supermartingales, a bound for all sample sizes costs no more than a bound for one.
+The number of pulls of an arm is random, so we must control the wealth at every sample size at once. In Lecture 2 a union bound did this, at the cost of $$\delta = 1/n^2$$ in [UCB](course-rl-2026-lecture-2.html#algorithm-2-5); for supermartingales it costs nothing.
 
 **Lemma 5.5 (Ville's inequality).** Let $$(M_n)_{n \in \mathbb N_0}$$ be a nonnegative supermartingale with $$\mathbb E[M_0] = 1$$. Then for every $$x > 0$$,
 {: #lemma-5-5}
@@ -178,13 +178,7 @@ For one fixed $$n$$ this is Markov's inequality; Ville's inequality, a form of D
 
 ## 5. Next lecture
 
-To use these bets in a bandit, we must choose the stake. The best stake in hindsight gives the wealth $$B_s(m) = \max_{\lambda \in [0, \Lambda_m]} W_s(\lambda, m)$$, but $$(B_s(m))_{s \ge 0}$$ is not a supermartingale, so Ville's inequality does not apply to it directly. Lecture 6 averages over the stakes instead, which gives a confidence bound for the mean at all sample sizes at once, and with it the *K_inf index policy*. It proves that this policy is asymptotically optimal: for every SBM with rewards in $$[0, 1]$$ and $$m^* < 1$$, and every arm $$a$$ with $$\Delta_a > 0$$,
-
-$$
-\limsup_{n \to \infty} \frac{\mathbb E_\nu[N_a(n)]}{\log n} \le \frac{1}{K_{\inf}(\mu_a, m^*)},
-$$
-
-which matches [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) by [Remark 5.3](#remark-5-3). It then turns to a second, randomised way to explore: Thompson sampling.
+To use these bets in a bandit we must choose the stake without knowing $$\mu$$. Lecture 6 averages over the stakes, which gives the *K_inf index policy*, and then turns to Thompson sampling.
 
 ## Check yourself
 

@@ -27,13 +27,7 @@ $$
 
 It is unique $$Q$$-almost surely. Note that $$dP/dQ > 0$$ $$P$$-almost surely, since $$P(dP/dQ = 0)$$ is the integral of $$dP/dQ$$ over the set where it vanishes.
 
-**Example.** If $$P$$ and $$Q$$ are probability measures on $$\mathbb R$$ with densities $$f_P$$ and $$f_Q$$, and $$P \ll Q$$, then $$\frac{dP}{dQ}(x) = f_P(x)/f_Q(x)$$ wherever $$f_Q(x) > 0$$. For instance, for the Gaussian measures $$P = N(0, \sigma_P^2)$$ and $$Q = N(0, \sigma_Q^2)$$,
-
-$$
-\frac{dP}{dQ}(x) = \frac{\frac{1}{\sqrt{2\pi}\,\sigma_P} e^{-x^2/(2\sigma_P^2)}}{\frac{1}{\sqrt{2\pi}\,\sigma_Q} e^{-x^2/(2\sigma_Q^2)}} = \frac{\sigma_Q}{\sigma_P} \exp\Big(-\Big(\frac{1}{2\sigma_P^2} - \frac{1}{2\sigma_Q^2}\Big) x^2\Big),
-$$
-
-and for $$P = N(m, \sigma^2)$$ and $$Q = N(m', \sigma^2)$$,
+**Example.** If $$P$$ and $$Q$$ are probability measures on $$\mathbb R$$ with densities $$f_P$$ and $$f_Q$$, and $$P \ll Q$$, then $$\frac{dP}{dQ}(x) = f_P(x)/f_Q(x)$$ wherever $$f_Q(x) > 0$$. For instance, for $$P = N(m, \sigma^2)$$ and $$Q = N(m', \sigma^2)$$,
 
 $$
 \frac{dP}{dQ}(x) = \exp\Big(\frac{(x - m')^2 - (x - m)^2}{2\sigma^2}\Big).
@@ -61,28 +55,20 @@ Since $$\varphi$$ is strictly convex, equality forces $$L$$ to be $$Q$$-almost s
 
 KL is not a metric: it is not symmetric, and it can be infinite.
 
-**Example 3.3 (Gaussian measures).** Taking $$\mathbb E_P$$ of the logarithm of the two derivatives above:
+**Example 3.3 (Gaussian measures).** Taking $$\mathbb E_P$$ of the logarithm of the derivative above, with $$\mathbb E[(X - m')^2 - (X - m)^2] = (m - m')^2$$ for $$X \sim N(m, \sigma^2)$$,
 {: #example-3-3}
-
-(a) with $$\mathbb E_P[X^2] = \sigma_P^2$$ for $$X \sim N(0, \sigma_P^2)$$,
-
-$$
-\mathrm{KL}\big(N(0, \sigma_P^2) \,\Vert\, N(0, \sigma_Q^2)\big) = \log\frac{\sigma_Q}{\sigma_P} + \frac{\sigma_P^2}{2\sigma_Q^2} - \frac12;
-$$
-
-(b) with $$\mathbb E[(X - m')^2 - (X - m)^2] = (m - m')^2$$ for $$X \sim N(m, \sigma^2)$$,
 
 $$
 \mathrm{KL}\big(N(m, \sigma^2) \,\Vert\, N(m', \sigma^2)\big) = \frac{(m - m')^2}{2\sigma^2}.
 $$
 
-In (a), the divergence blows up as $$\sigma_P \to 0$$: a very concentrated $$P$$ is easy to tell apart from $$Q$$. In (b), it is half the squared distance between the means, measured in standard deviations. Case (b) is the one we need for Gaussian bandits.
+This is half the squared distance between the means, measured in standard deviations.
 
 **Try it: relative entropy as a rate.** One sample from $$P$$ gives, on average, $$\mathrm{KL}(P \,\Vert\, Q)$$ units of evidence against $$Q$$. So telling $$P$$ from $$Q$$ with error probability at most $$\delta$$ takes about $$\log(1/\delta)/\mathrm{KL}(P \,\Vert\, Q)$$ samples.
 
 {% include sim-evidence-walk.html %}
 
-A coin is flipped and each flip $$x$$ is scored by $$\log (dP/dQ)(x)$$, where $$(dP/dQ)(x)$$ is the probability of $$x$$ under coin $$P$$ divided by its probability under coin $$Q$$. The table shows that the average score of a flip of coin $$P$$ is exactly $$\mathrm{KL}(P \,\Vert\, Q)$$. So the total score $$\Lambda_N = \sum_{i=1}^N \log (dP/dQ)(X_i)$$ of the first $$N$$ flips $$X_1, \dots, X_N$$ grows like $$N\, \mathrm{KL}(P \,\Vert\, Q)$$, by the law of large numbers, and reaches $$\log(1/\delta)$$ after about $$\log(1/\delta)/\mathrm{KL}(P \,\Vert\, Q)$$ flips. Flipping coin $$Q$$ instead, the total falls at rate $$\mathrm{KL}(Q \,\Vert\, P)$$, which is usually a different number. The test that stops at $$\pm\log(1/\delta)$$ names the wrong coin with probability at most $$\delta$$: under $$Q$$, $$e^{\Lambda_N}$$ is a nonnegative martingale with mean 1, so it reaches $$1/\delta$$ with probability at most $$\delta$$.
+A coin is flipped and each flip $$x$$ is scored by $$\log (dP/dQ)(x)$$, where $$(dP/dQ)(x)$$ is the probability of $$x$$ under coin $$P$$ divided by its probability under coin $$Q$$. The table shows that the average score of a flip of coin $$P$$ is exactly $$\mathrm{KL}(P \,\Vert\, Q)$$. So the total score $$\Lambda_N = \sum_{i=1}^N \log (dP/dQ)(X_i)$$ of the first $$N$$ flips $$X_1, \dots, X_N$$ grows like $$N\, \mathrm{KL}(P \,\Vert\, Q)$$, by the law of large numbers, and reaches $$\log(1/\delta)$$ after about $$\log(1/\delta)/\mathrm{KL}(P \,\Vert\, Q)$$ flips. Flipping coin $$Q$$ instead, the total falls at rate $$\mathrm{KL}(Q \,\Vert\, P)$$, which is usually a different number.
 {: .caption}
 
 ## 2. The Bretagnolle–Huber inequality
@@ -168,7 +154,7 @@ $$
 \mathbb E_\nu\Big[\sum_{t=1}^n L_t\Big] = \sum_{a=1}^K \mathrm{KL}(\mu_a \,\Vert\, \mu'_a)\, \mathbb E_\nu\Big[\sum_{t=1}^n \mathbf 1_{\{A_t = a\}}\Big] = \sum_{a=1}^K \mathbb E_\nu[N_a(n)]\, \mathrm{KL}(\mu_a \,\Vert\, \mu'_a). \qquad \square
 $$
 
-Compare the regret decomposition ([Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6)): the same argument, with $$\Delta_a$$ replaced by $$\mathrm{KL}(\mu_a \,\Vert\, \mu'_a)$$. Evidence about $$\nu$$ against $$\nu'$$ accumulates only on pulls of arms where the two environments differ, at rate $$\mathrm{KL}(\mu_a \,\Vert\, \mu'_a)$$ per pull. In particular, if $$\nu'$$ changes a single arm $$a$$, then $$\mathrm{KL}(\mathbb P_\nu \,\Vert\, \mathbb P_{\nu'}) = \mathbb E_\nu[N_a(n)]\, \mathrm{KL}(\mu_a \,\Vert\, \mu'_a)$$: a policy that rarely pulls arm $$a$$ cannot notice the change.
+In particular, if $$\nu'$$ changes a single arm $$a$$, then $$\mathrm{KL}(\mathbb P_\nu \,\Vert\, \mathbb P_{\nu'}) = \mathbb E_\nu[N_a(n)]\, \mathrm{KL}(\mu_a \,\Vert\, \mu'_a)$$: a policy that rarely pulls arm $$a$$ cannot notice the change.
 
 ## 4. Consistency and the Lai–Robbins theorem
 
@@ -204,8 +190,6 @@ $$
 
 with the conventions $$1/\infty = 0$$ and $$1/0 = \infty$$.
 
-Lecture 4 restates this theorem as [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1) and proves it.
-
 Lai and Robbins proved [Theorem 3.10](#theorem-3-10) for parametric families; the form above, for general unstructured classes, is due to Burnetas and Katehakis (1996).
 
 **Corollary 3.11 (Gaussian arms).** Fix $$\sigma > 0$$. If $$\mathcal M = \{N(m, \sigma^2) : m \in \mathbb R\}$$, then $$d_a = \Delta_a^2/(2\sigma^2)$$. Hence every consistent policy satisfies
@@ -215,14 +199,13 @@ $$
 \liminf_{n\to\infty} \frac{\mathbb E_\nu[N_a(n)]}{\log n} \ge \frac{2\sigma^2}{\Delta_a^2} \quad\text{for every arm } a \text{ with } \Delta_a > 0, \qquad \liminf_{n\to\infty} \frac{R_n(\pi,\nu)}{\log n} \ge \sum_{a:\,\Delta_a>0} \frac{2\sigma^2}{\Delta_a}.
 $$
 
-*Proof, given [Theorem 3.10](#theorem-3-10) (proved as [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1)).* By [Example 3.3(b)](#example-3-3), $$\mathrm{KL}\big(N(m_a, \sigma^2) \,\Vert\, N(m', \sigma^2)\big) = (m' - m_a)^2/(2\sigma^2)$$. Its infimum over $$m' > m^*$$ is $$(m^* - m_a)^2/(2\sigma^2) = \Delta_a^2/(2\sigma^2)$$, approached as $$m' \downarrow m^*$$ but not attained. $$\square$$
+*Proof, given [Theorem 3.10](#theorem-3-10) (proved as [Theorem 4.1](course-rl-2026-lecture-4.html#theorem-4-1)).* By [Example 3.3](#example-3-3), $$\mathrm{KL}\big(N(m_a, \sigma^2) \,\Vert\, N(m', \sigma^2)\big) = (m' - m_a)^2/(2\sigma^2)$$. Its infimum over $$m' > m^*$$ is $$(m^* - m_a)^2/(2\sigma^2) = \Delta_a^2/(2\sigma^2)$$, approached as $$m' \downarrow m^*$$ but not attained. $$\square$$
 
 **Remark 3.12.**
 {: #remark-3-12}
 
-1. **The constant is sharp.** [UCB](course-rl-2026-lecture-2.html#algorithm-2-5) with a more careful confidence level attains $$\limsup_n R_n/\log n \le \sum_{a : \Delta_a > 0} 2\sigma^2/\Delta_a$$ for Gaussian rewards ([Remark 2.7](course-rl-2026-lecture-2.html#remark-2-7)(2)). So, by [Corollary 3.11](#corollary-3-11), $$2\sigma^2/\Delta_a$$ is exactly the right constant, and the 16 in [Theorem 2.6](course-rl-2026-lecture-2.html#theorem-2-6) is the price of our choices in its proof.
-2. **The order in KL matters.** The true distribution $$\mu_a$$ comes first in $$d_a$$. For Bernoulli arms one can show that $$d_a = \mathrm{kl}(m_a, m^*)$$, where $$\mathrm{kl}(x, y) = \mathrm{KL}(\mathrm{Ber}(x) \,\Vert\, \mathrm{Ber}(y))$$, and this differs from $$\mathrm{kl}(m^*, m_a)$$ in general.
-3. **Unstructured classes matter.** If the arms are coupled, the class is not unstructured, and [Theorem 3.10](#theorem-3-10) need not apply. Conversely, if $$\mathcal M$$ is too rich, $$d_a$$ can be 0, and then no consistent policy has logarithmic regret.
+1. **The order in KL matters.** The true distribution $$\mu_a$$ comes first in $$d_a$$. For Bernoulli arms one can show that $$d_a = \mathrm{kl}(m_a, m^*)$$, where $$\mathrm{kl}(x, y) = \mathrm{KL}(\mathrm{Ber}(x) \,\Vert\, \mathrm{Ber}(y))$$, and this differs from $$\mathrm{kl}(m^*, m_a)$$ in general.
+2. **Unstructured classes matter.** If the arms are coupled, the class is not unstructured, and [Theorem 3.10](#theorem-3-10) need not apply.
 
 ## 5. Next lecture
 
