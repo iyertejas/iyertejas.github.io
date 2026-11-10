@@ -194,8 +194,14 @@ Six true-or-false questions on this lecture. Decide, then click to see the reaso
 
 ## Reading
 
-J. Honda and A. Takemura, An asymptotically optimal bandit algorithm for bounded support models, *COLT* 2010: $$K_{\inf}$$, the formula of [Lemma 5.4](#lemma-5-4), and the first asymptotically optimal policy for rewards in $$[0, 1]$$. O. Cappé, A. Garivier, O.-A. Maillard, R. Munos and G. Stoltz, Kullback–Leibler upper confidence bounds for optimal sequential allocation, *Annals of Statistics* 41 (2013), 1516–1541: KL-UCB with $$K_{\inf}$$. T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020, freely available [online](https://tor-lattimore.com/downloads/book/book.pdf): Chapter 10 (KL-UCB) and Chapter 16 (asymptotic lower bounds).
+- J. Honda and A. Takemura, An asymptotically optimal bandit algorithm for bounded support models, *COLT* 2010: $$K_{\inf}$$, the formula of [Lemma 5.4](#lemma-5-4), and the first asymptotically optimal policy for rewards in $$[0, 1]$$.
+- O. Cappé, A. Garivier, O.-A. Maillard, R. Munos and G. Stoltz, Kullback–Leibler upper confidence bounds for optimal sequential allocation, *Annals of Statistics* 41 (2013), 1516–1541: KL-UCB with $$K_{\inf}$$.
+- T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020, freely available [online](https://tor-lattimore.com/downloads/book/book.pdf): Chapter 10 (KL-UCB) and Chapter 16 (asymptotic lower bounds).
 
-On betting: J. L. Kelly, A new interpretation of information rate, *Bell System Technical Journal* 35 (1956), 917–926. J. Ville, *Étude critique de la notion de collectif*, Gauthier-Villars, 1939, for [Lemma 5.5](#lemma-5-5). I. Waudby-Smith and A. Ramdas, Estimating means of bounded random variables by betting, *Journal of the Royal Statistical Society B* 86 (2024), 1–27, for confidence bounds by betting.
+On betting:
+
+- J. L. Kelly, A new interpretation of information rate, *Bell System Technical Journal* 35 (1956), 917–926.
+- J. Ville, *Étude critique de la notion de collectif*, Gauthier-Villars, 1939, for [Lemma 5.5](#lemma-5-5).
+- I. Waudby-Smith and A. Ramdas, Estimating means of bounded random variables by betting, *Journal of the Royal Statistical Society B* 86 (2024), 1–27, for confidence bounds by betting.
 
 <nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-4.html">← Lecture 4</a><a href="course-rl-2026-sheet-5.html">Exercise Sheet 5</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
