@@ -62,3 +62,14 @@ Every numbered definition, algorithm and result from the lecture notes, in one l
 - [Remark 4.6](course-rl-2026-lecture-4.html#remark-4-6) (Gaussian and Bernoulli arms). $$R_n^* \ge (\sigma/27)\sqrt{(K-1)n}$$ for $$N(m, \sigma^2)$$ arms; $$R_n^* \ge \frac{1}{63}\sqrt{(K-1)n}$$ for Bernoulli arms when $$n \ge \frac34(K-1)$$.
 - [Lemma 4.7](course-rl-2026-lecture-4.html#lemma-4-7) (from pull counts to worst-case regret). If $$\mathbb E_\nu[N_a(n)] \le A + B/\Delta_a^2$$ for every suboptimal arm, then $$R_n \le 2\sqrt{BKn} + A\sum_a \Delta_a$$.
 - [Corollary 4.8](course-rl-2026-lecture-4.html#corollary-4-8) (UCB, worst case). $$R_n \le 8\sigma\sqrt{Kn\log n} + 3\sum_a \Delta_a$$ for $$\sigma$$-sub-Gaussian rewards.
+
+## Lecture 5: Testing by betting
+
+- [Definition 5.1](course-rl-2026-lecture-5.html#definition-5-1) (wealth of a short seller). $$W_s(\lambda, m) = \prod_{i \le s}(1 + \lambda(m - x_i))$$ for $$\lambda \in [0, \Lambda_m]$$, $$\Lambda_m = 1/(1 - m)$$.
+- [Definition 5.2](course-rl-2026-lecture-5.html#definition-5-2). $$\varphi_{\mu,m}(\lambda) = \mathbb E_\mu[\log(1 + \lambda(m - X))]$$ and $$K_{\inf}(\mu, m) = \inf\{\mathrm{KL}(\mu \,\Vert\, \nu) : \nu \in \mathcal M_{[0,1]},\ \mathrm{mean}(\nu) \ge m\}$$.
+- [Remark 5.3](course-rl-2026-lecture-5.html#remark-5-3). For rewards in $$[0, 1]$$ and $$m^* < 1$$, $$d_a = K_{\inf}(\mu_a, m^*)$$.
+- [Lemma 5.4](course-rl-2026-lecture-5.html#lemma-5-4) (Kelly criterion). $$K_{\inf}(\mu, m) = \max_{\lambda \in [0, \Lambda_m]} \varphi_{\mu,m}(\lambda)$$.
+- [Lemma 5.5](course-rl-2026-lecture-5.html#lemma-5-5) (Ville's inequality). For a nonnegative supermartingale with $$\mathbb E[M_0] = 1$$, $$\mathbb P(\exists\, n : M_n \ge x) \le 1/x$$.
+- [Lemma 5.6](course-rl-2026-lecture-5.html#lemma-5-6) (mixture of bets). $$\Lambda_m^{-1}\int_0^{\Lambda_m} W_s(\lambda, m)\, d\lambda \ge B_s(m)/(s + 1)$$, where $$B_s(m) = \max_\lambda W_s(\lambda, m)$$.
+- [Corollary 5.7](course-rl-2026-lecture-5.html#corollary-5-7) (anytime confidence bound). If $$\mathrm{mean}(\mu) \ge m$$, then $$\mathbb P(\exists\, s : B_s(m) \ge (s + 1)x) \le 1/x$$.
+- [Algorithm 5.8](course-rl-2026-lecture-5.html#algorithm-5-8) (K_inf index policy). Play an arm maximising $$U_a = \sup\{m : B^{(a)}_{N_a}(m) \le (N_a + 1)n\}$$.
