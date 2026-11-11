@@ -143,18 +143,6 @@ $$
 
 of the truth against the closest alternative, and its logarithm grows at rate $$\mathrm{KL}(\mu \,\Vert\, \nu^*) = K_{\inf}(\mu, m)$$. The first part of the proof says that no stake does better. Reading $$W_s$$ as wealth goes back to Kelly (1956), and $$\lambda^*$$ is Kelly's optimal fraction; the literature calls this approach *testing by betting*.
 
-**Two examples with the same mean.** Take $$m = 0.6$$, so $$\Lambda_m = 2.5$$, and compare the deterministic arm of the example in [Section 1](#1-recap-and-goal), $$X \equiv 0.5$$, with a Bernoulli arm, $$X \sim \mathrm{Ber}(0.5)$$.
-
-|  | $$X \equiv 0.5$$ | $$X \sim \mathrm{Ber}(0.5)$$ |
-| --- | --- | --- |
-| factor per round | $$1 + 0.1\lambda$$ | $$1 + 0.6\lambda$$ if $$X = 0$$, $$1 - 0.4\lambda$$ if $$X = 1$$ |
-| $$\varphi(\lambda)$$ | $$\log(1 + 0.1\lambda)$$ | $$\frac12\log(1 + 0.6\lambda) + \frac12\log(1 - 0.4\lambda)$$ |
-| best stake $$\lambda^*$$ | $$\Lambda_m = 2.5$$: all in, no risk | $$\frac{5}{12} \approx 0.42$$: cautious |
-| best growth rate $$K_{\inf}$$ | $$\log 1.25 \approx 0.223$$ | $$\frac12\log 1.25 + \frac12\log\frac56 \approx 0.020$$ |
-| closest alternative $$\nu^*$$ | $$0.8\,\delta_{0.5} + 0.2\,\delta_1$$ | $$\mathrm{Ber}(0.6)$$ |
-
-For the deterministic arm, $$A(\Lambda_m) = 1/1.25 = 0.8 \le 1$$, so $$\lambda^* = \Lambda_m$$. For the Bernoulli arm, $$\varphi'(\lambda) = 0$$ gives $$0.3(1 - 0.4\lambda) = 0.2(1 + 0.6\lambda)$$, that is, $$\lambda^* = \frac{5}{12}$$, and indeed $$A(\frac{5}{12}) = \frac12 \cdot \frac{1}{1.25} + \frac12 \cdot \frac{1}{5/6} = 1$$. The two arms have the same mean, but evidence against the noisy one builds up about eleven times more slowly: $$d_a$$ depends on the whole law $$\mu_a$$, not only on its mean.
-
 ## 4. Ville's inequality
 
 The number of pulls of an arm is random, so we must control the wealth at every sample size at once. In Lecture 2 a union bound did this, at the cost of $$\delta = 1/n^2$$ in [UCB](course-rl-2026-lecture-2.html#algorithm-2-5); for supermartingales it costs nothing.
