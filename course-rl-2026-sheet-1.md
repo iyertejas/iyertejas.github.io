@@ -11,7 +11,7 @@ math: true
 [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html) · TU Berlin · Winter 2026/27
 {: .lede}
 
-Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises marked <span class="tag">used later</span> are needed in later lectures. Click *Solution* under an exercise to reveal its solution.
+Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises marked <span class="tag">used later</span> are needed in later lectures. Click *Solution* under an exercise or part to reveal its solution.
 
 Please report any errors or unclear points, in the lecture or by email.
 {: .note}
@@ -21,25 +21,39 @@ Please report any errors or unclear points, in the lecture or by email.
 
 (a) Show that the policy that always plays arm $$a$$ has regret $$R_n = n\Delta_a$$.
 
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+Here and in (b)–(d) we use [Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6), $$R_n = \sum_a \Delta_a\, \mathbb E[N_a(n)]$$.
+
+$$N_a(n) = n$$ and $$N_b(n) = 0$$ for $$b \ne a$$, so $$R_n = n\Delta_a$$.
+
+</details>
+
 (b) Show that the policy that plays a uniformly random arm in every round has regret $$R_n = \frac nK \sum_a \Delta_a$$.
 
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+$$\mathbb P(A_t = a) = 1/K$$ for every $$t$$, so $$\mathbb E[N_a(n)] = n/K$$ and $$R_n = \frac nK \sum_a \Delta_a$$.
+
+</details>
+
 (c) Let $$K = 2$$ and $$n$$ be even. Compute the regret of the policy that plays arm 1 in rounds $$1, \dots, n/2$$ and arm 2 in rounds $$n/2 + 1, \dots, n$$.
+
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+$$N_1(n) = N_2(n) = n/2$$, so $$R_n = \frac n2(\Delta_1 + \Delta_2) = \frac n2 \lvert m_1 - m_2\rvert$$.
+
+</details>
 
 (d) Do any of these policies have regret that grows more slowly than $$n$$?
 
 <details class="solution" markdown="1">
 <summary>Solution</summary>
 
-All four parts use [Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6), $$R_n = \sum_a \Delta_a\, \mathbb E[N_a(n)]$$.
-
-
-(a) $$N_a(n) = n$$ and $$N_b(n) = 0$$ for $$b \ne a$$, so $$R_n = n\Delta_a$$.
-
-(b) $$\mathbb P(A_t = a) = 1/K$$ for every $$t$$, so $$\mathbb E[N_a(n)] = n/K$$ and $$R_n = \frac nK \sum_a \Delta_a$$.
-
-(c) $$N_1(n) = N_2(n) = n/2$$, so $$R_n = \frac n2(\Delta_1 + \Delta_2) = \frac n2 \lvert m_1 - m_2\rvert$$.
-
-(d) Not in every environment. The policy of (a) has $$R_n = 0$$ when $$a$$ is optimal, but $$R_n = n\Delta_a$$ otherwise; (b) and (c) have regret linear in $$n$$ unless all arms have the same mean.
+Not in every environment. The policy of (a) has $$R_n = 0$$ when $$a$$ is optimal, but $$R_n = n\Delta_a$$ otherwise; (b) and (c) have regret linear in $$n$$ unless all arms have the same mean.
 
 </details>
 
@@ -48,22 +62,32 @@ All four parts use [Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6), $$R_n =
 
 (a) Show that if $$X$$ is $$\sigma$$-sub-Gaussian and $$c \in \mathbb R$$, then $$cX$$ is $$\lvert c\rvert\sigma$$-sub-Gaussian.
 
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+$$cX$$ has mean $$cm$$, and $$\mathbb E[e^{\lambda(cX - cm)}] = \mathbb E[e^{(\lambda c)(X - m)}] \le e^{\lambda^2 c^2\sigma^2/2}$$ for every $$\lambda$$.
+
+</details>
+
 (b) Show that if $$X_1$$ and $$X_2$$ are independent, $$X_1$$ is $$\sigma_1$$-sub-Gaussian and $$X_2$$ is $$\sigma_2$$-sub-Gaussian, then $$X_1 + X_2$$ is $$\sqrt{\sigma_1^2 + \sigma_2^2}$$-sub-Gaussian.
+
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+With means $$m_1, m_2$$, independence gives
+
+$$
+\mathbb E\big[e^{\lambda(X_1 + X_2 - m_1 - m_2)}\big] = \mathbb E\big[e^{\lambda(X_1 - m_1)}\big]\, \mathbb E\big[e^{\lambda(X_2 - m_2)}\big] \le e^{\lambda^2(\sigma_1^2 + \sigma_2^2)/2}.
+$$
+
+</details>
 
 (c) Show by an example that the conclusion of (b) can fail if $$X_1$$ and $$X_2$$ are not independent.
 
 <details class="solution" markdown="1">
 <summary>Solution</summary>
 
-(a) $$cX$$ has mean $$cm$$, and $$\mathbb E[e^{\lambda(cX - cm)}] = \mathbb E[e^{(\lambda c)(X - m)}] \le e^{\lambda^2 c^2\sigma^2/2}$$ for every $$\lambda$$.
-
-(b) With means $$m_1, m_2$$, independence gives
-
-$$
-\mathbb E\big[e^{\lambda(X_1 + X_2 - m_1 - m_2)}\big] = \mathbb E\big[e^{\lambda(X_1 - m_1)}\big]\, \mathbb E\big[e^{\lambda(X_2 - m_2)}\big] \le e^{\lambda^2(\sigma_1^2 + \sigma_2^2)/2}.
-$$
-
-(c) Let $$X_1 = X_2 = Z \sim N(0, 1)$$, both $$1$$-sub-Gaussian. Then $$X_1 + X_2 = 2Z$$ and $$\mathbb E[e^{2\lambda Z}] = e^{2\lambda^2} > e^{\lambda^2} = e^{\lambda^2 (\sqrt2)^2/2}$$ for $$\lambda \ne 0$$, so $$2Z$$ is not $$\sqrt2$$-sub-Gaussian.
+Let $$X_1 = X_2 = Z \sim N(0, 1)$$, both $$1$$-sub-Gaussian. Then $$X_1 + X_2 = 2Z$$ and $$\mathbb E[e^{2\lambda Z}] = e^{2\lambda^2} > e^{\lambda^2} = e^{\lambda^2 (\sqrt2)^2/2}$$ for $$\lambda \ne 0$$, so $$2Z$$ is not $$\sqrt2$$-sub-Gaussian.
 
 </details>
 
@@ -78,14 +102,10 @@ $$
 
 *Hint:* fix $$a$$ and $$b$$, and show that the difference between the two sides is minimised at $$\lambda = 0$$.
 
-(b) Hence prove Hoeffding's lemma: if $$X \in [a, b]$$ almost surely, with mean $$m$$, then $$X$$ is $$\frac{b-a}{2}$$-sub-Gaussian.
-
-*Hint:* reduce to $$m = 0$$, and use convexity of $$x \mapsto e^{\lambda x}$$.
-
 <details class="solution" markdown="1">
 <summary>Solution</summary>
 
-(a) Let $$p = -a/(b - a) \in [0, 1]$$ and write $$F(\lambda) = (1 - p)e^{\lambda a} + p\, e^{\lambda b} > 0$$ for the left-hand side. Subtract the logarithms of the two sides:
+Let $$p = -a/(b - a) \in [0, 1]$$ and write $$F(\lambda) = (1 - p)e^{\lambda a} + p\, e^{\lambda b} > 0$$ for the left-hand side. Subtract the logarithms of the two sides:
 
 $$
 \psi(\lambda) = \frac{\lambda^2 (b - a)^2}{8} - \log F(\lambda).
@@ -99,7 +119,16 @@ $$
 
 So $$\psi'(0) = -(a + (b - a)p) = 0$$ and $$\psi'' \ge 0$$: $$\psi$$ is convex with a critical point at $$0$$, hence minimised there.
 
-(b) If $$a = b$$ there is nothing to prove. Otherwise $$Y = X - m$$ takes values in $$[a', b'] = [a - m, b - m]$$, where $$a' \le 0 \le b'$$ since $$a \le m \le b$$, and $$b' - a' = b - a > 0$$. Each $$y \in [a', b']$$ is the convex combination $$y = \theta(y)\, a' + (1 - \theta(y))\, b'$$ with $$\theta(y) = (b' - y)/(b' - a') \in [0, 1]$$, so by convexity of $$y \mapsto e^{\lambda y}$$,
+</details>
+
+(b) Hence prove Hoeffding's lemma: if $$X \in [a, b]$$ almost surely, with mean $$m$$, then $$X$$ is $$\frac{b-a}{2}$$-sub-Gaussian.
+
+*Hint:* reduce to $$m = 0$$, and use convexity of $$x \mapsto e^{\lambda x}$$.
+
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+If $$a = b$$ there is nothing to prove. Otherwise $$Y = X - m$$ takes values in $$[a', b'] = [a - m, b - m]$$, where $$a' \le 0 \le b'$$ since $$a \le m \le b$$, and $$b' - a' = b - a > 0$$. Each $$y \in [a', b']$$ is the convex combination $$y = \theta(y)\, a' + (1 - \theta(y))\, b'$$ with $$\theta(y) = (b' - y)/(b' - a') \in [0, 1]$$, so by convexity of $$y \mapsto e^{\lambda y}$$,
 
 $$
 e^{\lambda y} \le \theta(y)\, e^{\lambda a'} + \big(1 - \theta(y)\big)\, e^{\lambda b'}.
@@ -118,14 +147,19 @@ $$
 
 (a) Show that $$\mathbb P(\hat m_s - m \le -\varepsilon) \le \exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$ for every $$\varepsilon \ge 0$$.
 
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+By [Exercise 2(a)](#exercise-2) with $$c = -1$$, the $$-X_i$$ are independent, $$\sigma$$-sub-Gaussian with mean $$-m$$, and their empirical mean is $$-\hat m_s$$. The upper tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) applied to them gives $$\mathbb P(-\hat m_s + m \ge \varepsilon) \le e^{-s\varepsilon^2/(2\sigma^2)}$$, which is the claim.
+
+</details>
+
 (b) Deduce that $$\mathbb P(\lvert\hat m_s - m\rvert \ge \varepsilon) \le 2 \exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$.
 
 <details class="solution" markdown="1">
 <summary>Solution</summary>
 
-(a) By [Exercise 2(a)](#exercise-2) with $$c = -1$$, the $$-X_i$$ are independent, $$\sigma$$-sub-Gaussian with mean $$-m$$, and their empirical mean is $$-\hat m_s$$. The upper tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) applied to them gives $$\mathbb P(-\hat m_s + m \ge \varepsilon) \le e^{-s\varepsilon^2/(2\sigma^2)}$$, which is the claim.
-
-(b) By the union bound, then the upper tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) and (a),
+By the union bound, then the upper tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) and (a),
 
 $$
 \mathbb P(\lvert\hat m_s - m\rvert \ge \varepsilon) \le \mathbb P(\hat m_s - m \ge \varepsilon) + \mathbb P(\hat m_s - m \le -\varepsilon) \le 2 e^{-s\varepsilon^2/(2\sigma^2)}.
@@ -165,18 +199,28 @@ $$
 \lvert\hat m_s - m\rvert < \sqrt{\frac{2\sigma^2 \log(2/\delta)}{s}}.
 $$
 
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+Put $$\varepsilon = \sqrt{2\sigma^2\log(2/\delta)/s}$$, so that $$2e^{-s\varepsilon^2/(2\sigma^2)} = \delta$$. By [Exercise 4(b)](#exercise-4), $$\mathbb P(\lvert\hat m_s - m\rvert \ge \varepsilon) \le \delta$$; take complements.
+
+</details>
+
 (b) Rewards take values in $$[0, 1]$$. How many independent samples are enough to guarantee that the empirical mean is within 0.05 of the true mean with probability at least 0.95?
+
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+Rewards in $$[0, 1]$$ are $$\frac12$$-sub-Gaussian ([Lemma 1.9(b)](course-rl-2026-lecture-1.html#lemma-1-9)). With $$\delta = 0.05$$, (a) asks for $$\sqrt{\log(40)/(2s)} \le 0.05$$, that is, $$s \ge \log(40)/0.005 \approx 737.8$$. So $$s = 738$$ samples are enough.
+
+</details>
 
 (c) There are $$K$$ arms, and each is sampled $$s$$ times, independently. Show that the probability that at least one empirical mean is at distance $$\varepsilon$$ or more from its true mean is at most $$2K \exp\big(-\frac{s\varepsilon^2}{2\sigma^2}\big)$$. How must $$s$$ grow with $$K$$ to keep this probability below a fixed $$\delta$$?
 
 <details class="solution" markdown="1">
 <summary>Solution</summary>
 
-(a) Put $$\varepsilon = \sqrt{2\sigma^2\log(2/\delta)/s}$$, so that $$2e^{-s\varepsilon^2/(2\sigma^2)} = \delta$$. By [Exercise 4(b)](#exercise-4), $$\mathbb P(\lvert\hat m_s - m\rvert \ge \varepsilon) \le \delta$$; take complements.
-
-(b) Rewards in $$[0, 1]$$ are $$\frac12$$-sub-Gaussian ([Lemma 1.9(b)](course-rl-2026-lecture-1.html#lemma-1-9)). With $$\delta = 0.05$$, (a) asks for $$\sqrt{\log(40)/(2s)} \le 0.05$$, that is, $$s \ge \log(40)/0.005 \approx 737.8$$. So $$s = 738$$ samples are enough.
-
-(c) By [Exercise 4(b)](#exercise-4) for each arm and a union bound over the $$K$$ arms (which needs no independence between arms), the probability is at most $$2K e^{-s\varepsilon^2/(2\sigma^2)}$$. This is at most $$\delta$$ once $$s \ge \frac{2\sigma^2}{\varepsilon^2}\log\frac{2K}{\delta}$$: $$s$$ only has to grow like $$\log K$$.
+By [Exercise 4(b)](#exercise-4) for each arm and a union bound over the $$K$$ arms (which needs no independence between arms), the probability is at most $$2K e^{-s\varepsilon^2/(2\sigma^2)}$$. This is at most $$\delta$$ once $$s \ge \frac{2\sigma^2}{\varepsilon^2}\log\frac{2K}{\delta}$$: $$s$$ only has to grow like $$\log K$$.
 
 </details>
 
@@ -187,14 +231,19 @@ $$
 
 (a) Which sentence is false for policies that adapt to the data? Give a two-armed example where it fails.
 
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+False: "the number of pulls is independent of the reward values" (and with it, that the rewards from arm $$a$$, given $$N_a(n)$$, are i.i.d. with mean $$m_a$$). Take $$n = 2$$, arm 1 with law $$\mathrm{Ber}(\frac12)$$, and the policy that plays arm 1 in round 1, and in round 2 plays arm 1 again if $$X_1 = 1$$ and arm 2 otherwise. Then $$N_1(2) = 1 + X_1$$ depends on $$X_1$$, and given $$N_1(2) = 1$$ the only reward from arm 1 is $$0$$, not a draw with mean $$\frac12$$.
+
+</details>
+
 (b) Can the argument be repaired without the false claim? (*Hint:* when is the $$s$$-th reward from arm $$a$$ drawn, compared with the decision to pull arm $$a$$ for the $$s$$-th time?)
 
 <details class="solution" markdown="1">
 <summary>Solution</summary>
 
-(a) False: "the number of pulls is independent of the reward values" (and with it, that the rewards from arm $$a$$, given $$N_a(n)$$, are i.i.d. with mean $$m_a$$). Take $$n = 2$$, arm 1 with law $$\mathrm{Ber}(\frac12)$$, and the policy that plays arm 1 in round 1, and in round 2 plays arm 1 again if $$X_1 = 1$$ and arm 2 otherwise. Then $$N_1(2) = 1 + X_1$$ depends on $$X_1$$, and given $$N_1(2) = 1$$ the only reward from arm 1 is $$0$$, not a draw with mean $$\frac12$$.
-
-(b) Yes. Let $$Y_{a,s}$$ be the $$s$$-th reward from arm $$a$$ (the reward table of [Lecture 2, Definition 2.2](course-rl-2026-lecture-2.html#definition-2-2)). The event $$\{N_a(n) \ge s\}$$, that the $$s$$-th pull of $$a$$ happens by round $$n$$, is decided before $$Y_{a,s}$$ is used, and is independent of it. So
+Yes. Let $$Y_{a,s}$$ be the $$s$$-th reward from arm $$a$$ (the reward table of [Lecture 2, Definition 2.2](course-rl-2026-lecture-2.html#definition-2-2)). The event $$\{N_a(n) \ge s\}$$, that the $$s$$-th pull of $$a$$ happens by round $$n$$, is decided before $$Y_{a,s}$$ is used, and is independent of it. So
 
 $$
 \mathbb E\Big[\sum_{t : A_t = a} X_t\Big] = \sum_{s=1}^n \mathbb E\big[Y_{a,s}\, \mathbf 1\{N_a(n) \ge s\}\big] = m_a \sum_{s=1}^n \mathbb P(N_a(n) \ge s) = m_a\, \mathbb E[N_a(n)].
@@ -207,18 +256,28 @@ $$
 
 (a) Note that $$A_t$$ is independent of $$Y_t$$, and deduce that $$\mathbb P(X_t \in \cdot \mid H_{t-1}, A_t) = \mu_{A_t}$$.
 
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+By induction, $$A_1, X_1, \dots, A_{t-1}, X_{t-1}$$ are functions of $$Y_1, \dots, Y_{t-1}, U_1, \dots, U_{t-1}$$, so $$(H_{t-1}, A_t)$$ is a function of $$Y_1, \dots, Y_{t-1}, U_1, \dots, U_t$$, which are independent of $$Y_t$$. Hence, for measurable $$B$$, $$\mathbb P(X_t \in B \mid H_{t-1}, A_t) = \mathbb P(Y_{t,a} \in B)\big\vert_{a = A_t} = \mu_{A_t}(B)$$.
+
+</details>
+
 (b) Use (a) to give a short proof of [Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6).
+
+<details class="solution" markdown="1">
+<summary>Solution</summary>
+
+By (a), $$\mathbb E[X_t \mid A_t] = m_{A_t}$$, so $$\mathbb E[X_t] = \sum_a m_a\, \mathbb P(A_t = a)$$. Summing over $$t$$ gives $$\mathbb E[\sum_t X_t] = \sum_a m_a\, \mathbb E[N_a(n)]$$, and the rest is as in the proof of [Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6).
+
+</details>
 
 (c) Is $$A_t$$ independent of $$Y_{t-1}$$? Of $$X_{t-1}$$? Give a policy for which it is not.
 
 <details class="solution" markdown="1">
 <summary>Solution</summary>
 
-(a) By induction, $$A_1, X_1, \dots, A_{t-1}, X_{t-1}$$ are functions of $$Y_1, \dots, Y_{t-1}, U_1, \dots, U_{t-1}$$, so $$(H_{t-1}, A_t)$$ is a function of $$Y_1, \dots, Y_{t-1}, U_1, \dots, U_t$$, which are independent of $$Y_t$$. Hence, for measurable $$B$$, $$\mathbb P(X_t \in B \mid H_{t-1}, A_t) = \mathbb P(Y_{t,a} \in B)\big\vert_{a = A_t} = \mu_{A_t}(B)$$.
-
-(b) By (a), $$\mathbb E[X_t \mid A_t] = m_{A_t}$$, so $$\mathbb E[X_t] = \sum_a m_a\, \mathbb P(A_t = a)$$. Summing over $$t$$ gives $$\mathbb E[\sum_t X_t] = \sum_a m_a\, \mathbb E[N_a(n)]$$, and the rest is as in the proof of [Lemma 1.6](course-rl-2026-lecture-1.html#lemma-1-6).
-
-(c) In general neither. With $$K = 2$$, arm 1 non-degenerate, and the policy from the [solution to Exercise 7(a)](#exercise-7) above, $$A_2$$ depends on $$X_1 = Y_{1,1}$$, so it is independent of neither $$X_1$$ nor $$Y_1$$. (A policy that ignores the rewards, such as playing the arms in turn, gives an $$A_t$$ independent of both.)
+In general neither. With $$K = 2$$, arm 1 non-degenerate, and the policy from the [solution to Exercise 7(a)](#exercise-7) above, $$A_2$$ depends on $$X_1 = Y_{1,1}$$, so it is independent of neither $$X_1$$ nor $$Y_1$$. (A policy that ignores the rewards, such as playing the arms in turn, gives an $$A_t$$ independent of both.)
 
 </details>
 
