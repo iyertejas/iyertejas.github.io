@@ -11,7 +11,7 @@ math: true
 [Advanced Probabilistic Methods Related to Reinforcement Learning](course-rl-2026.html) · TU Berlin · Winter 2026/27
 {: .lede}
 
-Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises marked <span class="tag">used later</span> are needed in later lectures.
+Notation as in the [Lecture 1 notes](course-rl-2026-lecture-1.html). Exercises marked <span class="tag">used later</span> are needed in later lectures. [Solutions](course-rl-2026-solutions-1.html) are available.
 
 Please report any errors or unclear points, in the lecture or by email.
 {: .note}
@@ -98,4 +98,4 @@ $$
 
 (c) Is $$A_t$$ independent of $$Y_{t-1}$$? Of $$X_{t-1}$$? Give a policy for which it is not.
 
-<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-1.html">Lecture 1 notes</a><a href="course-rl-2026-sheet-2.html">Exercise Sheet 2 →</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
+<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-1.html">Lecture 1 notes</a><a href="course-rl-2026-solutions-1.html">Solutions</a><a href="course-rl-2026-sheet-2.html">Exercise Sheet 2 →</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>

@@ -217,6 +217,7 @@ def nav(path):
     else:
         if exists(sheet_page(k-1)): items.append(f'<a href="{sheet_page(k-1)}.html">← Exercise Sheet {k-1}</a>')
         if exists(lecture_page(k)): items.append(f'<a href="{lecture_page(k)}.html">Lecture {k} notes</a>')
+        if exists(f"{COURSE}-solutions-{k}"): items.append(f'<a href="{COURSE}-solutions-{k}.html">Solutions</a>')
         if exists(sheet_page(k+1)): items.append(f'<a href="{sheet_page(k+1)}.html">Exercise Sheet {k+1} →</a>')
     if exists(f"{COURSE}-results"): items.append(f'<a href="{COURSE}-results.html">Results so far</a>')
     items.append(f'<a href="{COURSE}.html">Course page</a>')
