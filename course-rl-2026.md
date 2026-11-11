@@ -23,7 +23,7 @@ The exercises are not graded, but I recommend working on them with pen and paper
 - **Lecture 1** (13 October). [Stochastic bandits and concentration](course-rl-2026-lecture-1.html) <span class="tag">interactive</span>, with [Exercise Sheet 1](course-rl-2026-sheet-1.html) (solutions available).
 - **Lecture 2** (20 October). [Explore-then-commit and UCB](course-rl-2026-lecture-2.html) <span class="tag">interactive</span>, with [Exercise Sheet 2](course-rl-2026-sheet-2.html) (solutions available).
 - **Lecture 3** (27 October). [Relative entropy and lower bounds](course-rl-2026-lecture-3.html) <span class="tag">interactive</span> (no exercise sheet).
-- **Lecture 4** (3 November). [Lower bounds at two scales](course-rl-2026-lecture-4.html), with [Exercise Sheet 4](course-rl-2026-sheet-4.html).
+- **Lecture 4** (3 November). [Lower bounds at two scales](course-rl-2026-lecture-4.html), with [Exercise Sheet 4](course-rl-2026-sheet-4.html) (solutions available).
 - **Lecture 5** (10 November). [Testing by betting](course-rl-2026-lecture-5.html) <span class="tag">interactive</span>, with [Exercise Sheet 5](course-rl-2026-sheet-5.html).
 
 All numbered definitions and results, with one-line statements: [Results so far](course-rl-2026-results.html).
