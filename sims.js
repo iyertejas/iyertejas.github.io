@@ -1587,7 +1587,7 @@ function evidenceWidget(){
   const sH = () => Math.log(p()/q()), sT = () => Math.log((1 - p())/(1 - q()));
   const kl = () => p()*sH() + (1 - p())*sT();                          // KL(P ‖ Q): the average score of a flip of coin P
   const sg = x => (x >= 0 ? "+" : "−") + Math.abs(x).toFixed(3);
-  let r = rngL2(seedL2()), runs = [];
+  let r = rngL2(seedL2()), runs = [], shown = Infinity, raf = 0;
 
   function simulate(){
     runs = [];
@@ -1601,7 +1601,7 @@ function evidenceWidget(){
     }
   }
   function draw(){
-    const a = kl(), b = level();
+    const a = kl(), b = level(), T = shown;
     $("evScore").innerHTML = a < 1e-3
       ? "The two coins are almost the same, so a flip carries almost no evidence: move <i>p</i> and <i>q</i> further apart."
       : `Score of heads: log(<i>p</i>/<i>q</i>) = ${sg(sH())}. Score of tails: log((1 − <i>p</i>)/(1 − <i>q</i>)) = ${sg(sT())}. If the coin is <i>P</i>, a flip scores on average ${p().toFixed(2)} × (${sg(sH())}) + ${(1 - p()).toFixed(2)} × (${sg(sT())}) = <b>${a.toFixed(3)}</b> = KL(<i>P</i> ‖ <i>Q</i>).`;
@@ -1609,25 +1609,33 @@ function evidenceWidget(){
     const pred = b/a, xmax = Math.max(10, Math.ceil(2.5*pred));
     let lo = 0, hi = 1.15*b;
     for (const u of runs) for (const [n, v] of u.pts){ if (n <= xmax){ if (v < lo) lo = Math.max(v, -0.8*b); if (v > hi) hi = v; } }
-    const clip = pts => pts.filter(([n]) => n <= xmax);
+    const clip = pts => pts.filter(([n]) => n <= Math.min(xmax, T));
     plotL2("evWalk", { x:{min:0, max:xmax, label:"N, the number of flips"},
       y:{min:lo, max:hi, label:`total score Λ<tspan font-size="9" dy="3">N</tspan>`},
       lines:[...runs.map(u => ({pts:clip(u.pts), col:"var(--edge)", w:1})),
         {pts:[[0, b], [xmax, b]], col:"var(--ink)", w:1.2, dash:"2 3"},
         {pts:[[0, 0], [xmax, a*xmax]], col:"var(--c4)", w:2, dash:"7 4"}],
-      dots:runs.filter(u => u.hit !== null && u.hit <= xmax).map(u => ({x:u.hit, y:u.pts[u.pts.length - 1][1], col:"var(--accent)", r:4})) });
+      dots:runs.filter(u => u.hit !== null && u.hit <= Math.min(xmax, T)).map(u => ({x:u.hit, y:u.pts[u.pts.length - 1][1], col:"var(--accent)", r:4})) });
     legendL2("evWalkLegend", [
       {col:"var(--edge)", w:1, label:`Λ<sub><i>N</i></sub> for ${RUNS} runs of flips of coin <i>P</i>`},
       {dot:true, col:"var(--accent)", label:"where each run first reaches log(1/δ): decide for <i>P</i>"},
       {col:"var(--c4)", w:2, dash:"7 4", label:"<i>N</i> × KL(<i>P</i> ‖ <i>Q</i>)"},
       {col:"var(--ink)", w:1.2, dash:"2 3", label:`log(1/δ) = ${b.toFixed(2)}`}
     ]);
+    if (T < Infinity){ $("evStatus").innerHTML = `<i>N</i> = ${Math.floor(T)}: ${runs.filter(u => u.hit !== null && u.hit <= T).length} of ${RUNS} runs have decided for <i>P</i>.`; return; }
     const hits = runs.filter(u => u.hit !== null).map(u => u.hit);
     const avg = hits.length ? hits.reduce((x, y) => x + y, 0)/hits.length : null;
     $("evStatus").innerHTML = `log(1/δ) / KL(<i>P</i> ‖ <i>Q</i>) = ${b.toFixed(2)} / ${a.toFixed(3)} ≈ <b>${fmtL2(pred)} flips</b>. `
       + (avg !== null ? `These ${hits.length} runs decided for <i>P</i> after <b>${fmtL2(avg)} flips</b> on average.` : "");
   }
-  function fresh(){ simulate(); draw(); }
+  function fresh(){
+    cancelAnimationFrame(raf); simulate();
+    const a = kl();
+    if (reduced || a < 1e-3){ shown = Infinity; draw(); return; }
+    const xmax = Math.max(10, Math.ceil(2.5*level()/a)), t0 = performance.now(), dur = 4000;
+    const tick = now => { const f = Math.min(1, (now - t0)/dur); shown = f < 1 ? f*xmax : Infinity; draw(); if (f < 1) raf = requestAnimationFrame(tick); };
+    shown = 0; raf = requestAnimationFrame(tick);
+  }
   bindSlider("evP", 2, null, fresh);
   bindSlider("evQ", 2, null, fresh);
   $("evDelta").addEventListener("change", fresh);

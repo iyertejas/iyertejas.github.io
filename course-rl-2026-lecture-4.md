@@ -64,6 +64,8 @@ $$
 
 Dividing by $$(d_a + \varepsilon)\log n$$ gives $$\liminf_n \mathbb E_\nu[N_a(n)]/\log n \ge (1-p)/(d_a+\varepsilon)$$. Let $$p \downarrow 0$$ and $$\varepsilon \downarrow 0$$; if $$d_a = 0$$, the right-hand side tends to $$\infty$$. $$\square$$
 
+The [simulation in Lecture 3](course-rl-2026-lecture-3.html#ev-demo) shows that this many samples also suffice for a simple test: when the data come from $$\mu_a$$, ruling out $$\mu_a'$$ with error probability $$\delta$$ takes about $$\log(1/\delta)/\mathrm{KL}(\mu_a \,\Vert\, \mu_a')$$ samples, and $$\delta = 1/n$$ gives $$\log n/\mathrm{KL}(\mu_a \,\Vert\, \mu_a')$$.
+
 ## 2. The minimax lower bound
 
 In [Section 1](#1-the-lairobbins-theorem) we fixed an environment $$\nu$$ and asked how small the regret of a policy can be, asymptotically in $$n$$. Now we fix $$n$$ and ask for the worst regret over all environments, so the gaps $$\Delta_a$$ may depend on $$n$$.
