@@ -55,7 +55,7 @@ $$
 \frac1s \log W_s(\lambda, m) = \frac1s \sum_{i=1}^s \log\big(1 + \lambda(m - X_i)\big) \to \mathbb E_\mu\big[\log\big(1 + \lambda(m - X)\big)\big] \quad \text{almost surely}
 $$
 
-(also when the limit is $$-\infty$$, since the logarithms are bounded above). So the wealth grows or shrinks exponentially, at this rate. The average factor is misleading: a bet that doubles or halves the wealth with probability $$\frac12$$ each has average factor $$\frac54$$, but $$\frac12 \log 2 - \frac12 \log 2 = 0$$, and the wealth does not grow.
+(also when the limit is $$-\infty$$, since the logarithms are bounded above). So the wealth grows or shrinks exponentially, at this rate.
 
 **Definition 5.2.** We write $$\mathcal M_{[0,1]}$$ for the set of probability measures on $$[0, 1]$$. For $$\mu \in \mathcal M_{[0,1]}$$ and $$m \in [0, 1)$$, set
 {: #definition-5-2}
@@ -98,12 +98,12 @@ $$
 
 and the maximum is attained. In words: $$K_{\inf}(\mu, m)$$ is the best rate of wealth increase when short selling at the price $$m$$.
 
-*Proof.* Write $$\varphi = \varphi_{\mu,m}$$ and, for $$\lambda \in [0, \Lambda_m]$$ and $$x \in [0, 1]$$, $$g_\lambda(x) = 1 + \lambda(m - x) \ge 0$$, so that $$\varphi(\lambda) = \mathbb E_\mu[\log g_\lambda(X)]$$.
+*Proof.* Write $$\varphi = \varphi_{\mu,m}$$.
 
-*The inequality* $$K_{\inf}(\mu, m) \ge \varphi(\lambda)$$ *for every* $$\lambda$$. Let $$\nu \in \mathcal M_{[0,1]}$$ with $$\mathrm{mean}(\nu) \ge m$$; we may assume $$\mathrm{KL}(\mu \,\Vert\, \nu) < \infty$$, so that $$\mu \ll \nu$$, and $$L = d\mu/d\nu$$ satisfies $$L > 0$$ $$\mu$$-almost surely. For every measurable $$h \ge 0$$, $$\mathbb E_\mu[h/L] = \mathbb E_\nu[h\, \mathbf 1\{L > 0\}] \le \mathbb E_\nu[h]$$. So, by Jensen's inequality,
+*The inequality* $$K_{\inf}(\mu, m) \ge \varphi(\lambda)$$ *for every* $$\lambda$$. Let $$\nu \in \mathcal M_{[0,1]}$$ with $$\mathrm{mean}(\nu) \ge m$$; we may assume $$\mathrm{KL}(\mu \,\Vert\, \nu) < \infty$$, so that $$\mu \ll \nu$$, and $$d\mu/d\nu > 0$$ $$\mu$$-almost surely. For every measurable $$h \ge 0$$, $$\mathbb E_\mu\big[h \big/ \tfrac{d\mu}{d\nu}\big] = \mathbb E_\nu\big[h\, \mathbf 1\{\tfrac{d\mu}{d\nu} > 0\}\big] \le \mathbb E_\nu[h]$$. So, by Jensen's inequality,
 
 $$
-\varphi(\lambda) - \mathrm{KL}(\mu \,\Vert\, \nu) = \mathbb E_\mu\Big[\log \frac{g_\lambda(X)}{L(X)}\Big] \le \log \mathbb E_\mu\Big[\frac{g_\lambda(X)}{L(X)}\Big] \le \log \mathbb E_\nu\big[g_\lambda(X)\big] = \log\big(1 + \lambda(m - \mathrm{mean}(\nu))\big) \le 0,
+\varphi(\lambda) - \mathrm{KL}(\mu \,\Vert\, \nu) = \mathbb E_\mu\Big[\log \frac{1 + \lambda(m - X)}{(d\mu/d\nu)(X)}\Big] \le \log \mathbb E_\mu\Big[\frac{1 + \lambda(m - X)}{(d\mu/d\nu)(X)}\Big] \le \log \mathbb E_\nu\big[1 + \lambda(m - X)\big] = \log\big(1 + \lambda(m - \mathrm{mean}(\nu))\big) \le 0,
 $$
 
 since $$\mathrm{mean}(\nu) \ge m$$. Taking the infimum over $$\nu$$ gives $$K_{\inf}(\mu, m) \ge \varphi(\lambda)$$.
@@ -111,31 +111,31 @@ since $$\mathrm{mean}(\nu) \ge m$$. Taking the infimum over $$\nu$$ gives $$K_{\
 *The inequality* $$K_{\inf}(\mu, m) \le \varphi(\lambda^*)$$ *for some* $$\lambda^*$$. If $$\mathrm{mean}(\mu) \ge m$$, then $$K_{\inf}(\mu, m) = 0 = \varphi(0)$$, so assume $$\mathrm{mean}(\mu) < m$$. Let
 
 $$
-A(\lambda) = \mathbb E_\mu\Big[\frac{1}{g_\lambda(X)}\Big] \in (0, \infty], \qquad \text{so that} \qquad 1 - A(\lambda) = \lambda\, \mathbb E_\mu\Big[\frac{m - X}{g_\lambda(X)}\Big] \tag{*}
+A(\lambda) = \mathbb E_\mu\Big[\frac{1}{1 + \lambda(m - X)}\Big] \in (0, \infty], \qquad \text{so that} \qquad 1 - A(\lambda) = \lambda\, \mathbb E_\mu\Big[\frac{m - X}{1 + \lambda(m - X)}\Big] \tag{*}
 $$
 
-whenever $$A(\lambda) < \infty$$, since $$1 - 1/g_\lambda = \lambda(m - x)/g_\lambda$$. Suppose $$A(\lambda) \le 1$$. Then $$g_\lambda > 0$$ $$\mu$$-almost surely, and
+whenever $$A(\lambda) < \infty$$, since $$1 - \frac{1}{1 + \lambda(m - x)} = \frac{\lambda(m - x)}{1 + \lambda(m - x)}$$. Suppose $$A(\lambda) \le 1$$. Then $$1 + \lambda(m - X) > 0$$ $$\mu$$-almost surely, and
 
 $$
-\nu_\lambda(dx) = \frac{\mu(dx)}{g_\lambda(x)} + \big(1 - A(\lambda)\big)\, \delta_1(dx)
+\nu_\lambda(dx) = \frac{\mu(dx)}{1 + \lambda(m - x)} + \big(1 - A(\lambda)\big)\, \delta_1(dx)
 $$
 
-is a probability measure on $$[0, 1]$$. Since $$\nu_\lambda \ge \mu/g_\lambda$$, we have $$\mu \ll \nu_\lambda$$ with $$d\mu/d\nu_\lambda \le g_\lambda$$ $$\mu$$-almost surely, so $$\mathrm{KL}(\mu \,\Vert\, \nu_\lambda) \le \mathbb E_\mu[\log g_\lambda(X)] = \varphi(\lambda)$$. By $$(*)$$,
+is a probability measure on $$[0, 1]$$. Since $$\nu_\lambda(dx) \ge \mu(dx)/(1 + \lambda(m - x))$$, we have $$\mu \ll \nu_\lambda$$ with $$\frac{d\mu}{d\nu_\lambda}(X) \le 1 + \lambda(m - X)$$ $$\mu$$-almost surely, so $$\mathrm{KL}(\mu \,\Vert\, \nu_\lambda) \le \mathbb E_\mu[\log(1 + \lambda(m - X))] = \varphi(\lambda)$$. By $$(*)$$,
 
 $$
-\mathrm{mean}(\nu_\lambda) = m + \mathbb E_\mu\Big[\frac{X - m}{g_\lambda(X)}\Big] + \big(1 - A(\lambda)\big)(1 - m) = m + \big(1 - A(\lambda)\big)\Big(1 - m - \frac1\lambda\Big),
+\mathrm{mean}(\nu_\lambda) = m + \mathbb E_\mu\Big[\frac{X - m}{1 + \lambda(m - X)}\Big] + \big(1 - A(\lambda)\big)(1 - m) = m + \big(1 - A(\lambda)\big)\Big(1 - m - \frac1\lambda\Big),
 $$
 
 which equals $$m$$ when $$A(\lambda) = 1$$ or $$\lambda = \Lambda_m$$. It remains to find $$\lambda^* \in (0, \Lambda_m]$$ with $$A(\lambda^*) \le 1$$ and one of these two properties.
 
-For $$\lambda \le \lambda' < \Lambda_m$$ we have $$g_\lambda \ge 1 - \lambda'(1 - m) > 0$$, so $$A$$ is continuous on $$[0, \Lambda_m)$$ by dominated convergence. By $$(*)$$ and dominated convergence, $$(1 - A(\lambda))/\lambda \to m - \mathrm{mean}(\mu) > 0$$ as $$\lambda \downarrow 0$$, so $$A < 1$$ near $$0$$. As $$\lambda \uparrow \Lambda_m$$, $$1/g_\lambda(x)$$ increases for $$x \ge m$$ and stays in $$(0, 1]$$ for $$x < m$$, so by monotone and dominated convergence $$A(\lambda) \to A(\Lambda_m) \in (0, \infty]$$, with $$1/0 = \infty$$. Two cases:
+For $$\lambda \le \lambda' < \Lambda_m$$ we have $$1 + \lambda(m - x) \ge 1 - \lambda'(1 - m) > 0$$, so $$A$$ is continuous on $$[0, \Lambda_m)$$ by dominated convergence. By $$(*)$$ and dominated convergence, $$(1 - A(\lambda))/\lambda \to m - \mathrm{mean}(\mu) > 0$$ as $$\lambda \downarrow 0$$, so $$A < 1$$ near $$0$$. As $$\lambda \uparrow \Lambda_m$$, $$1/(1 + \lambda(m - x))$$ increases for $$x \ge m$$ and stays in $$(0, 1]$$ for $$x < m$$, so by monotone and dominated convergence $$A(\lambda) \to A(\Lambda_m) \in (0, \infty]$$, with $$1/0 = \infty$$. Two cases:
 
 - if $$A(\Lambda_m) > 1$$, then $$A(\lambda') > 1$$ for some $$\lambda' < \Lambda_m$$, and by the intermediate value theorem there is $$\lambda^* \in (0, \lambda')$$ with $$A(\lambda^*) = 1$$;
 - if $$A(\Lambda_m) \le 1$$, set $$\lambda^* = \Lambda_m$$.
 
 In both cases $$\mathrm{mean}(\nu_{\lambda^*}) = m$$, so $$K_{\inf}(\mu, m) \le \mathrm{KL}(\mu \,\Vert\, \nu_{\lambda^*}) \le \varphi(\lambda^*)$$. Together with the first part, $$K_{\inf}(\mu, m) = \varphi(\lambda^*) = \max_\lambda \varphi(\lambda)$$. $$\square$$
 
-**Reading it.** The proof finds the best stake $$\lambda^*$$ without maximising, and with it the closest alternative $$\nu^* = \nu_{\lambda^*}$$: it reweights $$\mu$$ by $$1/g_{\lambda^*}$$, which favours large prices, and puts any missing mass at $$1$$, the one price that ruins a short seller who is all in. Moreover $$d\mu/d\nu^* = g_{\lambda^*}$$ $$\mu$$-almost surely (if $$A(\lambda^*) < 1$$, then $$\lambda^* = \Lambda_m$$ and $$\mu(\{1\}) = 0$$, since $$1/g_{\Lambda_m}(1) = \infty$$). So the wealth of the best stake is a likelihood ratio,
+**Reading it.** The proof finds the best stake $$\lambda^*$$ without maximising, and with it the closest alternative $$\nu^* = \nu_{\lambda^*}$$: it reweights $$\mu$$ by $$1/(1 + \lambda^*(m - x))$$, which favours large prices, and puts any missing mass at $$1$$, the one price that ruins a short seller who is all in. Moreover $$\frac{d\mu}{d\nu^*}(X) = 1 + \lambda^*(m - X)$$ $$\mu$$-almost surely (if $$A(\lambda^*) < 1$$, then $$\lambda^* = \Lambda_m$$ and $$\mu(\{1\}) = 0$$, since $$1 + \Lambda_m(m - 1) = 0$$). So the wealth of the best stake is a likelihood ratio,
 
 $$
 W_s(\lambda^*, m) = \prod_{i=1}^s \frac{d\mu}{d\nu^*}(X_i),
