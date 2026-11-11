@@ -176,9 +176,10 @@ Exploring as little as possible does not work either. The *greedy* policy plays 
 **Principle (optimism in the face of uncertainty).** Play the arm whose mean could be largest: the arm with the largest upper confidence bound. Greedy, but realistic.
 
 **Confidence bounds.** Fix an arm $$a$$, a number of samples $$s$$ and $$\delta \in (0, 1)$$, and put $$w^\delta_a(s) = \sqrt{2\sigma^2 \log(1/\delta)/s}$$. The lower tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) ([Sheet 1, Exercise 4](course-rl-2026-sheet-1.html#exercise-4)) with $$\varepsilon = w^\delta_a(s)$$ gives
+{: #confidence-bounds}
 
 $$
-\mathbb P\big(\hat m_{a,s} + w^\delta_a(s) \le m_a\big) \le e^{-s\, w^\delta_a(s)^2/(2\sigma^2)} = \delta. \tag{1}
+\mathbb P\big(\hat m_{a,s} + w^\delta_a(s) \le m_a\big) \le e^{-s\, w^\delta_a(s)^2/(2\sigma^2)} = \delta.
 $$
 
 So $$\hat m_{a,s} + w^\delta_a(s)$$ is an upper bound on $$m_a$$ that fails with probability at most $$\delta$$, and it tightens as $$s$$ grows. This is where the sub-Gaussian assumption enters, and why [UCB](#algorithm-2-5) needs to know $$\sigma$$.
@@ -229,7 +230,7 @@ $$
 \mathbb P\big(N_a(n) > u\big) \le \mathbb P\big(\exists s \in [n] : \hat m_{1,s} + w_1(s) \le m_1\big) + \mathbb P\big(\hat m_{a,u} + w_a(u) \ge m_1\big).
 $$
 
-By (1) and a union bound over $$s \in [n]$$, the first probability is at most $$n\delta(n) = 1/n$$; (1) applies because, on the reward table, $$\hat m_{1,s}$$ is an average of $$s$$ independent samples for each fixed $$s$$. For the second, using $$w_a(u) \le \Delta_a/2$$ and the upper tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) (this is where the rewards being $$\sigma$$-sub-Gaussian is used),
+By [the confidence bound](#confidence-bounds) and a union bound over $$s \in [n]$$, the first probability is at most $$n\delta(n) = 1/n$$; the bound applies because, on the reward table, $$\hat m_{1,s}$$ is an average of $$s$$ independent samples for each fixed $$s$$. For the second, using $$w_a(u) \le \Delta_a/2$$ and the upper tail of [Theorem 1.10](course-rl-2026-lecture-1.html#theorem-1-10) (this is where the rewards being $$\sigma$$-sub-Gaussian is used),
 
 $$
 \mathbb P\big(\hat m_{a,u} + w_a(u) \ge m_1\big) \le \mathbb P\Big(\hat m_{a,u} - m_a \ge \frac{\Delta_a}{2}\Big) \le e^{-u\Delta_a^2/(8\sigma^2)} \le \frac1{n^2}.

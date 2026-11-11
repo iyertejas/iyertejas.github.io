@@ -111,16 +111,22 @@ since $$\mathrm{mean}(\nu) \ge m$$. Taking the infimum over $$\nu$$ gives $$K_{\
 *The inequality* $$K_{\inf}(\mu, m) \le \varphi(\lambda^*)$$ *for some* $$\lambda^*$$. If $$\mathrm{mean}(\mu) \ge m$$, then $$K_{\inf}(\mu, m) = 0 = \varphi(0)$$, so assume $$\mathrm{mean}(\mu) < m$$. Let
 
 $$
-A(\lambda) = \mathbb E_\mu\Big[\frac{1}{1 + \lambda(m - X)}\Big] \in (0, \infty], \qquad \text{so that} \qquad 1 - A(\lambda) = \lambda\, \mathbb E_\mu\Big[\frac{m - X}{1 + \lambda(m - X)}\Big] \tag{*}
+A(\lambda) = \mathbb E_\mu\Big[\frac{1}{1 + \lambda(m - X)}\Big] \in (0, \infty].
 $$
 
-whenever $$A(\lambda) < \infty$$, since $$1 - \frac{1}{1 + \lambda(m - x)} = \frac{\lambda(m - x)}{1 + \lambda(m - x)}$$. Suppose $$A(\lambda) \le 1$$. Then $$1 + \lambda(m - X) > 0$$ $$\mu$$-almost surely, and
+Since $$1 - \frac{1}{1 + \lambda(m - x)} = \frac{\lambda(m - x)}{1 + \lambda(m - x)}$$, whenever $$A(\lambda) < \infty$$,
+
+$$
+1 - A(\lambda) = \lambda\, \mathbb E_\mu\Big[\frac{m - X}{1 + \lambda(m - X)}\Big].
+$$
+
+Suppose $$A(\lambda) \le 1$$. Then $$1 + \lambda(m - X) > 0$$ $$\mu$$-almost surely, and
 
 $$
 \nu_\lambda(dx) = \frac{\mu(dx)}{1 + \lambda(m - x)} + \big(1 - A(\lambda)\big)\, \delta_1(dx)
 $$
 
-is a probability measure on $$[0, 1]$$. Since $$\nu_\lambda(dx) \ge \mu(dx)/(1 + \lambda(m - x))$$, we have $$\mu \ll \nu_\lambda$$ with $$\frac{d\mu}{d\nu_\lambda}(X) \le 1 + \lambda(m - X)$$ $$\mu$$-almost surely, so $$\mathrm{KL}(\mu \,\Vert\, \nu_\lambda) \le \mathbb E_\mu[\log(1 + \lambda(m - X))] = \varphi(\lambda)$$. By $$(*)$$,
+is a probability measure on $$[0, 1]$$. Since $$\nu_\lambda(dx) \ge \mu(dx)/(1 + \lambda(m - x))$$, we have $$\mu \ll \nu_\lambda$$ with $$\frac{d\mu}{d\nu_\lambda}(X) \le 1 + \lambda(m - X)$$ $$\mu$$-almost surely, so $$\mathrm{KL}(\mu \,\Vert\, \nu_\lambda) \le \mathbb E_\mu[\log(1 + \lambda(m - X))] = \varphi(\lambda)$$. By the identity for $$1 - A(\lambda)$$,
 
 $$
 \mathrm{mean}(\nu_\lambda) = m + \mathbb E_\mu\Big[\frac{X - m}{1 + \lambda(m - X)}\Big] + \big(1 - A(\lambda)\big)(1 - m) = m + \big(1 - A(\lambda)\big)\Big(1 - m - \frac1\lambda\Big),
@@ -128,7 +134,7 @@ $$
 
 which equals $$m$$ when $$A(\lambda) = 1$$ or $$\lambda = \Lambda_m$$. It remains to find $$\lambda^* \in (0, \Lambda_m]$$ with $$A(\lambda^*) \le 1$$ and one of these two properties.
 
-For $$\lambda \le \lambda' < \Lambda_m$$ we have $$1 + \lambda(m - x) \ge 1 - \lambda'(1 - m) > 0$$, so $$A$$ is continuous on $$[0, \Lambda_m)$$ by dominated convergence. By $$(*)$$ and dominated convergence, $$(1 - A(\lambda))/\lambda \to m - \mathrm{mean}(\mu) > 0$$ as $$\lambda \downarrow 0$$, so $$A < 1$$ near $$0$$. As $$\lambda \uparrow \Lambda_m$$, $$1/(1 + \lambda(m - x))$$ increases for $$x \ge m$$ and stays in $$(0, 1]$$ for $$x < m$$, so by monotone and dominated convergence $$A(\lambda) \to A(\Lambda_m) \in (0, \infty]$$, with $$1/0 = \infty$$. Two cases:
+For $$\lambda \le \lambda' < \Lambda_m$$ we have $$1 + \lambda(m - x) \ge 1 - \lambda'(1 - m) > 0$$, so $$A$$ is continuous on $$[0, \Lambda_m)$$ by dominated convergence. By the identity for $$1 - A(\lambda)$$ and dominated convergence, $$(1 - A(\lambda))/\lambda \to m - \mathrm{mean}(\mu) > 0$$ as $$\lambda \downarrow 0$$, so $$A < 1$$ near $$0$$. As $$\lambda \uparrow \Lambda_m$$, $$1/(1 + \lambda(m - x))$$ increases for $$x \ge m$$ and stays in $$(0, 1]$$ for $$x < m$$, so by monotone and dominated convergence $$A(\lambda) \to A(\Lambda_m) \in (0, \infty]$$, with $$1/0 = \infty$$. Two cases:
 
 - if $$A(\Lambda_m) > 1$$, then $$A(\lambda') > 1$$ for some $$\lambda' < \Lambda_m$$, and by the intermediate value theorem there is $$\lambda^* \in (0, \lambda')$$ with $$A(\lambda^*) = 1$$;
 - if $$A(\Lambda_m) \le 1$$, set $$\lambda^* = \Lambda_m$$.
