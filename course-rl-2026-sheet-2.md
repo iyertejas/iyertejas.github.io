@@ -35,8 +35,6 @@ Please report any errors or unclear points, in the lecture or by email.
 
 (b) Deduce that there are $$c > 0$$ and $$\Delta_0 > 0$$ such that $$R_n(\mathrm{ETC}(\ell)) \ge c\, n\Delta$$ whenever $$\Delta \le \Delta_0$$ and $$n \ge 4\ell$$.
 
-(c) Compare with [Theorem 2.4(b)](course-rl-2026-lecture-2.html#theorem-2-4). For Gaussian $$\mu$$, $$\sigma$$ is both the standard deviation and the sub-Gaussian constant. Which part of $$\ell_{\min} = \lceil (4\sigma^2/\Delta^2) \log n \rceil$$ is forced by the fluctuations of the samples, and which part buys the small error probability $$1/n$$?
-
 **Exercise 2.4 (greedy and ε-greedy).** <span class="tag">used later</span> <span class="used-in">in <a href="course-rl-2026-lecture-2.html#2-policy-functions-and-the-reward-table">Lecture 2, Section 2</a>; <a href="course-rl-2026-lecture-2.html#4-what-is-wrong-with-etc">Lecture 2, Section 4</a></span> The *greedy* policy plays each arm once and then always plays an arm with the largest empirical mean.
 {: #exercise-2-4}
 
