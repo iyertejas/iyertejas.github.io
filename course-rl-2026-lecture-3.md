@@ -64,11 +64,11 @@ $$
 
 This is half the squared distance between the means, measured in standard deviations.
 
-**Try it: relative entropy as a rate.** One sample from $$P$$ gives, on average, $$\mathrm{KL}(P \,\Vert\, Q)$$ units of evidence against $$Q$$. So telling $$P$$ from $$Q$$ with error probability at most $$\delta$$ takes about $$\log(1/\delta)/\mathrm{KL}(P \,\Vert\, Q)$$ samples.
+**Try it: relative entropy as a rate.** A coin is known to be one of two coins: coin $$P$$, which lands heads with probability $$p$$, or coin $$Q$$, which lands heads with probability $$q$$. We flip it to find out whether it is $$P$$. Score each flip $$x$$ by $$\log (dP/dQ)(x)$$, where $$(dP/dQ)(x)$$ is the probability of $$x$$ under $$P$$ divided by its probability under $$Q$$, and let $$\Lambda_N$$ be the total score of the first $$N$$ flips. We decide for $$P$$ once $$\Lambda_N \ge \log(1/\delta)$$, that is, once the flips are $$1/\delta$$ times more likely under $$P$$ than under $$Q$$. If the coin is $$P$$, one flip scores $$\mathrm{KL}(P \,\Vert\, Q)$$ on average, so $$\Lambda_N$$ grows like $$N\, \mathrm{KL}(P \,\Vert\, Q)$$ and the decision takes about $$\log(1/\delta)/\mathrm{KL}(P \,\Vert\, Q)$$ flips.
 
 {% include sim-evidence-walk.html %}
 
-A coin is flipped and each flip $$x$$ is scored by $$\log (dP/dQ)(x)$$, where $$(dP/dQ)(x)$$ is the probability of $$x$$ under coin $$P$$ divided by its probability under coin $$Q$$. The table shows that the average score of a flip of coin $$P$$ is exactly $$\mathrm{KL}(P \,\Vert\, Q)$$. So the total score $$\Lambda_N = \sum_{i=1}^N \log (dP/dQ)(X_i)$$ of the first $$N$$ flips $$X_1, \dots, X_N$$ grows like $$N\, \mathrm{KL}(P \,\Vert\, Q)$$, by the law of large numbers, and reaches $$\log(1/\delta)$$ after about $$\log(1/\delta)/\mathrm{KL}(P \,\Vert\, Q)$$ flips. Flipping coin $$Q$$ instead, the total falls at rate $$\mathrm{KL}(Q \,\Vert\, P)$$, which is usually a different number.
+Each grey line is $$\Lambda_N$$ for one run of flips of coin $$P$$, and the dot marks where it first reaches $$\log(1/\delta)$$. The dashed line is $$N\, \mathrm{KL}(P \,\Vert\, Q)$$.
 {: .caption}
 
 ## 2. The Bretagnolle–Huber inequality
