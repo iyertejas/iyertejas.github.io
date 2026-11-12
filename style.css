@@ -8,9 +8,9 @@
 
 /* ===== Tokens =====
    Layout: a sticky side panel holding a freshly sampled coagulation process, beside a left-aligned text column.
-   Times for reading, Helvetica for headings and interface; raspberry accent on a cool grey page. */
+   Times for reading, Helvetica for headings and interface; raspberry accent on a pale rose-grey page (light); dark teal page (dark). */
 :root{
-  --paper:#EDF2F2; --panel:#FDFDFD; --ink:#27181A; --muted:#776365; --rule:#DACDCE;
+  --paper:#F6ECEC; --panel:#FDFDFD; --ink:#27181A; --muted:#776365; --rule:#DACDCE;
   --accent:#AD4256; --soft:#FDD1D6; --line:#C0ABAD; --tie:#B9B0B1; --edge:#9C8A8C;
   --c0:#C25D5D; --c1:#A57708; --c2:#619037; --c3:#059391; --c4:#4083CB; --c5:#9B67B7;
   --good:#059391; --bad:#C25D5D; --mid:#D6CFD0; --fitlo:#E6DFE0; --fithi:#AD4256;
