@@ -172,7 +172,7 @@ For one fixed $$n$$ this is Markov's inequality; Ville's inequality, a form of D
 
 ## 5. Next lecture
 
-To use these bets in a bandit we must choose the stake without knowing $$\mu$$. Lecture 6 averages over the stakes, which gives the *K_inf index policy*, and then turns to Thompson sampling.
+To use these bets in a bandit we must choose the stake without knowing $$\mu$$. [Lecture 6](course-rl-2026-lecture-6.html) averages over the stakes, which gives the *K_inf index policy*.
 
 ## Check yourself
 
@@ -192,4 +192,4 @@ On betting:
 - J. Ville, *Étude critique de la notion de collectif*, Gauthier-Villars, 1939, for [Lemma 5.5](#lemma-5-5).
 - I. Waudby-Smith and A. Ramdas, Estimating means of bounded random variables by betting, *Journal of the Royal Statistical Society B* 86 (2024), 1–27, for confidence bounds by betting.
 
-<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-4.html">← Lecture 4</a><a href="course-rl-2026-sheet-5.html">Exercise Sheet 5</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
+<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-4.html">← Lecture 4</a><a href="course-rl-2026-sheet-5.html">Exercise Sheet 5</a><a href="course-rl-2026-lecture-6.html">Lecture 6 →</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>

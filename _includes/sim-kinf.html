@@ -1,0 +1,23 @@
+<figure class="demo" id="kinf-demo">
+<div class="controls">
+<div class="rt-field"><label for="kiArms">Arms</label>
+<select id="kiArms"><option value="fixed" selected>0.6 and 0.5, fixed</option><option value="two">0.5 or 0.7, and 0.4 or 0.6</option><option value="ber">Ber(0.6) and Ber(0.5)</option></select></div>
+<div class="rt-field"><label for="kiN">Horizon n</label>
+<select id="kiN"><option value="1000">1,000</option><option value="10000" selected>10,000</option></select></div>
+</div>
+<div class="controls rt-buttons">
+<button id="kiStep" type="button">Step</button>
+<button id="kiPlay" type="button">Play</button>
+<button id="kiEnd" type="button">To the end</button>
+<button id="kiNew" type="button">New run</button>
+<button id="kiMany" type="button">100 runs</button>
+<div class="rt-field"><label for="kiSpeed">Speed</label>
+<select id="kiSpeed"><option value="slow">slow</option><option value="medium" selected>medium</option><option value="fast">fast</option></select></div>
+<span class="rt-round" id="kiRound"></span>
+</div>
+<svg class="l2-chart" id="kiIdx" viewBox="0 0 680 280" role="img" aria-label="For each arm, the logarithm of the best wealth in hindsight as a function of the price m, the level at which the short seller is rich, and the index"></svg>
+<div class="l2-legend" id="kiIdxKey"></div>
+<p class="status" id="kiStatus" aria-live="polite"></p>
+<svg class="l2-chart" id="kiPulls" viewBox="0 0 680 260" role="img" aria-label="The number of pulls of arm 2 over time, for the K_inf index policy and for UCB"></svg>
+<div class="l2-legend" id="kiPullsKey"></div>
+</figure>

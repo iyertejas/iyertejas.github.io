@@ -1824,10 +1824,155 @@ function shortWidget(){
   return { start(){}, redraw(){ if (g) draw(); } };
 }
 
+// Lecture 6: the K_inf index policy and UCB(1/n²) (σ = 1/2) on two arms with rewards in [0, 1], read from one reward table.
+// Each arm's law has at most two atoms, so the best stake in hindsight, and hence log B_s(m) = s K_inf(μ̂_s, m), has a closed form.
+function kinfWidget(){
+  const P = "ki", COL = ["var(--c4)", "var(--c1)"], PCOL = { kinf:"var(--accent)", ucb:"var(--c3)" };
+  const PRESETS = {
+    fixed: [{ x:[0.6], p:[1] }, { x:[0.5], p:[1] }],
+    two:   [{ x:[0.5, 0.7], p:[0.5, 0.5] }, { x:[0.4, 0.6], p:[0.5, 0.5] }],
+    ber:   [{ x:[0, 1], p:[0.4, 0.6] }, { x:[0, 1], p:[0.5, 0.5] }]
+  };
+  const arms = () => PRESETS[$(P+"Arms").value], N = () => +$(P+"N").value;
+  const meanOf = arm => arm.x.reduce((t, v, j) => t + v*arm.p[j], 0);
+  // max over λ ∈ [0, Λ_m] of Σ_j c_j log(1 + λ(m − x_j)), for weights c_j ≥ 0 on at most two atoms x_j
+  function logBest(x, c, m){
+    let tot = 0, mu = 0, lo = Infinity, hi = -Infinity;
+    for (let j=0; j<x.length; j++) if (c[j] > 0){ tot += c[j]; mu += c[j]*x[j]; lo = Math.min(lo, x[j]); hi = Math.max(hi, x[j]); }
+    if (tot === 0) return 0;
+    mu /= tot;
+    if (mu >= m) return 0;                                            // the short sale does not pay: stake 0
+    const L = 1/(1 - m);
+    const l = hi <= m ? L : Math.min(L, (m - mu)/((m - lo)*(hi - m))); // all atoms below m: all in; else the stationary point of the concave φ
+    let v = 0; for (let j=0; j<x.length; j++) if (c[j] > 0) v += c[j]*Math.log(1 + l*(m - x[j]));
+    return v;
+  }
+  const thrOf = (s, n) => Math.log((s + 1)*n);
+  function kinfIndex(x, c, s, n){                                    // U = sup{m ∈ [0, 1): log B_s(m) ≤ log((s + 1)n)}
+    if (s === 0) return 1;
+    const thr = thrOf(s, n);
+    let lo = 0, hi = 1 - 1e-12;
+    if (logBest(x, c, hi) <= thr) return 1;
+    for (let i=0; i<40; i++){ const m = (lo + hi)/2; if (logBest(x, c, m) <= thr) lo = m; else hi = m; }
+    return lo;
+  }
+  function deal(r, A, n){                                             // the reward table: atom indices of each arm's cards
+    return A.map(arm => { const d = new Uint8Array(n); for (let i=0; i<n; i++) d[i] = arm.x.length > 1 && r() >= arm.p[0] ? 1 : 0; return d; });
+  }
+  function fresh(kind){ return { kind, t:0, n:[0, 0], c:[[0, 0], [0, 0]], sum:[0, 0], idx:[kind === "ucb" ? Infinity : 1, kind === "ucb" ? Infinity : 1], hist:[0], last:null }; }
+  function pull(st, A, deck, n){
+    const before = st.idx.slice(), a = st.idx[1] > st.idx[0] ? 1 : 0;   // ties go to arm 1
+    const j = deck[a][st.n[a]], x = A[a].x[j];
+    st.n[a]++; st.c[a][j]++; st.sum[a] += x; st.t++;
+    st.idx[a] = st.kind === "kinf" ? kinfIndex(A[a].x, st.c[a], st.n[a], n) : st.sum[a]/st.n[a] + Math.sqrt(Math.log(n)/st.n[a]);
+    st.hist.push(st.n[1]); st.last = { a, x, before };
+  }
+  let g = null, timer = 0, acc = 0, many = null;
+  const Kinf2 = () => { const A = arms(), ms = Math.max(meanOf(A[0]), meanOf(A[1])); return logBest(A[1].x, A[1].p, ms); };
+  const gap = () => { const A = arms(); return Math.abs(meanOf(A[0]) - meanOf(A[1])); };
+  function newRun(keepMany){
+    stop();
+    if (!keepMany) many = null;
+    const n = N(), A = arms();
+    g = { n, A, deck:deal(rngL2(seedL2()), A, n), kinf:fresh("kinf"), ucb:fresh("ucb") };
+    draw();
+  }
+  function step(){
+    if (g.kinf.t >= g.n) return false;
+    pull(g.kinf, g.A, g.deck, g.n); pull(g.ucb, g.A, g.deck, g.n);
+    return g.kinf.t < g.n;
+  }
+  function runMany(){
+    stop();
+    $(P+"Status").textContent = "Running 100 runs…";
+    setTimeout(() => {
+      const n = N(), A = arms(), r = rngL2(seedL2()); let sk = 0, su = 0;
+      for (let k=0; k<100; k++){
+        const deck = deal(r, A, n), a = fresh("kinf"), b = fresh("ucb");
+        for (let t=0; t<n; t++){ pull(a, A, deck, n); pull(b, A, deck, n); }
+        sk += a.n[1]; su += b.n[1];
+      }
+      many = { n, kinf:sk/100, ucb:su/100 };
+      newRun(true); while (step()); draw();
+    }, 30);
+  }
+  function drawIdx(){
+    const st = g.kinf, A = g.A, n = g.n, lines = [], dots = [], vlines = [];
+    let ymax = 6;
+    for (let a=0; a<2; a++){
+      vlines.push({ x:meanOf(A[a]), col:COL[a], dash:"2 4" });
+      if (st.n[a] === 0) continue;
+      const thr = thrOf(st.n[a], n); ymax = Math.max(ymax, 1.35*thr);
+    }
+    for (let a=0; a<2; a++){
+      if (st.n[a] === 0) continue;
+      const thr = thrOf(st.n[a], n), pts = [];
+      for (let i=0; i<=300; i++){ const m = 0.999*i/300; const v = logBest(A[a].x, st.c[a], m); pts.push([m, v]); if (v > ymax) break; }
+      lines.push({ pts, col:COL[a], w:2.25 });
+      lines.push({ pts:[[0, thr], [1, thr]], col:COL[a], w:1.25, dash:"7 4" });
+      dots.push({ x:Math.min(st.idx[a], 1), y:thr, col:COL[a], r:6 });
+    }
+    plotL2(P+"Idx", { height:280, x:{min:0, max:1, label:"price m"}, y:{min:0, max:ymax, label:"log Bₛ,ₐ(m)"}, lines, dots, vlines });
+    legendL2(P+"IdxKey", [0, 1].map(a => ({ col:COL[a], w:2.25, label:`arm ${a+1}: log B<sub>s,${a+1}</sub>(m), s = ${st.n[a]}`,
+      note:st.n[a] ? `U<sub>${a+1}</sub> = ${st.idx[a].toFixed(3)} (dot), rich above log((s + 1)n) (dashed), true mean ${meanOf(A[a]).toFixed(2)} (dotted)` : `not yet played: U<sub>${a+1}</sub> = 1` })));
+  }
+  function drawPulls(){
+    const n = g.n, K = Kinf2(), lr = Math.log(n)/K;
+    const ds = h => { const step = Math.max(1, Math.floor(h.length/400)), pts = []; for (let t=0; t<h.length; t+=step) pts.push([t, h[t]]); pts.push([h.length-1, h[h.length-1]]); return pts; };
+    const top = Math.max(lr, g.kinf.n[1], g.ucb.n[1], many ? Math.max(many.kinf, many.ucb) : 0, 10)*1.15;
+    const lines = [{ pts:[[0, lr], [n, lr]], col:"var(--muted)", w:1.5, dash:"6 5" }, { pts:ds(g.ucb.hist), col:PCOL.ucb, w:2.25 }, { pts:ds(g.kinf.hist), col:PCOL.kinf, w:2.5 }];
+    const dots = many ? [{ x:n, y:many.kinf, col:PCOL.kinf, hollow:true, r:6 }, { x:n, y:many.ucb, col:PCOL.ucb, hollow:true, r:6 }] : [];
+    plotL2(P+"Pulls", { height:260, x:{min:0, max:n, label:"round t"}, y:{min:0, max:top, label:"pulls of arm 2, N₂(t)"}, lines, dots });
+    legendL2(P+"PullsKey", [
+      { col:PCOL.kinf, w:2.5, label:"K<sub>inf</sub> index policy" },
+      { col:PCOL.ucb, w:2.25, label:"UCB(1/n²), σ = ½" },
+      { col:"var(--muted)", w:1.5, dash:"6 5", label:"log n / K<sub>inf</sub>(μ₂, m*)", note:`K<sub>inf</sub>(μ₂, m*) = ${K.toFixed(4)}` },
+      ...(many ? [{ dot:true, hollow:true, col:"var(--muted)", label:"average of N₂(n) over 100 runs" }] : [])]);
+  }
+  function status(){
+    const k = g.kinf, u = g.ucb, n = g.n;
+    $(P+"Round").textContent = `Round ${k.t} of ${n.toLocaleString("en-GB")}`;
+    $(P+"Step").disabled = $(P+"End").disabled = k.t >= n;
+    let s;
+    if (!k.last) s = "Press Step or Play. An arm that has not been played has index 1, so each arm is played once first.";
+    else {
+      const L = k.last, f = v => v === Infinity ? "∞" : v.toFixed(3);
+      s = `Round ${k.t}: the K<sub>inf</sub> indices were ${L.before.map((v, a) => `<span style="color:${COL[a]}">${f(v)}</span>`).join(" and ")}, so it played arm ${L.a+1}, which paid ${L.x.toFixed(2)}. So far arm 2 has been played ${k.n[1]} times by the K<sub>inf</sub> index policy and ${u.n[1]} times by UCB on the same rewards.`;
+    }
+    if (k.t >= n) s += ` Finished. For comparison, log n / K<sub>inf</sub>(μ₂, m*) = ${(Math.log(n)/Kinf2()).toFixed(1)}, and Theorem 2.6 allows UCB up to 3 + 4 log n/Δ² = ${(3 + 4*Math.log(n)/gap()**2).toFixed(0)} pulls.`;
+    if (many) s += ` Over 100 runs with n = ${many.n.toLocaleString("en-GB")}, arm 2 was played ${many.kinf.toFixed(1)} times on average by the K<sub>inf</sub> index policy and ${many.ucb.toFixed(1)} times by UCB.`;
+    $(P+"Status").innerHTML = s;
+  }
+  function draw(){ drawIdx(); drawPulls(); status(); }
+  const RATE = { slow:3, medium:60, fast:1500 };
+  function stop(){ cancelAnimationFrame(timer); timer = 0; $(P+"Play").textContent = "Play"; }
+  function play(){
+    if (timer){ stop(); return; }
+    if (g.kinf.t >= g.n) newRun(true);
+    $(P+"Play").textContent = "Pause"; acc = 0; let prev = performance.now();
+    const tick = now => {
+      acc += (now - prev)/1000*RATE[$(P+"Speed").value]; prev = now;
+      let more = true; while (acc >= 1 && more){ more = step(); acc -= 1; }
+      draw();
+      if (more) timer = requestAnimationFrame(tick); else stop();
+    };
+    timer = requestAnimationFrame(tick);
+  }
+  $(P+"Arms").addEventListener("change", () => newRun(false));
+  $(P+"N").addEventListener("change", () => newRun(false));
+  $(P+"Step").addEventListener("click", () => { stop(); step(); draw(); });
+  $(P+"Play").addEventListener("click", play);
+  $(P+"End").addEventListener("click", () => { stop(); while (step()); draw(); });
+  $(P+"New").addEventListener("click", () => newRun(true));
+  $(P+"Many").addEventListener("click", runMany);
+  newRun(false);
+  return { start(){}, redraw(){ if (g) draw(); }, _test:{ logBest, kinfIndex } };
+}
+
 /* ---------- boot ---------- */
 const widgets = {};
 const defs = [["phase-demo", phaseWidget], ["self-demo", selfWidget], ["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],
-              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget], ["etcrun-demo", etcRunWidget], ["ucbrun-demo", ucbRunWidget], ["ev-demo", evidenceWidget], ["short-demo", shortWidget]];
+              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget], ["etcrun-demo", etcRunWidget], ["ucbrun-demo", ucbRunWidget], ["ev-demo", evidenceWidget], ["short-demo", shortWidget], ["kinf-demo", kinfWidget]];
 function boot(){
   // Build each widget independently, so one failure cannot stop the others.
   for (const [id, mk] of defs) if ($(id)) { try { widgets[id] = mk(); } catch (e) { console.error("simulation " + id + " failed to load", e); } }

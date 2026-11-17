@@ -1,0 +1,32 @@
+<div class="quiz" id="check">
+<div class="q" data-answer="false">
+<p class="q-text"><b>1.</b> If the prices are i.i.d. with mean at least \(m\), then the best wealth in hindsight \((B_s(m))_{s \ge 0}\) is a nonnegative supermartingale.</p>
+<div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
+<div class="q-why" hidden><p>False. The stake is chosen after seeing the prices. For one price \(X \sim \mathrm{Ber}(m)\), the best stake is \(\Lambda_m\) if \(X = 0\) and \(0\) if \(X = 1\), so \(\mathbb E[B_1(m)] = (1 - m)\Lambda_m + m = 1 + m &gt; 1 = B_0(m)\). This is why the bets are mixed.</p></div>
+</div>
+<div class="q" data-answer="true">
+<p class="q-text"><b>2.</b> If the prices are i.i.d. with mean at least \(m\), then the average \(M_s = \Lambda_m^{-1}\int_0^{\Lambda_m} W_s(\lambda, m)\, d\lambda\) is a nonnegative supermartingale.</p>
+<div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
+<div class="q-why" hidden><p>True. Each \((W_s(\lambda, m))_{s \ge 0}\) is a nonnegative supermartingale, and the average is taken with weights that do not depend on the prices, so by Fubini's theorem \(M_s\) is one too, with \(M_0 = 1\). This is the proof of <a href="#corollary-6-2">Corollary 6.2</a>.</p></div>
+</div>
+<div class="q" data-answer="true">
+<p class="q-text"><b>3.</b> The factor \(s + 1\) in the threshold \((s + 1)n\) of <a href="#algorithm-6-3">Algorithm 6.3</a> pays for choosing the stake in hindsight.</p>
+<div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
+<div class="q-why" hidden><p>True. By <a href="#lemma-6-1">Lemma 6.1</a>, the mixture \(M_s\) is at least \(B_s(m)/(s + 1)\), and Ville's inequality controls \(M_s\) at all \(s\) at once. The factor \(n\) sets the confidence level: a true mean is ever rejected with probability at most \(1/n\).</p></div>
+</div>
+<div class="q" data-answer="false">
+<p class="q-text"><b>4.</b> The index \(U_a(t-1)\) depends on the rewards of arm \(a\) only through their empirical mean and their number.</p>
+<div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
+<div class="q-why" hidden><p>False. \(\log B_{s,a}(m) = s\, K_{\inf}(\hat\mu_{a,s}, m)\) depends on the whole empirical distribution. An arm that has paid \(0.5\) ten times has a much smaller index than one that has paid \(0\) and \(1\) five times each: the first is far stronger evidence that the mean is close to \(0.5\).</p></div>
+</div>
+<div class="q" data-answer="true">
+<p class="q-text"><b>5.</b> The K<sub>inf</sub> index policy is asymptotically optimal for Bernoulli arms, although it is not told that the arms are Bernoulli.</p>
+<div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
+<div class="q-why" hidden><p>True. By <a href="#theorem-6-4">Theorem 6.4</a> it pulls arm \(a\) at most about \(\log n/K_{\inf}(\mathrm{Ber}(m_a), m^*)\) times, and \(K_{\inf}(\mathrm{Ber}(m_a), m^*) = \mathrm{kl}(m_a, m^*)\) (<a href="course-rl-2026-sheet-5.html#exercise-5-2">Exercise 5.2</a>(b)), the Lai–Robbins constant for Bernoulli arms.</p></div>
+</div>
+<div class="q" data-answer="false">
+<p class="q-text"><b>6.</b> In the proof of <a href="#theorem-6-4">Theorem 6.4</a>, the stake \((1 - \varepsilon)\lambda^*\) is used instead of the Kelly stake \(\lambda^*\) because \(\lambda^*\) may be \(0\).</p>
+<div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
+<div class="q-why" hidden><p>False. \(\varphi(\lambda^*) = K_{\inf}(\mu_a, m^*) &gt; 0 = \varphi(0)\), so \(\lambda^* &gt; 0\). The reason is that \(\lambda^*\) may equal \(\Lambda_{m^*}\), and then \(\log(1 + \lambda^*(m^* - Y))\) is unbounded below as \(Y \to 1\), so the Chernoff bound does not apply. With \((1 - \varepsilon)\lambda^*\) the logarithms lie in \([\log\varepsilon, \log\Lambda_{m^*}]\), and by concavity the growth rate drops only by a factor \(1 - \varepsilon\).</p></div>
+</div>
+</div>

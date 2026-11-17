@@ -70,3 +70,10 @@ Every numbered definition, algorithm and result from the lecture notes, in one l
 - [Remark 5.3](course-rl-2026-lecture-5.html#remark-5-3). For rewards in $$[0, 1]$$ and $$m^* < 1$$, $$d_a = K_{\inf}(\mu_a, m^*)$$.
 - [Lemma 5.4](course-rl-2026-lecture-5.html#lemma-5-4) (Kelly criterion). $$K_{\inf}(\mu, m) = \max_{\lambda \in [0, \Lambda_m]} \varphi_{\mu,m}(\lambda)$$.
 - [Lemma 5.5](course-rl-2026-lecture-5.html#lemma-5-5) (Ville's inequality). For a nonnegative supermartingale with $$\mathbb E[M_0] = 1$$, $$\mathbb P(\exists\, n : M_n \ge x) \le 1/x$$.
+
+## Lecture 6: Mixing bets and the K<sub>inf</sub> index policy
+
+- [Lemma 6.1](course-rl-2026-lecture-6.html#lemma-6-1) (mixture of bets). $$\Lambda_m^{-1}\int_0^{\Lambda_m} W_s(\lambda, m)\, d\lambda \ge B_s(m)/(s + 1)$$, where $$B_s(m) = \max_{\lambda \in [0, \Lambda_m]} W_s(\lambda, m)$$.
+- [Corollary 6.2](course-rl-2026-lecture-6.html#corollary-6-2) (anytime confidence bound). For i.i.d. prices in $$[0, 1]$$ with mean at least $$m$$, $$\mathbb P(\exists\, s : B_s(m) \ge (s + 1)x) \le 1/x$$.
+- [Algorithm 6.3](course-rl-2026-lecture-6.html#algorithm-6-3) (K<sub>inf</sub> index policy). Play an arm with the largest $$U_a(t-1) = \sup\{m \in [0, 1) : B_{s,a}(m) \le (s + 1)n\}$$, $$s = N_a(t-1)$$.
+- [Theorem 6.4](course-rl-2026-lecture-6.html#theorem-6-4) (asymptotic optimality). For rewards in $$[0, 1]$$ and $$m^* < 1$$, $$\limsup_n \mathbb E_\nu[N_a(n)]/\log n \le 1/K_{\inf}(\mu_a, m^*)$$, matching the Lai–Robbins bound.
