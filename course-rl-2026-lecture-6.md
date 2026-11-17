@@ -87,11 +87,11 @@ $$
 
 Indeed, $$m \mapsto B_s(m)$$ is nondecreasing and continuous on $$[0, 1)$$ with $$B_s(0) = 1$$: substituting $$\lambda = \theta\Lambda_m$$, we get $$B_s(m) = \max_{\theta \in [0, 1]} \prod_{i=1}^s (1 + \theta(m - x_i)/(1 - m))$$, where each factor is nonnegative, continuous in $$(\theta, m)$$, and nondecreasing in $$m$$. So the set in the definition is an interval that contains $$0$$ and, if its supremum is below $$1$$, contains its supremum.
 
-**Try it.** Run the K<sub>inf</sub> index policy, or $$\mathrm{UCB}(1/n^2)$$, step by step on three arms.
+**Try it.** Run the K<sub>inf</sub> index policy and $$\mathrm{UCB}(1/n^2)$$ side by side, on the same rewards.
 
 {% include sim-kinf-run.html %}
 
-Three arms with means $$0.6$$, $$0.5$$ and $$0.4$$, and $$n = 1000$$. Each reward is $$m_a \pm 0.1$$ with probability $$\frac12$$ each, always $$m_a$$, or Bernoulli. For UCB, $$\sigma = \frac12$$, since rewards in $$[0, 1]$$ are $$\frac12$$-sub-Gaussian.
+Three arms with means $$0.6$$, $$0.5$$ and $$0.4$$, and $$n = 1000$$. Each arm has a row per policy, labelled with its number of pulls. Each reward is $$m_a \pm 0.1$$ with probability $$\frac12$$ each, always $$m_a$$, or Bernoulli. For UCB, $$\sigma = \frac12$$, since rewards in $$[0, 1]$$ are $$\frac12$$-sub-Gaussian.
 {: .caption}
 
 ## 4. Asymptotic optimality

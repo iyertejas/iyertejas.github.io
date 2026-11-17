@@ -1847,90 +1847,83 @@ function kiIndex(x, c, s, n){                                          // U = su
 }
 const kiMean = arm => arm.x.reduce((t, v, j) => t + v*arm.p[j], 0);
 
-// Lecture 6: step-by-step runs of the K_inf index policy or UCB(1/n²) (σ = 1/2) on three arms with rewards in [0, 1], as in Lecture 2.
+// Lecture 6: step-by-step runs of the K_inf index policy and UCB(1/n²) (σ = 1/2), side by side on one reward table:
+// three arms with rewards in [0, 1], as in Lecture 2.
 function kinfRunWidget(){
-  const P = "kr", K = 3, N = 1000, LOGN = Math.log(N), COL = ["var(--c4)", "var(--c1)", "var(--c5)"];
+  const P = "kr", K = 3, N = 1000, LOGN = Math.log(N), POL = ["kinf", "ucb"];
+  const PCOL = { kinf:"var(--accent)", ucb:"var(--c3)" }, PNAME = { kinf:"K<tspan baseline-shift=\"sub\" font-size=\"8\">inf</tspan>", ucb:"UCB" };
   const PRESETS = {
     two:   [{ x:[0.5, 0.7], p:[0.5, 0.5] }, { x:[0.4, 0.6], p:[0.5, 0.5] }, { x:[0.3, 0.5], p:[0.5, 0.5] }],
     fixed: [{ x:[0.6], p:[1] }, { x:[0.5], p:[1] }, { x:[0.4], p:[1] }],
     ber:   [{ x:[0, 1], p:[0.4, 0.6] }, { x:[0, 1], p:[0.5, 0.5] }, { x:[0, 1], p:[0.6, 0.4] }]
   };
-  const ucb = () => $(P+"Pol").value === "ucb";
   let g = null, timer = 0, acc = 0;
+  const fresh = kind => ({ kind, n:[0,0,0], c:[[0,0],[0,0],[0,0]], sum:[0,0,0], idx:[0,1,2].map(() => kind === "ucb" ? Infinity : 1), reg:[0], last:null });
   function deal(){
     stop();
     const A = PRESETS[$(P+"Arms").value], r = rngL2(seedL2());
     const Y = A.map(arm => { const d = new Uint8Array(N); for (let i=0; i<N; i++) d[i] = arm.x.length > 1 && r() >= arm.p[0] ? 1 : 0; return d; });
     const m = A.map(kiMean), ms = Math.max(...m);
-    g = { A, Y, m, ms, t:0, n:[0,0,0], c:[[0,0],[0,0],[0,0]], sum:[0,0,0], idx:[0,1,2].map(() => ucb() ? Infinity : 1), hist:[[0],[0],[0]], last:null };
+    g = { A, Y, m, ms, t:0, kinf:fresh("kinf"), ucb:fresh("ucb") };
     draw();
   }
-  const mean = a => g.sum[a]/g.n[a];
-  function index(a){
-    if (g.n[a] === 0) return ucb() ? Infinity : 1;
-    return ucb() ? mean(a) + Math.sqrt(LOGN/g.n[a]) : kiIndex(g.A[a].x, g.c[a], g.n[a], N);
+  const mean = (st, a) => st.sum[a]/st.n[a];
+  function pull(st){
+    const before = st.idx.slice();
+    let a = 0; for (let b=1; b<K; b++) if (st.idx[b] > st.idx[a]) a = b;
+    const j = g.Y[a][st.n[a]], x = g.A[a].x[j];
+    st.n[a]++; st.c[a][j]++; st.sum[a] += x;
+    st.idx[a] = st.kind === "ucb" ? mean(st, a) + Math.sqrt(LOGN/st.n[a]) : kiIndex(g.A[a].x, st.c[a], st.n[a], N);
+    st.reg.push(st.reg[st.reg.length-1] + g.ms - g.m[a]);
+    st.last = { a, x, before };
   }
   function step(){
     if (g.t >= N) return false;
-    g.t++;
-    const before = g.idx.slice();
-    let a = 0; for (let b=1; b<K; b++) if (g.idx[b] > g.idx[a]) a = b;
-    const j = g.Y[a][g.n[a]], x = g.A[a].x[j];
-    g.n[a]++; g.c[a][j]++; g.sum[a] += x; g.idx[a] = index(a);
-    for (let b=0; b<K; b++) g.hist[b].push(g.n[b]);
-    g.last = { t:g.t, a, x, before };
+    g.t++; pull(g.kinf); pull(g.ucb);
     return g.t < N;
   }
   function drawTop(){
-    const el = $(P+"Top"), W = Math.max(320, Math.min(680, Math.round(el.getBoundingClientRect().width) || 680)), H = 180;
+    const el = $(P+"Top"), W = Math.max(320, Math.min(680, Math.round(el.getBoundingClientRect().width) || 680)), H = 244;
     el.setAttribute("viewBox", `0 0 ${W} ${H}`);
-    const L = W < 480 ? 64 : 92, R = 16, X = v => L + v*(W - L - R), rowY = a => 30 + a*46;
+    const L = W < 480 ? 84 : 100, R = 16, X = v => L + v*(W - L - R), armY = a => 8 + a*70;
+    const txt = (x, y, t, o = {}) => `<text x="${x}" y="${y}" text-anchor="${o.a || "start"}" font-family="var(--sans)" font-size="${o.fs || 12}" fill="${o.col || "var(--muted)"}" font-weight="${o.b ? 700 : 400}">${t}</text>`;
     let s = "";
     for (let v = 0; v <= 1.0001; v += 0.2)
-      s += `<line x1="${X(v)}" x2="${X(v)}" y1="14" y2="${H-22}" stroke="var(--rule)"/><text x="${X(v)}" y="${H-6}" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--muted)">${+v.toFixed(1)}</text>`;
+      s += `<line x1="${X(v)}" x2="${X(v)}" y1="22" y2="${H-22}" stroke="var(--rule)"/>` + txt(X(v), H-6, +v.toFixed(1), { a:"middle" });
     for (let a=0; a<K; a++){
-      const y = rowY(a);
-      if (g.last && g.last.a === a) s += `<rect x="2" y="${y-19}" width="${W-4}" height="38" rx="3" fill="${COL[a]}" fill-opacity=".08"/>`;
-      s += `<text x="8" y="${y-2}" font-family="var(--sans)" font-size="13" font-weight="700" fill="${COL[a]}">Arm ${a+1}</text>`;
-      s += `<text x="8" y="${y+13}" font-family="var(--sans)" font-size="11.5" fill="var(--muted)">N = ${g.n[a]}</text>`;
-      s += `<line x1="${X(g.m[a])}" x2="${X(g.m[a])}" y1="${y-15}" y2="${y+15}" stroke="var(--muted)" stroke-width="2"/>`;
-      if (g.n[a] > 0){
-        const mh = mean(a), u = g.idx[a], ue = Math.min(u, 1);
-        s += `<line x1="${X(mh)}" x2="${X(ue)}" y1="${y}" y2="${y}" stroke="${COL[a]}" stroke-width="10" stroke-opacity=".28" stroke-linecap="butt"/>`;
-        if (u > 1) s += `<path d="M${X(1)-2} ${y-7}L${X(1)+6} ${y}L${X(1)-2} ${y+7}z" fill="${COL[a]}"/>`;
-        else s += `<line x1="${X(u)}" x2="${X(u)}" y1="${y-11}" y2="${y+11}" stroke="${COL[a]}" stroke-width="4"/>`;
-        s += `<circle cx="${X(mh)}" cy="${y}" r="5.5" fill="${COL[a]}" stroke="var(--paper)" stroke-width="1.5"/>`;
-      }
+      const y0 = armY(a);
+      s += txt(8, y0+12, `Arm ${a+1}`, { col:"var(--ink)", b:1, fs:13 }) + txt(60, y0+12, `mean ${g.m[a].toFixed(1)}`, { fs:11.5 });
+      s += `<line x1="${X(g.m[a])}" x2="${X(g.m[a])}" y1="${y0+18}" y2="${y0+64}" stroke="var(--muted)" stroke-width="2"/>`;
+      POL.forEach((k, i) => {
+        const st = g[k], y = y0 + 30 + i*22, col = PCOL[k];
+        if (st.last && st.last.a === a) s += `<rect x="2" y="${y-10}" width="${W-4}" height="20" rx="3" fill="${col}" fill-opacity=".1"/>`;
+        s += txt(8, y+4, `${PNAME[k]}: N = ${st.n[a]}`, { col, fs:11.5 });
+        if (st.n[a] > 0){
+          const mh = mean(st, a), u = st.idx[a], ue = Math.min(u, 1);
+          s += `<line x1="${X(mh)}" x2="${X(ue)}" y1="${y}" y2="${y}" stroke="${col}" stroke-width="8" stroke-opacity=".28"/>`;
+          if (u > 1) s += `<path d="M${X(1)-2} ${y-6}L${X(1)+6} ${y}L${X(1)-2} ${y+6}z" fill="${col}"/>`;
+          else s += `<line x1="${X(u)}" x2="${X(u)}" y1="${y-9}" y2="${y+9}" stroke="${col}" stroke-width="3.5"/>`;
+          s += `<circle cx="${X(mh)}" cy="${y}" r="4.5" fill="${col}" stroke="var(--paper)" stroke-width="1.5"/>`;
+        }
+      });
     }
     el.innerHTML = s;
   }
   function drawLow(){
-    const lines = [0,1,2].map(a => {
-      const h = g.hist[a], st = Math.max(1, Math.floor(h.length/300)), pts = [];
-      for (let t=0; t<h.length; t+=st) pts.push([t, h[t]]);
-      pts.push([h.length-1, h[h.length-1]]);
-      return { pts, col:COL[a], w:2.25 };
-    });
-    for (let a=0; a<K; a++){
-      if (g.m[a] >= g.ms) continue;
-      const b = ucb() ? 3 + 4*LOGN/(g.ms - g.m[a])**2 : LOGN/kiLogBest(g.A[a].x, g.A[a].p, g.ms);
-      if (b < N) lines.push({ pts:[[0, b], [N, b]], col:COL[a], w:1.5, dash:"5 4" });
-    }
-    plotL2(P+"Low", { height:260, x:{min:0, max:N, label:"round t"}, y:{min:0, max:N, label:"pulls Nₐ(t)"}, lines });
+    const ds = h => { const st = Math.max(1, Math.floor(h.length/300)), pts = []; for (let t=0; t<h.length; t+=st) pts.push([t, h[t]]); pts.push([h.length-1, h[h.length-1]]); return pts; };
+    const top = Math.max(5, g.kinf.reg[g.t], g.ucb.reg[g.t])*1.15;
+    plotL2(P+"Low", { height:240, x:{min:0, max:N, label:"round t"}, y:{min:0, max:top, label:"regret Σₐ Δₐ Nₐ(t)"},
+      lines:[{ pts:ds(g.ucb.reg), col:PCOL.ucb, w:2.25 }, { pts:ds(g.kinf.reg), col:PCOL.kinf, w:2.5 }] });
+    legendL2(P+"LowKey", [{ col:PCOL.kinf, w:2.5, label:"K<sub>inf</sub> index policy" }, { col:PCOL.ucb, w:2.25, label:"UCB(1/n²), σ = ½" }]);
   }
   function status(){
     $(P+"Round").textContent = `Round ${g.t} of ${N}`;
     $(P+"Step").disabled = g.t >= N;
-    const L = g.last, name = ucb() ? "UCB" : "The K<sub>inf</sub> index policy";
     let s;
-    if (!L) s = `Press Step. ${name} first plays each arm once.`;
+    if (!g.t) s = "Press Step. Both policies first play each arm once.";
     else {
-      const f = v => v === Infinity ? "∞" : v.toFixed(3);
-      s = `Round ${L.t}: the indices were ${L.before.map((v, a) => `<span style="color:${COL[a]}">${f(v)}</span>`).join(", ")}, so A<sub>${L.t}</sub> = ${L.a+1}, which paid ${L.x.toFixed(2)}.`;
-    }
-    if (g.t >= N){
-      const reg = g.n.reduce((t, k, a) => t + k*(g.ms - g.m[a]), 0);
-      s += ` Finished: Σ<sub>a</sub> Δ<sub>a</sub> N<sub>a</sub>(n) = ${reg.toFixed(1)}.`;
+      const k = g.kinf.last, u = g.ucb.last;
+      s = `Round ${g.t}: the K<sub>inf</sub> index policy played arm ${k.a+1} and UCB played arm ${u.a+1}. Regret so far: <span style="color:${PCOL.kinf}">${g.kinf.reg[g.t].toFixed(1)}</span> and <span style="color:${PCOL.ucb}">${g.ucb.reg[g.t].toFixed(1)}</span>.`;
     }
     $(P+"Status").innerHTML = s;
   }
@@ -1949,7 +1942,6 @@ function kinfRunWidget(){
     };
     timer = requestAnimationFrame(tick);
   }
-  $(P+"Pol").addEventListener("change", deal);
   $(P+"Arms").addEventListener("change", deal);
   $(P+"Step").addEventListener("click", () => { stop(); step(); draw(); });
   $(P+"Play").addEventListener("click", play);
