@@ -1824,6 +1824,140 @@ function shortWidget(){
   return { start(){}, redraw(){ if (g) draw(); } };
 }
 
+// Lecture 6: shared helpers. Laws with at most two atoms x_j, weights c_j (counts or probabilities).
+// kiLogBest = max over λ ∈ [0, Λ_m] of Σ_j c_j log(1 + λ(m − x_j)): log B_s(m) for counts, K_inf(μ, m) for probabilities.
+function kiLogBest(x, c, m){
+  let tot = 0, mu = 0, lo = Infinity, hi = -Infinity;
+  for (let j=0; j<x.length; j++) if (c[j] > 0){ tot += c[j]; mu += c[j]*x[j]; lo = Math.min(lo, x[j]); hi = Math.max(hi, x[j]); }
+  if (tot === 0) return 0;
+  mu /= tot;
+  if (mu >= m) return 0;                                              // the short sale does not pay: stake 0
+  const L = 1/(1 - m);
+  const l = hi <= m ? L : Math.min(L, (m - mu)/((m - lo)*(hi - m)));   // all atoms below m: all in; else the stationary point of the concave φ
+  let v = 0; for (let j=0; j<x.length; j++) if (c[j] > 0) v += c[j]*Math.log(1 + l*(m - x[j]));
+  return v;
+}
+function kiIndex(x, c, s, n){                                          // U = sup{m ∈ [0, 1): log B_s(m) ≤ log((s + 1)n)}
+  if (s === 0) return 1;
+  const thr = Math.log((s + 1)*n);
+  let lo = 0, hi = 1 - 1e-12;
+  if (kiLogBest(x, c, hi) <= thr) return 1;
+  for (let i=0; i<40; i++){ const m = (lo + hi)/2; if (kiLogBest(x, c, m) <= thr) lo = m; else hi = m; }
+  return lo;
+}
+const kiMean = arm => arm.x.reduce((t, v, j) => t + v*arm.p[j], 0);
+
+// Lecture 6: step-by-step runs of the K_inf index policy or UCB(1/n²) (σ = 1/2) on three arms with rewards in [0, 1], as in Lecture 2.
+function kinfRunWidget(){
+  const P = "kr", K = 3, N = 1000, LOGN = Math.log(N), COL = ["var(--c4)", "var(--c1)", "var(--c5)"];
+  const PRESETS = {
+    two:   [{ x:[0.5, 0.7], p:[0.5, 0.5] }, { x:[0.4, 0.6], p:[0.5, 0.5] }, { x:[0.3, 0.5], p:[0.5, 0.5] }],
+    fixed: [{ x:[0.6], p:[1] }, { x:[0.5], p:[1] }, { x:[0.4], p:[1] }],
+    ber:   [{ x:[0, 1], p:[0.4, 0.6] }, { x:[0, 1], p:[0.5, 0.5] }, { x:[0, 1], p:[0.6, 0.4] }]
+  };
+  const ucb = () => $(P+"Pol").value === "ucb";
+  let g = null, timer = 0, acc = 0;
+  function deal(){
+    stop();
+    const A = PRESETS[$(P+"Arms").value], r = rngL2(seedL2());
+    const Y = A.map(arm => { const d = new Uint8Array(N); for (let i=0; i<N; i++) d[i] = arm.x.length > 1 && r() >= arm.p[0] ? 1 : 0; return d; });
+    const m = A.map(kiMean), ms = Math.max(...m);
+    g = { A, Y, m, ms, t:0, n:[0,0,0], c:[[0,0],[0,0],[0,0]], sum:[0,0,0], idx:[0,1,2].map(() => ucb() ? Infinity : 1), hist:[[0],[0],[0]], last:null };
+    draw();
+  }
+  const mean = a => g.sum[a]/g.n[a];
+  function index(a){
+    if (g.n[a] === 0) return ucb() ? Infinity : 1;
+    return ucb() ? mean(a) + Math.sqrt(LOGN/g.n[a]) : kiIndex(g.A[a].x, g.c[a], g.n[a], N);
+  }
+  function step(){
+    if (g.t >= N) return false;
+    g.t++;
+    const before = g.idx.slice();
+    let a = 0; for (let b=1; b<K; b++) if (g.idx[b] > g.idx[a]) a = b;
+    const j = g.Y[a][g.n[a]], x = g.A[a].x[j];
+    g.n[a]++; g.c[a][j]++; g.sum[a] += x; g.idx[a] = index(a);
+    for (let b=0; b<K; b++) g.hist[b].push(g.n[b]);
+    g.last = { t:g.t, a, x, before };
+    return g.t < N;
+  }
+  function drawTop(){
+    const el = $(P+"Top"), W = Math.max(320, Math.min(680, Math.round(el.getBoundingClientRect().width) || 680)), H = 180;
+    el.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const L = W < 480 ? 64 : 92, R = 16, X = v => L + v*(W - L - R), rowY = a => 30 + a*46;
+    let s = "";
+    for (let v = 0; v <= 1.0001; v += 0.2)
+      s += `<line x1="${X(v)}" x2="${X(v)}" y1="14" y2="${H-22}" stroke="var(--rule)"/><text x="${X(v)}" y="${H-6}" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--muted)">${+v.toFixed(1)}</text>`;
+    for (let a=0; a<K; a++){
+      const y = rowY(a);
+      if (g.last && g.last.a === a) s += `<rect x="2" y="${y-19}" width="${W-4}" height="38" rx="3" fill="${COL[a]}" fill-opacity=".08"/>`;
+      s += `<text x="8" y="${y-2}" font-family="var(--sans)" font-size="13" font-weight="700" fill="${COL[a]}">Arm ${a+1}</text>`;
+      s += `<text x="8" y="${y+13}" font-family="var(--sans)" font-size="11.5" fill="var(--muted)">N = ${g.n[a]}</text>`;
+      s += `<line x1="${X(g.m[a])}" x2="${X(g.m[a])}" y1="${y-15}" y2="${y+15}" stroke="var(--muted)" stroke-width="2"/>`;
+      if (g.n[a] > 0){
+        const mh = mean(a), u = g.idx[a], ue = Math.min(u, 1);
+        s += `<line x1="${X(mh)}" x2="${X(ue)}" y1="${y}" y2="${y}" stroke="${COL[a]}" stroke-width="10" stroke-opacity=".28" stroke-linecap="butt"/>`;
+        if (u > 1) s += `<path d="M${X(1)-2} ${y-7}L${X(1)+6} ${y}L${X(1)-2} ${y+7}z" fill="${COL[a]}"/>`;
+        else s += `<line x1="${X(u)}" x2="${X(u)}" y1="${y-11}" y2="${y+11}" stroke="${COL[a]}" stroke-width="4"/>`;
+        s += `<circle cx="${X(mh)}" cy="${y}" r="5.5" fill="${COL[a]}" stroke="var(--paper)" stroke-width="1.5"/>`;
+      }
+    }
+    el.innerHTML = s;
+  }
+  function drawLow(){
+    const lines = [0,1,2].map(a => {
+      const h = g.hist[a], st = Math.max(1, Math.floor(h.length/300)), pts = [];
+      for (let t=0; t<h.length; t+=st) pts.push([t, h[t]]);
+      pts.push([h.length-1, h[h.length-1]]);
+      return { pts, col:COL[a], w:2.25 };
+    });
+    for (let a=0; a<K; a++){
+      if (g.m[a] >= g.ms) continue;
+      const b = ucb() ? 3 + 4*LOGN/(g.ms - g.m[a])**2 : LOGN/kiLogBest(g.A[a].x, g.A[a].p, g.ms);
+      if (b < N) lines.push({ pts:[[0, b], [N, b]], col:COL[a], w:1.5, dash:"5 4" });
+    }
+    plotL2(P+"Low", { height:260, x:{min:0, max:N, label:"round t"}, y:{min:0, max:N, label:"pulls Nₐ(t)"}, lines });
+  }
+  function status(){
+    $(P+"Round").textContent = `Round ${g.t} of ${N}`;
+    $(P+"Step").disabled = g.t >= N;
+    const L = g.last, name = ucb() ? "UCB" : "The K<sub>inf</sub> index policy";
+    let s;
+    if (!L) s = `Press Step. ${name} first plays each arm once.`;
+    else {
+      const f = v => v === Infinity ? "∞" : v.toFixed(3);
+      s = `Round ${L.t}: the indices were ${L.before.map((v, a) => `<span style="color:${COL[a]}">${f(v)}</span>`).join(", ")}, so A<sub>${L.t}</sub> = ${L.a+1}, which paid ${L.x.toFixed(2)}.`;
+    }
+    if (g.t >= N){
+      const reg = g.n.reduce((t, k, a) => t + k*(g.ms - g.m[a]), 0);
+      s += ` Finished: Σ<sub>a</sub> Δ<sub>a</sub> N<sub>a</sub>(n) = ${reg.toFixed(1)}.`;
+    }
+    $(P+"Status").innerHTML = s;
+  }
+  function draw(){ drawTop(); drawLow(); status(); }
+  const RATE = { slow:4, medium:60, fast:400 };
+  function stop(){ cancelAnimationFrame(timer); timer = 0; $(P+"Play").textContent = "Play"; }
+  function play(){
+    if (timer){ stop(); return; }
+    if (g.t >= N) deal();
+    $(P+"Play").textContent = "Pause"; acc = 0; let prev = performance.now();
+    const tick = now => {
+      acc += (now - prev)/1000*RATE[$(P+"Speed").value]; prev = now;
+      let more = true; while (acc >= 1 && more){ more = step(); acc -= 1; }
+      draw();
+      if (more) timer = requestAnimationFrame(tick); else stop();
+    };
+    timer = requestAnimationFrame(tick);
+  }
+  $(P+"Pol").addEventListener("change", deal);
+  $(P+"Arms").addEventListener("change", deal);
+  $(P+"Step").addEventListener("click", () => { stop(); step(); draw(); });
+  $(P+"Play").addEventListener("click", play);
+  $(P+"New").addEventListener("click", deal);
+  deal();
+  return { start(){}, redraw(){ if (g) draw(); } };
+}
+
 // Lecture 6: the K_inf index policy and UCB(1/n²) (σ = 1/2) on two arms with rewards in [0, 1], read from one reward table.
 // Each arm's law has at most two atoms, so the best stake in hindsight, and hence log B_s(m) = s K_inf(μ̂_s, m), has a closed form.
 function kinfWidget(){
@@ -1834,28 +1968,7 @@ function kinfWidget(){
     ber:   [{ x:[0, 1], p:[0.4, 0.6] }, { x:[0, 1], p:[0.5, 0.5] }]
   };
   const arms = () => PRESETS[$(P+"Arms").value], N = () => +$(P+"N").value;
-  const meanOf = arm => arm.x.reduce((t, v, j) => t + v*arm.p[j], 0);
-  // max over λ ∈ [0, Λ_m] of Σ_j c_j log(1 + λ(m − x_j)), for weights c_j ≥ 0 on at most two atoms x_j
-  function logBest(x, c, m){
-    let tot = 0, mu = 0, lo = Infinity, hi = -Infinity;
-    for (let j=0; j<x.length; j++) if (c[j] > 0){ tot += c[j]; mu += c[j]*x[j]; lo = Math.min(lo, x[j]); hi = Math.max(hi, x[j]); }
-    if (tot === 0) return 0;
-    mu /= tot;
-    if (mu >= m) return 0;                                            // the short sale does not pay: stake 0
-    const L = 1/(1 - m);
-    const l = hi <= m ? L : Math.min(L, (m - mu)/((m - lo)*(hi - m))); // all atoms below m: all in; else the stationary point of the concave φ
-    let v = 0; for (let j=0; j<x.length; j++) if (c[j] > 0) v += c[j]*Math.log(1 + l*(m - x[j]));
-    return v;
-  }
-  const thrOf = (s, n) => Math.log((s + 1)*n);
-  function kinfIndex(x, c, s, n){                                    // U = sup{m ∈ [0, 1): log B_s(m) ≤ log((s + 1)n)}
-    if (s === 0) return 1;
-    const thr = thrOf(s, n);
-    let lo = 0, hi = 1 - 1e-12;
-    if (logBest(x, c, hi) <= thr) return 1;
-    for (let i=0; i<40; i++){ const m = (lo + hi)/2; if (logBest(x, c, m) <= thr) lo = m; else hi = m; }
-    return lo;
-  }
+  const meanOf = kiMean, logBest = kiLogBest, thrOf = (s, n) => Math.log((s + 1)*n), kinfIndex = kiIndex;
   function deal(r, A, n){                                             // the reward table: atom indices of each arm's cards
     return A.map(arm => { const d = new Uint8Array(n); for (let i=0; i<n; i++) d[i] = arm.x.length > 1 && r() >= arm.p[0] ? 1 : 0; return d; });
   }
@@ -1966,13 +2079,13 @@ function kinfWidget(){
   $(P+"New").addEventListener("click", () => newRun(true));
   $(P+"Many").addEventListener("click", runMany);
   newRun(false);
-  return { start(){}, redraw(){ if (g) draw(); }, _test:{ logBest, kinfIndex } };
+  return { start(){}, redraw(){ if (g) draw(); } };
 }
 
 /* ---------- boot ---------- */
 const widgets = {};
 const defs = [["phase-demo", phaseWidget], ["self-demo", selfWidget], ["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],
-              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget], ["etcrun-demo", etcRunWidget], ["ucbrun-demo", ucbRunWidget], ["ev-demo", evidenceWidget], ["short-demo", shortWidget], ["kinf-demo", kinfWidget]];
+              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget], ["etcrun-demo", etcRunWidget], ["ucbrun-demo", ucbRunWidget], ["ev-demo", evidenceWidget], ["short-demo", shortWidget], ["kinf-demo", kinfWidget], ["kinfrun-demo", kinfRunWidget]];
 function boot(){
   // Build each widget independently, so one failure cannot stop the others.
   for (const [id, mk] of defs) if ($(id)) { try { widgets[id] = mk(); } catch (e) { console.error("simulation " + id + " failed to load", e); } }

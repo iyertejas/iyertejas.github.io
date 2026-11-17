@@ -17,7 +17,7 @@
 <div class="q" data-answer="false">
 <p class="q-text"><b>4.</b> The index \(U_a(t-1)\) depends on the rewards of arm \(a\) only through their empirical mean and their number.</p>
 <div class="q-opts"><button type="button" data-v="true">True</button><button type="button" data-v="false">False</button></div>
-<div class="q-why" hidden><p>False. \(\log B_{s,a}(m) = s\, K_{\inf}(\hat\mu_{a,s}, m)\) depends on the whole empirical distribution. An arm that has paid \(0.5\) ten times has a much smaller index than one that has paid \(0\) and \(1\) five times each: the first is far stronger evidence that the mean is close to \(0.5\).</p></div>
+<div class="q-why" hidden><p>False. \(B_{s,a}(m)\) depends on all of the rewards. With \(n = 10\,000\) and ten rewards, an arm that has paid \(0.5\) every time has index about \(0.84\), while an arm that has paid \(0\) and \(1\) five times each has index about \(0.97\): the first is much stronger evidence that the mean is close to \(0.5\).</p></div>
 </div>
 <div class="q" data-answer="true">
 <p class="q-text"><b>5.</b> The K<sub>inf</sub> index policy is asymptotically optimal for Bernoulli arms, although it is not told that the arms are Bernoulli.</p>
