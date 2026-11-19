@@ -1,0 +1,9 @@
+<figure class="demo" id="sure-demo">
+<div class="controls">
+<div class="rt-field"><label for="swM">Largest possible jackpot</label><input id="swM" type="range" min="0" max="1000" step="1" value="500"> <span id="swMVal"></span></div>
+<div class="rt-field"><label for="swB">Budget</label><select id="swB"><option value="2" selected>E[X²] ≤ 2</option><option value="8">E[X²] ≤ 8</option></select></div>
+</div>
+<svg class="l2-chart" id="swPlot" viewBox="0 0 680 280" role="img" aria-label="The number of pulls needed to be sure that the mean is below 1.25, against the largest possible jackpot"></svg>
+<div class="l2-legend" id="swKey"></div>
+<p class="status" id="swStatus" aria-live="polite"></p>
+</figure>

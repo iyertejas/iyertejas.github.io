@@ -1275,7 +1275,7 @@ function plotL2(id, o){
     s += `<line x1="${X(v.x)}" x2="${X(v.x)}" y1="${T}" y2="${T+ph}" stroke="${v.col}" stroke-width="1.5" stroke-dasharray="${v.dash || "5 4"}"/>`;
   for (const ln of o.lines || []){
     const pts = ln.pts.filter(p => isFinite(p[1]) && p[0] >= o.x.min && p[0] <= o.x.max);
-    s += `<polyline points="${pts.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ")}" fill="none" stroke="${ln.col}" stroke-width="${ln.w || 2}" stroke-dasharray="${ln.dash || ""}" stroke-linejoin="round"/>`;
+    s += `<polyline points="${pts.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ")}" fill="none" stroke="${ln.col}" stroke-width="${ln.w || 2}" stroke-dasharray="${ln.dash || ""}" stroke-opacity="${ln.op ?? 1}" stroke-linejoin="round"/>`;
     if (ln.marks) for (const p of pts) s += `<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3" fill="${ln.col}"/>`;
   }
   for (const d of o.dots || [])
@@ -2074,10 +2074,73 @@ function kinfWidget(){
   return { start(){}, redraw(){ if (g) draw(); } };
 }
 
+// Sheet 6: how many pulls until you can be sure that the mean is below 1.25? The arm pays 0, 1 or 2 with equal
+// probability (mean 1). A short seller who reaches wealth 100 is sure, with error probability at most 1/100 by Ville's
+// inequality, provided the bet is safe and fair or worse under every law the arm might have. Against all laws on [0, M]:
+// short sell X at 1.25 with λ ≤ 1/(M − 1.25). Against all laws on [0, ∞) with E[X²] ≤ B: short sell min{X, T} at the
+// price 1.25 − B/T (honest since x − min{x, T} ≤ x²/T) with λ ≤ 1/(T − 1.25 + B/T). The number of pulls is about log(100)/φ,
+// where φ is the growth rate of the best such bet under the arm's law.
+function sureWidget(){
+  const P = "sw", PRICE = 1.25, XS = [0, 1, 2], LN100 = Math.log(100), MMIN = 2, MMAX = 1e5;
+  const COL = { plain:"var(--accent)", budget:"var(--c3)" };
+  const phi = (q, l) => XS.reduce((t, x) => t + Math.log(1 + l*(q - x)), 0)/3;
+  function golden(f, a, b){
+    const r = (Math.sqrt(5) - 1)/2; let c = b - r*(b - a), d = a + r*(b - a), fc = f(c), fd = f(d);
+    for (let i=0; i<80; i++){ if (fc >= fd){ b = d; d = c; fd = fc; c = b - r*(b - a); fc = f(c); } else { a = c; c = d; fc = fd; d = a + r*(b - a); fd = f(d); } }
+    return fc >= fd ? [c, fc] : [d, fd];
+  }
+  function plainBet(M){ const [l, g] = golden(l => phi(PRICE, l), 0, 1/(M - PRICE)); return { q:PRICE, l, g }; }
+  function budgetBet(B){
+    let best = { g:-Infinity };
+    for (let k=0; k<=400; k++){
+      const T = 4*B*Math.pow(100, k/400)*1.0001, q = PRICE - B/T;
+      if (q <= 1) continue;
+      const [l, g] = golden(l => phi(q, l), 0, 1/(T - q));
+      if (g > best.g) best = { T, q, l, g };
+    }
+    return best;
+  }
+  const pulls = bet => LN100/bet.g;
+  const M = () => Math.round(Math.pow(10, Math.log10(MMIN) + (+$(P+"M").value)/1000*(Math.log10(MMAX) - Math.log10(MMIN))));
+  const B = () => +$(P+"B").value;
+  function simMedian(bet, cap){
+    const exp = pulls(bet); if (exp > 60000) return null;
+    const r = rngL2(seedL2()), times = [];
+    for (let k=0; k<41; k++){
+      let lw = 0, t = 0;
+      while (lw < LN100 && t < 20*exp){ t++; const x = Math.floor(3*r()); lw += Math.log(1 + bet.l*(bet.q - Math.min(x, cap))); }
+      times.push(t);
+    }
+    times.sort((a, b) => a - b); return times[20];
+  }
+  function draw(){
+    const m = M(), b = B(), bb = budgetBet(b), lines = [], dots = [];
+    const pts = []; for (let k=0; k<=120; k++){ const x = Math.pow(10, Math.log10(MMIN) + k/120*(Math.log10(MMAX) - Math.log10(MMIN))); pts.push([Math.log10(x), Math.log10(pulls(plainBet(x)))]); }
+    lines.push({ pts, col:COL.plain, w:2.5 });
+    lines.push({ pts:[[Math.log10(MMIN), Math.log10(pulls(bb))], [Math.log10(MMAX), Math.log10(pulls(bb))]], col:COL.budget, w:2.5, dash:"7 4" });
+    const pb = plainBet(m);
+    dots.push({ x:Math.log10(m), y:Math.log10(pulls(pb)), col:COL.plain, r:6 });
+    const sm = simMedian(pb, Infinity), sb = simMedian(bb, bb.T);
+    if (sm) dots.push({ x:Math.log10(m), y:Math.log10(sm), col:COL.plain, hollow:true, r:9 });
+    if (sb) dots.push({ x:Math.log10(m), y:Math.log10(sb), col:COL.budget, hollow:true, r:9 });
+    plotL2(P+"Plot", { height:280, x:{min:Math.log10(MMIN), max:Math.log10(MMAX), label:"largest possible jackpot M (log₁₀)"}, y:{min:1, max:7, label:"pulls needed (log₁₀)"}, lines, dots, vlines:[{ x:Math.log10(m), col:"var(--muted)", dash:"2 4" }] });
+    legendL2(P+"Key", [
+      { col:COL.plain, w:2.5, label:"short sale, safe for rewards at most M" },
+      { col:COL.budget, w:2.5, dash:"7 4", label:`capped short sale, safe and honest whenever E[X²] ≤ ${b}`, note:`T = ${bb.T.toFixed(1)}, price ${bb.q.toFixed(3)}` },
+      { dot:true, hollow:true, col:"var(--muted)", label:"median of 41 simulated runs" }]);
+    $(P+"MVal").textContent = `M = ${m.toLocaleString("en-GB")}`;
+    $(P+"Status").innerHTML = `If the arm might pay any reward up to ${m.toLocaleString("en-GB")}, being sure that its mean is below 1.25 takes about <b>${Math.round(pulls(pb)).toLocaleString("en-GB")}</b> pulls, and this grows without bound as M grows. If all we know is E[X²] ≤ ${b}, it takes about <b>${Math.round(pulls(bb)).toLocaleString("en-GB")}</b> pulls, whatever M is.`;
+  }
+  $(P+"M").addEventListener("input", draw);
+  $(P+"B").addEventListener("change", draw);
+  draw();
+  return { start(){}, redraw(){ draw(); } };
+}
+
 /* ---------- boot ---------- */
 const widgets = {};
 const defs = [["phase-demo", phaseWidget], ["self-demo", selfWidget], ["leadership-demo", urnWidget], ["pa-demo", paWidget], ["learn-demo", learnWidget],
-              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget], ["etcrun-demo", etcRunWidget], ["ucbrun-demo", ucbRunWidget], ["ev-demo", evidenceWidget], ["short-demo", shortWidget], ["kinf-demo", kinfWidget], ["kinfrun-demo", kinfRunWidget]];
+              ["gel-demo", gelWidget], ["fit-demo", fitWidget], ["sl-demo", slWidget], ["cmj-demo", cmjWidget], ["bpve-demo", bpveWidget], ["bandit-demo", banditWidget], ["slot-demo", slotWidget], ["table-demo", rewardTableWidget], ["etc-demo", etcWidget], ["ucb-demo", ucbWidget], ["cmp-demo", compareWidget], ["etcrun-demo", etcRunWidget], ["ucbrun-demo", ucbRunWidget], ["ev-demo", evidenceWidget], ["short-demo", shortWidget], ["kinf-demo", kinfWidget], ["kinfrun-demo", kinfRunWidget], ["sure-demo", sureWidget]];
 function boot(){
   // Build each widget independently, so one failure cannot stop the others.
   for (const [id, mk] of defs) if ($(id)) { try { widgets[id] = mk(); } catch (e) { console.error("simulation " + id + " failed to load", e); } }

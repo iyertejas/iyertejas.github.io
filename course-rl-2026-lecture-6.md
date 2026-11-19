@@ -150,4 +150,4 @@ Six true-or-false questions on this lecture. Decide, then click to see the reaso
 - T. M. Cover, Universal portfolios, *Mathematical Finance* 1 (1991), 1–29: averaging over investment strategies, as in [Lemma 6.1](#lemma-6-1).
 - T. Lattimore and C. Szepesvári, *Bandit Algorithms*, Cambridge University Press, 2020, freely available [online](https://tor-lattimore.com/downloads/book/book.pdf): Chapter 10 (KL-UCB).
 
-<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-5.html">← Lecture 5</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
+<nav class="notes-nav" aria-label="Course notes"><a href="course-rl-2026-lecture-5.html">← Lecture 5</a><a href="course-rl-2026-sheet-6.html">Exercise Sheet 6</a><a href="course-rl-2026-results.html">Results so far</a><a href="course-rl-2026.html">Course page</a></nav>
